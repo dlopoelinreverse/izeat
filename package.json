@@ -1,0 +1,18 @@
+{
+  "name": "izyeat-root",
+  "version": "1.0.0",
+  "description": "Root scripts for IzyEat SaaS",
+  "scripts": {
+    "start": "docker compose up --watch",
+    "start:build": "docker compose up --build",
+    "stop": "docker compose down",
+    "logs": "docker compose logs -f"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2"
+  }
+}
