@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
@@ -36,17 +36,16 @@ export default function SignInPage() {
     setError("");
 
     try {
-      await authClient.signIn.email({
+      await signIn.email({
         email,
         password,
       });
-      // Redirect will be handled by better-auth
+      router.push("/app/dashboard");
     } catch (err) {
       setError("Identifiants incorrects. Veuillez réessayer.");
       console.error(err);
     } finally {
       setIsLoading(false);
-      router.push("/dashboard");
     }
   };
 
