@@ -9,6 +9,13 @@ class UserResolver {
       sessions: {},
     });
   }
+
+  @Query(() => [User])
+  async getAllUsers() {
+    return await User.find({
+      relations: ["sessions"],
+    });
+  }
 }
 
 export default UserResolver;

@@ -1,17 +1,17 @@
 version: "3.8"
 
 services:
-  db:
-    image: postgres:16-alpine
-    container_name: saas_db
-    restart: always
-    env_file: .env
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - saas-network
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: saas_db
+  #   restart: always
+  #   env_file: .env
+  #   volumes:
+  #     - ./data/postgres:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - saas-network
 
   backend:
     build:
@@ -20,8 +20,8 @@ services:
     container_name: saas_backend
     restart: on-failure
     env_file: .env
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
@@ -29,31 +29,44 @@ services:
       # - /app/node_modules
     networks:
       - saas-network
-#   frontend:
-#     build:
-#       context: ./frontend
-#       dockerfile: Dockerfile
-#     container_name: saas_frontend
-#     env_file: .env
-#     ports:
-#       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-#     volumes:
-#       - ./frontend:/app
-#       - /app/node_modules
-#     depends_on:
-#       - backend
-#     develop:
-#       watch:
-#         - action: sync
-#           path: ./frontend
-#           target: /app
-#           ignore:
-#             - node_modules/
-#             - .next/
-#         - action: rebuild
-#           path: ./frontend/package.json
-#     networks:
-#       - saas-network
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: saas_web
+    env_file: .env
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    # volumes:
+    #   - ./web:/app
+    #   - /app/node_modules
+    depends_on:
+      - backend
+    develop:
+      watch:
+        - action: sync
+          path: ./web/app
+          target: /app/app
+          ignore:
+            - node_modules/
+            - .next/
+        - action: sync
+          path: ./web/components
+          target: /app/components
+        - action: sync
+          path: ./web/components.json
+          target: /app/components.json
+        - action: sync
+          path: ./web/graphql
+          target: /app/graphql
+        - action: sync
+          path: ./web/lib
+          target: /app/lib
+        - action: rebuild
+          path: ./web/package.json
+    networks:
+      - saas-network
 
 networks:
   saas-network:
