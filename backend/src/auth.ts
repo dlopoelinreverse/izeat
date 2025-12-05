@@ -7,6 +7,8 @@ export async function authChecker({ context }: { context: ContextType }) {
   const cookies = req.headers.cookie;
   let sessionToken;
 
+  console.log("cookies", cookies);
+
   if (cookies) {
     const match = cookies.match(/better-auth\.session_token=([^;]+)/);
     if (match) {

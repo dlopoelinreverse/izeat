@@ -1,14 +1,14 @@
-import { getUser } from "@/lib/user";
+import { GetRestaurantsDocument } from "@/graphql/__generated__/graphql";
+import { getServerApolloClient } from "@/lib/apollo-client-server";
 
 export default async function DashboardPage() {
-  const user = await getUser();
-  console.log(user);
+  const client = await getServerApolloClient();
 
-  // const userRestaurants = false;
+  const { data, error } = await client.query({ query: GetRestaurantsDocument });
 
-  // if (!userRestaurants) {
-  //   return <div>Vous n'avez pas de restaurant</div>;
-  // }
-
-  // return <div>Vous avez un restaurant</div>;
+  return (
+    <div>
+      <h1>Dashboard</h1>
+    </div>
+  );
 }

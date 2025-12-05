@@ -1,6 +1,0 @@
-mutation CreateRestaurant($name: String!) {
-  createRestaurant(name: $name) {
-    id
-    name
-  }
-}

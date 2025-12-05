@@ -34,6 +34,13 @@ export type Account = {
   userId: Scalars['String']['output'];
 };
 
+export type Menu = {
+  __typename?: 'Menu';
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  restaurant: Restaurant;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createRestaurant: Restaurant;
@@ -47,13 +54,29 @@ export type MutationCreateRestaurantArgs = {
 export type Query = {
   __typename?: 'Query';
   findUserBySession: User;
+  getAllRestaurants: Array<Restaurant>;
   getAllUsers: Array<User>;
+  getSession: Session;
+  getUserRestaurant: Restaurant;
+  menus: Array<Menu>;
+};
+
+
+export type QueryGetSessionArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type QueryGetUserRestaurantArgs = {
+  userId: Scalars['String']['input'];
 };
 
 export type Restaurant = {
   __typename?: 'Restaurant';
   id: Scalars['String']['output'];
+  menus: Menu;
   name: Scalars['String']['output'];
+  user: User;
 };
 
 export type Session = {
@@ -78,6 +101,7 @@ export type User = {
   id: Scalars['ID']['output'];
   image?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  restaurants: Array<Restaurant>;
   sessions: Array<Session>;
   updatedAt: Scalars['DateTimeISO']['output'];
 };
@@ -89,5 +113,11 @@ export type CreateRestaurantMutationVariables = Exact<{
 
 export type CreateRestaurantMutation = { __typename?: 'Mutation', createRestaurant: { __typename?: 'Restaurant', id: string, name: string } };
 
+export type GetRestaurantsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetRestaurantsQuery = { __typename?: 'Query', getAllRestaurants: Array<{ __typename?: 'Restaurant', id: string, user: { __typename?: 'User', email: string } }> };
+
 
 export const CreateRestaurantDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateRestaurant"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createRestaurant"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<CreateRestaurantMutation, CreateRestaurantMutationVariables>;
+export const GetRestaurantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetRestaurants"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getAllRestaurants"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]}}]} as unknown as DocumentNode<GetRestaurantsQuery, GetRestaurantsQueryVariables>;

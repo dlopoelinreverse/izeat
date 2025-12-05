@@ -5,6 +5,7 @@ import Restaurant from "./entities/restaurant.entity";
 
 import dotenv from "dotenv";
 import Account from "./entities/account.entity";
+import Menu from "./entities/menu.entity";
 dotenv.config();
 
 const DataBase = new DataSource({
@@ -16,7 +17,7 @@ const DataBase = new DataSource({
   // password: process.env.POSTGRES_PASSWORD || "postgres",
   // database: process.env.POSTGRES_DB || "test",
   url: process.env.DATABASE_URL,
-  entities: [User, Session, Account, Restaurant],
+  entities: [User, Session, Account, Restaurant, Menu],
   synchronize: true,
   logging: process.env.NODE_ENV === "development",
   schema: "public",

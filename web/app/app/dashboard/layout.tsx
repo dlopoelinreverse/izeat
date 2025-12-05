@@ -1,4 +1,5 @@
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { LogoutButton } from "@/components/logout-button";
 import {
   SidebarProvider,
   SidebarTrigger,

@@ -10,6 +10,7 @@ import {
 import { ObjectType, Field, ID } from "type-graphql";
 import Session from "./session.entity";
 import Account from "./account.entity";
+import Restaurant from "./restaurant.entity";
 
 @ObjectType()
 @Entity()
@@ -41,6 +42,10 @@ class User extends BaseEntity {
   @Field(() => Date)
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt!: Date;
+
+  @Field(() => [Restaurant])
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.user)
+  restaurants!: Restaurant[];
 
   @Field(() => [Session])
   @OneToMany(() => Session, (session) => session.user)

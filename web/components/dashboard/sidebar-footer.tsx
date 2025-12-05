@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { signOut } from "@/lib/auth-client";
 
 interface SidebarFooterComponentProps {
   user?: {
@@ -40,7 +41,7 @@ export function SidebarFooterComponent({
 
   const handleLogout = () => {
     // TODO: Implémenter la logique de déconnexion
-    console.log("Déconnexion");
+    signOut();
   };
 
   const handleSettings = () => {
