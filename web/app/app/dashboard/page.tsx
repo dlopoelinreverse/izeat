@@ -1,14 +1,25 @@
-import { GetRestaurantsDocument } from "@/graphql/__generated__/graphql";
-import { getServerApolloClient } from "@/lib/apollo-client-server";
+import { CreateRestaurantForm } from "@/components/dashboard/restaurant/create-restaurant-form";
+import { getDashboardStatus } from "@/lib/get-dashboard-status";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-  const client = await getServerApolloClient();
+  const status = await getDashboardStatus();
 
-  const { data, error } = await client.query({ query: GetRestaurantsDocument });
+  const { step, checks } = status;
 
-  return (
-    <div>
-      <h1>Dashboard</h1>
-    </div>
-  );
+  if (step === "NO_RESTAURANT") {
+    return <CreateRestaurantForm />;
+  }
+
+  if (!checks.hasMenu) {
+    redirect("/app/dashboard/menu");
+  }
+
+  if (!checks.hasTable) {
+    redirect("/app/dashboard/tables");
+  }
+
+  if (checks.isServiceReady) {
+    redirect("/app/dashboard/service");
+  }
 }

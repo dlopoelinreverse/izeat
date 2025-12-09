@@ -1,0 +1,6 @@
+query GetUserRestaurant {
+  getUserRestaurant {
+    id
+    name
+  }
+}

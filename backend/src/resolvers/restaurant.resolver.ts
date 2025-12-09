@@ -1,21 +1,53 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import Restaurant from "../entities/restaurant.entity";
+import { ContextType } from "../types";
 
 @Resolver()
 class RestaurantResolver {
   @Authorized()
   @Mutation(() => Restaurant)
-  async createRestaurant(@Arg("name", () => String) name: string) {
-    const restaurant = await Restaurant.create({ name }).save();
+  async createRestaurant(
+    @Arg("name", () => String) name: string,
+    @Ctx() ctx: ContextType
+  ) {
+    if (!ctx.currentUser) {
+      throw new Error("Unauthorized");
+    }
+
+    const restaurant = await Restaurant.create({
+      name,
+      owner: ctx.currentUser,
+    }).save();
     return restaurant;
   }
 
-  @Query(() => Restaurant)
-  async getUserRestaurant(@Arg("userId", () => String) userId: string) {
+  @Authorized()
+  @Query(() => Restaurant, { nullable: true })
+  async getUserRestaurant(@Ctx() ctx: ContextType) {
+    if (!ctx.currentUser) {
+      throw new Error("Unauthorized");
+    }
     const restaurant = await Restaurant.findOne({
-      where: { user: { id: userId } },
+      where: { owner: { id: ctx.currentUser?.id } },
+      relations: ["owner"],
     });
-    return restaurant;
+
+    return restaurant || null;
+  }
+
+  @Authorized()
+  @Query(() => Restaurant, { nullable: true })
+  async getDashboardRestaurantStatus(@Ctx() ctx: ContextType) {
+    if (!ctx.currentUser) {
+      throw new Error("Unauthorized");
+    }
+
+    const restaurant = await Restaurant.findOne({
+      where: { owner: { id: ctx.currentUser?.id } },
+      relations: ["menus", "tables", "menus.items.category"],
+    });
+
+    return restaurant || null;
   }
 
   @Authorized()

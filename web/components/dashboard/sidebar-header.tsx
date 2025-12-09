@@ -1,18 +1,21 @@
-"use client";
-
-import { Store } from "lucide-react";
 import { SidebarHeader } from "@/components/ui/sidebar";
+import { GetUserRestaurantDocument } from "@/graphql/__generated__/graphql";
+import { getServerApolloClient } from "@/lib/apollo-client-server";
+import { Store } from "lucide-react";
 
-interface SidebarHeaderComponentProps {
-  restaurantName?: string;
-}
+export async function SidebarHeaderComponent() {
+  const client = await getServerApolloClient();
 
-export function SidebarHeaderComponent({
-  restaurantName = "Mon Restaurant",
-}: SidebarHeaderComponentProps) {
+  const { data } = await client.query({
+    query: GetUserRestaurantDocument,
+    fetchPolicy: "cache-first",
+  });
+
+  const restaurantName = data?.getUserRestaurant?.name || "Nom du Restaurant";
+
   return (
-    <SidebarHeader className="border-b border-sidebar-border">
-      <div className="flex items-center gap-3 px-2 py-3">
+    <SidebarHeader className="border-b border-sidebar-border h-14 ">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Store className="size-5" />
         </div>
@@ -20,7 +23,6 @@ export function SidebarHeaderComponent({
           <span className="text-sm font-semibold text-sidebar-foreground">
             {restaurantName}
           </span>
-          <span className="text-xs text-sidebar-foreground/70">Dashboard</span>
         </div>
       </div>
     </SidebarHeader>

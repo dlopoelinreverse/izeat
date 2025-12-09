@@ -37,8 +37,27 @@ export type Account = {
 export type Menu = {
   __typename?: 'Menu';
   id: Scalars['String']['output'];
+  items: Array<MenuItem>;
   name: Scalars['String']['output'];
   restaurant: Restaurant;
+  restaurantId: Scalars['String']['output'];
+};
+
+export type MenuCategory = {
+  __typename?: 'MenuCategory';
+  id: Scalars['String']['output'];
+  items: Array<MenuItem>;
+  name: Scalars['String']['output'];
+};
+
+export type MenuItem = {
+  __typename?: 'MenuItem';
+  category: MenuCategory;
+  categoryId: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  menu: Menu;
+  menuId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Mutation = {
@@ -56,8 +75,11 @@ export type Query = {
   findUserBySession: User;
   getAllRestaurants: Array<Restaurant>;
   getAllUsers: Array<User>;
+  getDashboardRestaurantStatus?: Maybe<Restaurant>;
   getSession: Session;
-  getUserRestaurant: Restaurant;
+  getUserRestaurant?: Maybe<Restaurant>;
+  menuCategories: Array<MenuCategory>;
+  menuItems: Array<MenuItem>;
   menus: Array<Menu>;
 };
 
@@ -66,17 +88,22 @@ export type QueryGetSessionArgs = {
   token: Scalars['String']['input'];
 };
 
-
-export type QueryGetUserRestaurantArgs = {
-  userId: Scalars['String']['input'];
-};
-
 export type Restaurant = {
   __typename?: 'Restaurant';
   id: Scalars['String']['output'];
-  menus: Menu;
+  menus: Array<Menu>;
   name: Scalars['String']['output'];
-  user: User;
+  owner: User;
+  tables: Array<RestaurantTable>;
+};
+
+export type RestaurantTable = {
+  __typename?: 'RestaurantTable';
+  capacity: Scalars['Float']['output'];
+  id: Scalars['String']['output'];
+  number: Scalars['Float']['output'];
+  restaurant: Restaurant;
+  status: Scalars['String']['output'];
 };
 
 export type Session = {
@@ -113,11 +140,17 @@ export type CreateRestaurantMutationVariables = Exact<{
 
 export type CreateRestaurantMutation = { __typename?: 'Mutation', createRestaurant: { __typename?: 'Restaurant', id: string, name: string } };
 
-export type GetRestaurantsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetDashboardRestaurantStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetRestaurantsQuery = { __typename?: 'Query', getAllRestaurants: Array<{ __typename?: 'Restaurant', id: string, user: { __typename?: 'User', email: string } }> };
+export type GetDashboardRestaurantStatusQuery = { __typename?: 'Query', getDashboardRestaurantStatus?: { __typename?: 'Restaurant', id: string, menus: Array<{ __typename?: 'Menu', id: string }>, tables: Array<{ __typename?: 'RestaurantTable', id: string }> } | null };
+
+export type GetUserRestaurantQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUserRestaurantQuery = { __typename?: 'Query', getUserRestaurant?: { __typename?: 'Restaurant', id: string, name: string } | null };
 
 
 export const CreateRestaurantDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateRestaurant"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createRestaurant"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<CreateRestaurantMutation, CreateRestaurantMutationVariables>;
-export const GetRestaurantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetRestaurants"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getAllRestaurants"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]}}]} as unknown as DocumentNode<GetRestaurantsQuery, GetRestaurantsQueryVariables>;
+export const GetDashboardRestaurantStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetDashboardRestaurantStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getDashboardRestaurantStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"menus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"tables"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetDashboardRestaurantStatusQuery, GetDashboardRestaurantStatusQueryVariables>;
+export const GetUserRestaurantDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserRestaurant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getUserRestaurant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<GetUserRestaurantQuery, GetUserRestaurantQueryVariables>;

@@ -1,4 +1,5 @@
 import Session from "./entities/session.entity";
+import User from "./entities/user.entity";
 import { ContextType } from "./types";
 
 export async function authChecker({ context }: { context: ContextType }) {
@@ -6,8 +7,6 @@ export async function authChecker({ context }: { context: ContextType }) {
 
   const cookies = req.headers.cookie;
   let sessionToken;
-
-  console.log("cookies", cookies);
 
   if (cookies) {
     const match = cookies.match(/better-auth\.session_token=([^;]+)/);
@@ -25,19 +24,23 @@ export async function authChecker({ context }: { context: ContextType }) {
     return false;
   }
 
-  console.log("sessionUSerEmail ", sessionData.user.email);
-
   const now = Date.now();
-  console.log("now", now);
-
-  console.log("sessionData", sessionData.expiresAt.getTime());
 
   if (sessionData.expiresAt.getTime() < now) {
     console.log("❌ Session expirée !");
     return false;
   }
 
-  console.log("🔍 Vérification session...");
+  const currentUser = await User.findOne({
+    where: { id: sessionData.userId },
+  });
+
+  if (!currentUser) {
+    console.log("❌ Utilisateur non trouvé !");
+    return false;
+  }
+
+  context.currentUser = currentUser;
 
   return true;
 }

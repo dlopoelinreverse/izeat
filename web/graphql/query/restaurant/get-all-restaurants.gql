@@ -1,8 +1,0 @@
-query GetRestaurants {
-  getAllRestaurants {
-    id
-    user {
-      email
-    }
-  }
-}

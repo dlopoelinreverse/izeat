@@ -56,8 +56,7 @@ export default function SignUpPage() {
         password,
         name,
       });
-      // Redirect will be handled by better-auth
-      router.push("/dashboard");
+      router.push("/app/dashboard");
     } catch (err) {
       setError("Une erreur est survenue. Veuillez réessayer.");
       console.error(err);

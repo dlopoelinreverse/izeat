@@ -1,0 +1,11 @@
+query GetDashboardRestaurantStatus {
+  getDashboardRestaurantStatus {
+    id
+    menus {
+      id
+    }
+    tables {
+      id
+    }
+  }
+}

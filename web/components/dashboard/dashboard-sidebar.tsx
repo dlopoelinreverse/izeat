@@ -3,24 +3,12 @@ import { SidebarHeaderComponent } from "./sidebar-header";
 import { SidebarNavigation } from "./sidebar-navigation";
 import { SidebarFooterComponent } from "./sidebar-footer";
 
-interface DashboardSidebarProps {
-  restaurantName?: string;
-  user?: {
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-}
-
-export function DashboardSidebar({
-  restaurantName,
-  user,
-}: DashboardSidebarProps) {
+export function DashboardSidebar() {
   return (
     <Sidebar>
-      <SidebarHeaderComponent restaurantName={restaurantName} />
+      <SidebarHeaderComponent />
       <SidebarNavigation />
-      <SidebarFooterComponent user={user} />
+      <SidebarFooterComponent />
     </Sidebar>
   );
 }

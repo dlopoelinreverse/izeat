@@ -13,7 +13,7 @@ class UserResolver {
   @Query(() => [User])
   async getAllUsers() {
     return await User.find({
-      relations: ["sessions"],
+      relations: ["restaurants", "restaurants.menus"],
     });
   }
 }

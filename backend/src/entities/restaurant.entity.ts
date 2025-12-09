@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import User from "./user.entity";
 import Menu from "./menu.entity";
+import RestaurantTable from "./restaurant-table.entity";
 
 @ObjectType()
 @Entity()
@@ -19,15 +20,19 @@ class Restaurant extends BaseEntity {
 
   @Field(() => String)
   @Column({ type: "text" })
-  name: string;
+  name!: string;
 
-  @Field(() => Menu)
+  @Field(() => [Menu])
   @OneToMany(() => Menu, (menu) => menu.restaurant)
-  menus: Menu[];
+  menus!: Menu[];
+
+  @Field(() => [RestaurantTable])
+  @OneToMany(() => RestaurantTable, (table) => table.restaurant)
+  tables!: RestaurantTable[];
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.restaurants)
-  user: User;
+  owner: User;
 }
 
 export default Restaurant;
