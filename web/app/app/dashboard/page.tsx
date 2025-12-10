@@ -5,21 +5,23 @@ import { redirect } from "next/navigation";
 export default async function DashboardPage() {
   const status = await getDashboardStatus();
 
-  const { step, checks } = status;
+  const { step, restaurantId, checks } = status;
 
   if (step === "NO_RESTAURANT") {
     return <CreateRestaurantForm />;
   }
 
+  console.log();
+
   if (!checks.hasMenu) {
-    redirect("/app/dashboard/menu");
+    redirect(`/app/dashboard/${restaurantId}/menu`);
   }
 
   if (!checks.hasTable) {
-    redirect("/app/dashboard/tables");
+    redirect(`/app/dashboard/${restaurantId}/tables`);
   }
 
   if (checks.isServiceReady) {
-    redirect("/app/dashboard/service");
+    redirect(`/app/dashboard/${restaurantId}/service`);
   }
 }

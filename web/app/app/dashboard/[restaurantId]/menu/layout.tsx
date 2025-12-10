@@ -1,17 +1,21 @@
-import { PropsWithChildren } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { headers } from "next/headers";
 
-const pathnames = {
-  "/app/dashboard/menu/create": "Création du menu",
-  "/app/dashboard/menu": "Menu",
-};
-
 export default async function DashboardMenuLayout({
   children,
-}: PropsWithChildren) {
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ restaurantId: string }>;
+}) {
   const headerList = await headers();
   const pathname = headerList.get("x-current-path");
+  const { restaurantId } = await params;
+
+  const pathnames = {
+    [`/app/dashboard/${restaurantId}/menu/create`]: "Création du menu",
+    [`/app/dashboard/${restaurantId}/menu`]: "Menu",
+  };
 
   return (
     <Card className="w-full h-full">

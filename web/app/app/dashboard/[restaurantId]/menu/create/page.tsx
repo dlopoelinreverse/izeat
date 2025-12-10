@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import { FormEventHandler } from "react";
 import { useMutation } from "@apollo/client/react";
 import { CreateMenuDocument } from "@/graphql/__generated__/graphql";
+import { useParams } from "next/navigation";
 
 export default function CreateMenuPage() {
   const [createMenu] = useMutation(CreateMenuDocument);
+  const params = useParams();
+  const restaurantId = params.restaurantId;
+
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
