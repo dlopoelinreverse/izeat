@@ -60,14 +60,49 @@ export type MenuItem = {
   name: Scalars['String']['output'];
 };
 
+export type MenuResponse = {
+  __typename?: 'MenuResponse';
+  code: Scalars['Int']['output'];
+  menu?: Maybe<Menu>;
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createMenu: MenuResponse;
+  createMenuCategory: MenuCategory;
+  createMenuItem: MenuItem;
   createRestaurant: Restaurant;
+  deleteMenu: MenuResponse;
+};
+
+
+export type MutationCreateMenuArgs = {
+  name: Scalars['String']['input'];
+  restaurantId: Scalars['String']['input'];
+};
+
+
+export type MutationCreateMenuCategoryArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationCreateMenuItemArgs = {
+  categoryId: Scalars['String']['input'];
+  menuId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 
 export type MutationCreateRestaurantArgs = {
   name: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteMenuArgs = {
+  id: Scalars['String']['input'];
 };
 
 export type Query = {
@@ -133,6 +168,14 @@ export type User = {
   updatedAt: Scalars['DateTimeISO']['output'];
 };
 
+export type CreateMenuMutationVariables = Exact<{
+  restaurantId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+}>;
+
+
+export type CreateMenuMutation = { __typename?: 'Mutation', createMenu: { __typename?: 'MenuResponse', code: number, message?: string | null, success: boolean, menu?: { __typename?: 'Menu', name: string, id: string } | null } };
+
 export type CreateRestaurantMutationVariables = Exact<{
   name: Scalars['String']['input'];
 }>;
@@ -143,7 +186,7 @@ export type CreateRestaurantMutation = { __typename?: 'Mutation', createRestaura
 export type GetDashboardRestaurantStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetDashboardRestaurantStatusQuery = { __typename?: 'Query', getDashboardRestaurantStatus?: { __typename?: 'Restaurant', id: string, menus: Array<{ __typename?: 'Menu', id: string }>, tables: Array<{ __typename?: 'RestaurantTable', id: string }> } | null };
+export type GetDashboardRestaurantStatusQuery = { __typename?: 'Query', getDashboardRestaurantStatus?: { __typename?: 'Restaurant', name: string, id: string, menus: Array<{ __typename?: 'Menu', id: string, items: Array<{ __typename?: 'MenuItem', id: string, category: { __typename?: 'MenuCategory', id: string } }> }>, tables: Array<{ __typename?: 'RestaurantTable', id: string }> } | null };
 
 export type GetUserRestaurantQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -151,6 +194,7 @@ export type GetUserRestaurantQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetUserRestaurantQuery = { __typename?: 'Query', getUserRestaurant?: { __typename?: 'Restaurant', id: string, name: string } | null };
 
 
+export const CreateMenuDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateMenu"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"restaurantId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createMenu"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"restaurantId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"restaurantId"}}},{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"menu"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<CreateMenuMutation, CreateMenuMutationVariables>;
 export const CreateRestaurantDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateRestaurant"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createRestaurant"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<CreateRestaurantMutation, CreateRestaurantMutationVariables>;
-export const GetDashboardRestaurantStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetDashboardRestaurantStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getDashboardRestaurantStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"menus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"tables"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetDashboardRestaurantStatusQuery, GetDashboardRestaurantStatusQueryVariables>;
+export const GetDashboardRestaurantStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetDashboardRestaurantStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getDashboardRestaurantStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"menus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tables"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetDashboardRestaurantStatusQuery, GetDashboardRestaurantStatusQueryVariables>;
 export const GetUserRestaurantDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserRestaurant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getUserRestaurant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<GetUserRestaurantQuery, GetUserRestaurantQueryVariables>;

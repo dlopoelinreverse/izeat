@@ -1,9 +1,16 @@
 query GetDashboardRestaurantStatus {
   getDashboardRestaurantStatus {
-    id
+    name
     menus {
+      items {
+        category {
+          id
+        }
+        id
+      }
       id
     }
+    id
     tables {
       id
     }

@@ -22,7 +22,9 @@ export const getDashboardStatus = cache(async () => {
 
   const hasMenu =
     data.getDashboardRestaurantStatus.menus &&
-    data.getDashboardRestaurantStatus.menus.length > 0;
+    data.getDashboardRestaurantStatus.menus.length > 0 &&
+    data.getDashboardRestaurantStatus.menus[0].items.length > 0 &&
+    data.getDashboardRestaurantStatus.menus[0].items[0].category.id;
   const hasTable =
     data.getDashboardRestaurantStatus.tables &&
     data.getDashboardRestaurantStatus.tables.length > 0;

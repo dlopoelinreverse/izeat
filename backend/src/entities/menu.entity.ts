@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import Restaurant from "./restaurant.entity";
 import MenuItem from "./menu-item.entity";
+import { BaseResponse } from "../common/base-response";
 
 @ObjectType()
 @Entity()
@@ -37,3 +38,9 @@ class Menu extends BaseEntity {
 }
 
 export default Menu;
+
+@ObjectType()
+export class MenuResponse extends BaseResponse {
+  @Field(() => Menu, { nullable: true })
+  menu?: Menu;
+}
