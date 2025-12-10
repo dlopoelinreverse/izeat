@@ -9,13 +9,27 @@ import { CreateMenuDocument } from "@/graphql/__generated__/graphql";
 import { useParams } from "next/navigation";
 
 export default function CreateMenuPage() {
-  const [createMenu] = useMutation(CreateMenuDocument);
+  const [createMenu] = useMutation(CreateMenuDocument, {
+    onCompleted: (data) => {
+      console.log(data);
+    },
+  });
   const params = useParams();
-  const restaurantId = params.restaurantId;
+  const restaurantId = params.restaurantId as string;
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    if (!name) {
+      return;
+    }
+    await createMenu({
+      variables: {
+        name,
+        restaurantId,
+      },
+    });
   };
   return (
     <Card className="w-full h-full">
