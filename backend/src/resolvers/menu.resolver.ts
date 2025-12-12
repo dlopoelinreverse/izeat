@@ -1,5 +1,5 @@
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import Menu, { MenuResponse } from "../entities/menu.entity";
+import Menu, { MenuResponse, MenusResponse } from "../entities/menu.entity";
 import { ContextType } from "../types";
 import Restaurant from "../entities/restaurant.entity";
 
@@ -86,6 +86,37 @@ class MenuResolver {
       code: 200,
       success: true,
       message: "Le menu a été supprimé avec succès",
+    };
+  }
+
+  @Authorized()
+  @Query(() => MenusResponse)
+  async getMenusByRestaurantId(
+    @Arg("restaurantId", () => String) restaurantId: string,
+    @Ctx() ctx: ContextType
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const menus = await Menu.find({
+      where: { restaurantId, restaurant: { owner: user } },
+    });
+
+    if (!menus) {
+      return {
+        code: 404,
+        success: false,
+        message: "Les menus n'ont pas été trouvés",
+      };
+    }
+
+    return {
+      code: 200,
+      success: true,
+      message: "Les menus ont été récupérés avec succès",
+      menus,
     };
   }
 }

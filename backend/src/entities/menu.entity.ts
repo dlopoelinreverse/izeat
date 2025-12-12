@@ -44,3 +44,9 @@ export class MenuResponse extends BaseResponse {
   @Field(() => Menu, { nullable: true })
   menu?: Menu;
 }
+
+@ObjectType()
+export class MenusResponse extends BaseResponse {
+  @Field(() => [Menu], { nullable: true })
+  menus?: Menu[];
+}

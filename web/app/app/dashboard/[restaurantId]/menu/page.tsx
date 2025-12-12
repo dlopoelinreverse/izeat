@@ -1,16 +1,27 @@
-// import { getDashboardStatus } from "@/lib/get-dashboard-status";
-// import { redirect } from "next/navigation";
+import { GetMenusByRestaurantIdDocument } from "@/graphql/__generated__/graphql";
+import { getServerApolloClient } from "@/lib/apollo-client-server";
+import { redirect } from "next/navigation";
 
 export default async function MenuPage({
   params,
 }: {
   params: Promise<{ restaurantId: string }>;
 }) {
-  // const status = await getDashboardStatus();
-
-  // if (!status.checks.hasMenu) {
-  //   redirect(`/app/dashboard/${status.restaurantId}/menu/create`);
-  // }
   const { restaurantId } = await params;
-  return <div>Menu {restaurantId}</div>;
+  const client = await getServerApolloClient();
+
+  const { data } = await client.query({
+    query: GetMenusByRestaurantIdDocument,
+    variables: {
+      restaurantId,
+    },
+  });
+
+  const { success, menus } = data?.getMenusByRestaurantId || {};
+
+  if (success && menus?.length === 0) {
+    redirect(`/app/dashboard/${restaurantId}/menu/create`);
+  }
+
+  return <div>restaurantId: {restaurantId}</div>;
 }

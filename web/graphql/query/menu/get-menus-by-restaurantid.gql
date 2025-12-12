@@ -1,0 +1,11 @@
+query GetMenusByRestaurantId($restaurantId: String!) {
+  getMenusByRestaurantId(restaurantId: $restaurantId) {
+    code
+    success
+    message
+    menus {
+      name
+      id
+    }
+  }
+}
