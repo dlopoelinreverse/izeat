@@ -21,7 +21,7 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6 lg:gap-8 lg:p-8">
-          {children}
+          <div className="mx-auto w-full max-w-[1440px] h-full">{children}</div>
         </main>
       </SidebarInset>
     </SidebarProvider>
