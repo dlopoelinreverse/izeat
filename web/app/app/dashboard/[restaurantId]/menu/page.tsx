@@ -1,3 +1,4 @@
+import { MenuList } from "@/components/dashboard/menu/menu-list";
 import { GetMenusByRestaurantIdDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
 import { redirect } from "next/navigation";
@@ -20,8 +21,10 @@ export default async function MenuPage({
   const { success, menus } = data?.getMenusByRestaurantId || {};
 
   if (success && menus?.length === 0) {
-    redirect(`/app/dashboard/${restaurantId}/menu/create`);
+    return redirect(`/app/dashboard/${restaurantId}/menu/create`);
   }
 
-  return <div>restaurantId: {restaurantId}</div>;
+  if (menus) {
+    return <MenuList menus={menus} />;
+  }
 }

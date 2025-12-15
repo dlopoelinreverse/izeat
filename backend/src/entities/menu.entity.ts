@@ -27,12 +27,12 @@ class Menu extends BaseEntity {
   @Column({ type: "text" })
   restaurantId: string;
 
-  @Field(() => Restaurant)
+  @Field(() => Restaurant, { nullable: true })
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menus)
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
 
-  @Field(() => [MenuItem])
+  @Field(() => [MenuItem], { nullable: true })
   @OneToMany(() => MenuItem, (menuItem) => menuItem.menu)
   items: MenuItem[];
 }

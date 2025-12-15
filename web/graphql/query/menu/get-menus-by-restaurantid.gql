@@ -6,6 +6,8 @@ query GetMenusByRestaurantId($restaurantId: String!) {
     menus {
       name
       id
+
+      restaurantId
     }
   }
 }
