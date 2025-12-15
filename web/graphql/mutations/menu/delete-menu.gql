@@ -1,0 +1,7 @@
+mutation DeleteMenu($deleteMenuId: String!) {
+  deleteMenu(id: $deleteMenuId) {
+    code
+    message
+    success
+  }
+}
