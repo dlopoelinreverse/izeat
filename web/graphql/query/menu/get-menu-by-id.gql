@@ -1,0 +1,15 @@
+query GetMenuById($getMenuByIdId: String!) {
+  getMenuById(id: $getMenuByIdId) {
+    code
+    message
+    success
+    menu {
+      categories {
+        id
+        name
+      }
+      name
+      id
+    }
+  }
+}

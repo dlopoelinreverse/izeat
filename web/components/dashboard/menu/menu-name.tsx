@@ -1,10 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CreateMenuDocument } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface MenuNameProps {
@@ -18,10 +19,17 @@ export const MenuName = ({
   isCreation,
   menuName,
 }: MenuNameProps) => {
-  if (isCreation) {
-    return <CreationMenuForm restaurantId={restaurantId} />;
-  }
-  return <div>{menuName}</div>;
+  return (
+    <Card className="xl:w-1/3 lg:flex-1">
+      <CardContent>
+        {isCreation ? (
+          <CreationMenuForm restaurantId={restaurantId} />
+        ) : (
+          <CardTitle className="py-2.5">{menuName}</CardTitle>
+        )}
+      </CardContent>
+    </Card>
+  );
 };
 
 const CreationMenuForm = ({ restaurantId }: { restaurantId: string }) => {
@@ -55,7 +63,7 @@ const CreationMenuForm = ({ restaurantId }: { restaurantId: string }) => {
   };
 
   return (
-    <form className="flex items-center gap-4 max-w-1/3" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="w-full flex items-center gap-4">
       <Input placeholder="Nom du menu" name="name" />
       <Button type="submit" disabled={loading}>
         Créer

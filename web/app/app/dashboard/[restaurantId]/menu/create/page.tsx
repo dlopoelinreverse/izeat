@@ -1,4 +1,4 @@
-import MenuPage from "@/components/dashboard/menu/menu-page";
+import MenuPageLayout from "@/components/dashboard/menu/menu-page-layout";
 
 export default async function CreateMenuPage({
   params,
@@ -6,5 +6,5 @@ export default async function CreateMenuPage({
   params: Promise<{ restaurantId: string }>;
 }) {
   const { restaurantId } = await params;
-  return <MenuPage restaurantId={restaurantId} isCreation />;
+  return <MenuPageLayout restaurantId={restaurantId} isCreation />;
 }

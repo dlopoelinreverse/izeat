@@ -119,6 +119,41 @@ class MenuResolver {
       menus,
     };
   }
+
+  @Authorized()
+  @Query(() => MenuResponse)
+  async getMenuById(
+    @Arg("id", () => String) id: string,
+    @Ctx() ctx: ContextType
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      return {
+        code: 401,
+        success: false,
+        message: "Unauthorized",
+      };
+    }
+
+    const menu = await Menu.findOne({
+      where: { id, restaurant: { owner: user } },
+    });
+
+    if (!menu) {
+      return {
+        code: 404,
+        success: false,
+        message: "Le menu n'a pas été trouvé",
+      };
+    }
+
+    return {
+      code: 200,
+      success: true,
+      message: "Le menu a été récupéré avec succès",
+      menu,
+    };
+  }
 }
 
 export default MenuResolver;

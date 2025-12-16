@@ -11,6 +11,7 @@ import {
 import Restaurant from "./restaurant.entity";
 import MenuItem from "./menu-item.entity";
 import { BaseResponse } from "../common/base-response";
+import MenuCategory from "./menu-category.entity";
 
 @ObjectType()
 @Entity()
@@ -35,6 +36,10 @@ class Menu extends BaseEntity {
   @Field(() => [MenuItem], { nullable: true })
   @OneToMany(() => MenuItem, (menuItem) => menuItem.menu)
   items: MenuItem[];
+
+  @Field(() => [MenuCategory], { nullable: true })
+  @OneToMany(() => MenuCategory, (menuCategory) => menuCategory.menu)
+  categories: MenuCategory[];
 }
 
 export default Menu;
