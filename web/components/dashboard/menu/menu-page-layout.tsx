@@ -1,11 +1,11 @@
 import MenuCategories from "./menu-categories";
 import { MenuName } from "./menu-name";
-import { GetMenuByIdQuery, Menu } from "@/graphql/__generated__/graphql";
+import { Menu, MenuQuery } from "@/graphql/__generated__/graphql";
 
 interface MenuPageProps {
   restaurantId: string;
   isCreation?: boolean;
-  menu?: GetMenuByIdQuery["getMenuById"]["menu"] | Menu;
+  menu?: Menu | MenuQuery["menu"]["menu"];
 }
 
 export default function MenuPageLayout({

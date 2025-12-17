@@ -72,7 +72,7 @@ class RestaurantResolver {
 
     const restaurant = await Restaurant.findOne({
       where: { owner: { id: ctx.currentUser?.id } },
-      relations: ["menus", "tables"],
+      relations: ["menus", "tables", "menus.categories", "menus.items"],
     });
 
     return {

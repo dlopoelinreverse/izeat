@@ -5,11 +5,6 @@ import Restaurant from "../entities/restaurant.entity";
 
 @Resolver()
 class MenuResolver {
-  @Query(() => [Menu])
-  async menus() {
-    return await Menu.find();
-  }
-
   @Authorized()
   @Mutation(() => MenuResponse)
   async createMenu(
@@ -19,7 +14,11 @@ class MenuResolver {
   ) {
     const user = ctx.currentUser;
     if (!user) {
-      throw new Error("Unauthorized");
+      return {
+        code: 401,
+        success: false,
+        message: "Unauthorized",
+      };
     }
 
     const restaurant = await Restaurant.findOne({
@@ -46,6 +45,7 @@ class MenuResolver {
     const menu = Menu.create({ name, restaurantId });
 
     menu.items = [];
+    menu.categories = [];
 
     await menu.save();
 
@@ -106,7 +106,10 @@ class MenuResolver {
 
     const menus = await Menu.find({
       where: { restaurantId, restaurant: { owner: user } },
+      relations: ["categories", "items"],
     });
+
+    console.log(menus);
 
     if (!menus) {
       return {
@@ -126,10 +129,7 @@ class MenuResolver {
 
   @Authorized()
   @Query(() => MenuResponse)
-  async getMenuById(
-    @Arg("id", () => String) id: string,
-    @Ctx() ctx: ContextType
-  ) {
+  async menu(@Arg("id", () => String) id: string, @Ctx() ctx: ContextType) {
     const user = ctx.currentUser;
     if (!user) {
       return {
@@ -141,6 +141,7 @@ class MenuResolver {
 
     const menu = await Menu.findOne({
       where: { id, restaurant: { owner: user } },
+      relations: ["categories", "items"],
     });
 
     if (!menu) {

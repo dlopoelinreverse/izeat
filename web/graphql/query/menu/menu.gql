@@ -1,0 +1,19 @@
+query Menu($menuId: String!) {
+  menu(id: $menuId) {
+    code
+    menu {
+      categories {
+        id
+        name
+      }
+      id
+      items {
+        id
+        menuId
+        name
+      }
+      name
+      restaurantId
+    }
+  }
+}

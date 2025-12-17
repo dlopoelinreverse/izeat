@@ -33,9 +33,11 @@ class Menu extends BaseEntity {
   restaurant: Restaurant;
 
   @Field(() => [MenuItem])
+  @OneToMany(() => MenuItem, (item) => item.menu)
   items: MenuItem[];
 
   @Field(() => [MenuCategory])
+  @OneToMany(() => MenuCategory, (category) => category.menu)
   categories: MenuCategory[];
 }
 

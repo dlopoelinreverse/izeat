@@ -4,7 +4,7 @@ import { RestaurantDashboardStatusDocument } from "@/graphql/__generated__/graph
 
 export const getDashboardStatus = cache(async () => {
   const client = await getServerApolloClient();
-  const { data } = await client.query({
+  const { data, error } = await client.query({
     query: RestaurantDashboardStatusDocument,
     fetchPolicy: "cache-first",
   });
