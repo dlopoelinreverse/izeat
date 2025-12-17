@@ -4,6 +4,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -13,31 +15,25 @@ import MenuCategory from "./menu-category.entity";
 @ObjectType()
 @Entity()
 class MenuItem extends BaseEntity {
-  @Field(() => String)
+  @Field()
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Field(() => String)
-  @Column({ type: "text" })
+  @Field()
+  @Column()
   name: string;
 
-  @Field(() => String)
-  @Column({ type: "text" })
+  @Field()
+  @Column()
   menuId: string;
 
-  @Field(() => String)
-  @Column({ type: "text" })
-  categoryId: string;
-
-  @Field(() => Menu)
   @ManyToOne(() => Menu, (menu) => menu.items)
   @JoinColumn({ name: "menuId" })
   menu: Menu;
 
-  @Field(() => MenuCategory)
-  @ManyToOne(() => MenuCategory, (menuCategory) => menuCategory.items)
-  @JoinColumn({ name: "categoryId" })
-  category: MenuCategory;
+  @ManyToMany(() => MenuCategory, (category) => category.items)
+  @JoinTable()
+  categories: MenuCategory[];
 }
 
 export default MenuItem;

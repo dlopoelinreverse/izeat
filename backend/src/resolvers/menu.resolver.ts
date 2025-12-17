@@ -97,7 +97,11 @@ class MenuResolver {
   ) {
     const user = ctx.currentUser;
     if (!user) {
-      throw new Error("Unauthorized");
+      return {
+        code: 401,
+        success: false,
+        message: "Unauthorized",
+      };
     }
 
     const menus = await Menu.find({
