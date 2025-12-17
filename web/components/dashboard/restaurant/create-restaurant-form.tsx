@@ -10,7 +10,8 @@ import { FormEventHandler } from "react";
 export const CreateRestaurantForm = () => {
   const router = useRouter();
   const [createRestaurant] = useMutation(CreateRestaurantDocument, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      console.log(data);
       router.refresh();
     },
     onError: (error) => {

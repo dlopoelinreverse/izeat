@@ -5,6 +5,7 @@ query RestaurantDashboardStatus {
     success
     restaurant {
       id
+      name
       tables {
         id
       }

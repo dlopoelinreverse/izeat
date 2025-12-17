@@ -22,7 +22,13 @@ class RestaurantResolver {
     const restaurant = await Restaurant.create({
       name,
       owner: ctx.currentUser,
-    }).save();
+    });
+
+    restaurant.menus = [];
+    restaurant.tables = [];
+
+    await restaurant.save();
+
     return {
       code: 200,
       success: true,

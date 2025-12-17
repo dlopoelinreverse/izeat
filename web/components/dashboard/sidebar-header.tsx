@@ -1,16 +1,9 @@
 import { SidebarHeader } from "@/components/ui/sidebar";
-import { getServerApolloClient } from "@/lib/apollo-client-server";
+import { getDashboardStatus } from "@/lib/get-dashboard-status";
 import { Store } from "lucide-react";
 
 export async function SidebarHeaderComponent() {
-  const client = await getServerApolloClient();
-
-  // const { data } = await client.query({
-  //   query: GetUserRestaurantDocument,
-  //   fetchPolicy: "cache-first",
-  // });
-
-  // const restaurantName = data?.getUserRestaurant?.name || "Nom du Restaurant";
+  const { restaurantName } = await getDashboardStatus();
 
   return (
     <SidebarHeader className="border-b border-sidebar-border h-14 ">
@@ -20,7 +13,7 @@ export async function SidebarHeaderComponent() {
         </div>
         <div className="flex flex-col gap-0.5 group-data-[collapsible=icon]:hidden">
           <span className="text-sm font-semibold text-sidebar-foreground">
-            Nom du Restaurant
+            {restaurantName}
           </span>
         </div>
       </div>

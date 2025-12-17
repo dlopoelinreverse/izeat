@@ -11,6 +11,7 @@ export const getDashboardStatus = cache(async () => {
 
   if (!data) {
     return {
+      restaurantName: "Nom du restaurant",
       step: "NO_RESTAURANT",
       checks: {
         hasRestaurant: false,
@@ -25,6 +26,7 @@ export const getDashboardStatus = cache(async () => {
 
   if (restaurantDashboardStatus.restaurant === null) {
     return {
+      restaurantName: "Nom du restaurant",
       step: "NO_RESTAURANT",
       checks: {
         hasRestaurant: false,
@@ -46,6 +48,7 @@ export const getDashboardStatus = cache(async () => {
   return {
     step: "READY",
     restaurantId: restaurantDashboardStatus.restaurant?.id,
+    restaurantName: restaurantDashboardStatus.restaurant?.name,
     checks: {
       hasRestaurant: true,
       hasMenu,
