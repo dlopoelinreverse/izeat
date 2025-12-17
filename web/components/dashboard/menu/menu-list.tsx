@@ -1,19 +1,25 @@
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { Menu } from "@/graphql/__generated__/graphql";
 import { DeleteMenuButton } from "./delete-menu-button";
+import { MenusQuery } from "@/graphql/__generated__/graphql";
+import Link from "next/link";
 
 interface MenuListProps {
-  menus: Menu[];
+  menus: MenusQuery["menus"]["menus"];
 }
 
 export const MenuList = ({ menus }: MenuListProps) => {
   return (
     <ul className="flex flex-col gap-4">
-      {menus.map((menu) => (
+      {menus?.map((menu) => (
         <Card key={menu.id}>
-          <CardContent className="flex items-center justify-between">
-            <CardDescription>{menu.name}</CardDescription>
-            <DeleteMenuButton menuId={menu.id} />
+          <CardContent>
+            <Link
+              href={`/app/dashboard/${menu.restaurantId}/menu/${menu.id}`}
+              className="flex items-center justify-between"
+            >
+              <CardDescription>{menu.name}</CardDescription>
+              <DeleteMenuButton menuId={menu.id} />
+            </Link>
           </CardContent>
         </Card>
       ))}

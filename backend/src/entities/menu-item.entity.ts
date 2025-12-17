@@ -4,9 +4,8 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import Menu from "./menu.entity";
@@ -31,9 +30,13 @@ class MenuItem extends BaseEntity {
   @JoinColumn({ name: "menuId" })
   menu: Menu;
 
-  @ManyToMany(() => MenuCategory, (category) => category.items)
-  @JoinTable()
-  categories: MenuCategory[];
+  @Field()
+  @Column()
+  categoryId: string;
+
+  @OneToMany(() => MenuCategory, (category) => category.items)
+  @JoinColumn({ name: "categoryId" })
+  category: MenuCategory;
 }
 
 export default MenuItem;

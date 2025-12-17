@@ -91,7 +91,7 @@ class MenuResolver {
 
   @Authorized()
   @Query(() => MenusResponse)
-  async getMenusByRestaurantId(
+  async menus(
     @Arg("restaurantId", () => String) restaurantId: string,
     @Ctx() ctx: ContextType
   ) {

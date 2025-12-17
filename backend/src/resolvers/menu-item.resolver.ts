@@ -14,7 +14,11 @@ class MenuItemResolver {
     @Arg("menuId", () => String) menuId: string,
     @Arg("categoryId", () => String) categoryId: string
   ) {
-    const menuItem = await MenuItem.create({ name, menuId, categoryId }).save();
+    const menuItem = await MenuItem.create({
+      name,
+      menuId,
+      category: { id: categoryId },
+    }).save();
     return menuItem;
   }
 }

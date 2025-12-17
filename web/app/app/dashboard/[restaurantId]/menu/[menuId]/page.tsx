@@ -20,6 +20,5 @@ export default async function MenuPage({
   if (!menu) {
     return <p>Menu non trouvé</p>;
   }
-
   return <MenuPageLayout restaurantId={restaurantId} menu={menu.menu} />;
 }
