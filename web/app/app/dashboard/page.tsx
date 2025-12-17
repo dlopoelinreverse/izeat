@@ -11,8 +11,6 @@ export default async function DashboardPage() {
     return <CreateRestaurantForm />;
   }
 
-  console.log();
-
   if (!checks.hasMenu) {
     redirect(`/app/dashboard/${restaurantId}/menu`);
   }

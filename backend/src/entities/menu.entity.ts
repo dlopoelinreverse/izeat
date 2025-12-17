@@ -28,7 +28,6 @@ class Menu extends BaseEntity {
   @Column({ type: "text" })
   restaurantId: string;
 
-  @Field(() => Restaurant)
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menus)
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;

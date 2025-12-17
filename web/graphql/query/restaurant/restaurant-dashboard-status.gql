@@ -1,0 +1,22 @@
+query RestaurantDashboardStatus {
+  restaurantDashboardStatus {
+    code
+    message
+    success
+    restaurant {
+      id
+      tables {
+        id
+      }
+      menus {
+        id
+        categories {
+          id
+        }
+        items {
+          id
+        }
+      }
+    }
+  }
+}

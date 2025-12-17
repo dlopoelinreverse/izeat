@@ -27,7 +27,6 @@ class RestaurantTable extends BaseEntity {
   @Column({ type: "text" })
   status: string;
 
-  @Field(() => Restaurant)
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.tables)
   restaurant: Restaurant;
 }

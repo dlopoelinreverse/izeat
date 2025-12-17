@@ -1,6 +1,31 @@
 mutation CreateRestaurant($name: String!) {
   createRestaurant(name: $name) {
-    id
-    name
+    code
+    message
+    success
+    restaurant {
+      id
+      name
+      tables {
+        id
+        number
+        status
+        capacity
+      }
+      menus {
+        categories {
+          id
+          name
+        }
+        id
+        items {
+          name
+          menuId
+          id
+        }
+        name
+        restaurantId
+      }
+    }
   }
 }

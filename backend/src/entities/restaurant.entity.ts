@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -10,6 +11,7 @@ import {
 import User from "./user.entity";
 import Menu from "./menu.entity";
 import RestaurantTable from "./restaurant-table.entity";
+import { BaseResponse } from "../common/base-response";
 
 @ObjectType()
 @Entity()
@@ -30,9 +32,19 @@ class Restaurant extends BaseEntity {
   @OneToMany(() => RestaurantTable, (table) => table.restaurant)
   tables!: RestaurantTable[];
 
-  @Field(() => User)
+  @Field(() => String)
+  @Column({ type: "text" })
+  ownerId!: string;
+
   @ManyToOne(() => User, (user) => user.restaurants)
+  @JoinColumn({ name: "ownerId" })
   owner: User;
 }
 
 export default Restaurant;
+
+@ObjectType()
+export class RestaurantResponse extends BaseResponse {
+  @Field(() => Restaurant, { nullable: true })
+  restaurant?: Restaurant;
+}

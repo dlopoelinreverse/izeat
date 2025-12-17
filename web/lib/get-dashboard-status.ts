@@ -1,14 +1,29 @@
 import { cache } from "react";
 import { getServerApolloClient } from "./apollo-client-server";
-import { GetDashboardRestaurantStatusDocument } from "@/graphql/__generated__/graphql";
+import { RestaurantDashboardStatusDocument } from "@/graphql/__generated__/graphql";
 
 export const getDashboardStatus = cache(async () => {
   const client = await getServerApolloClient();
   const { data } = await client.query({
-    query: GetDashboardRestaurantStatusDocument,
+    query: RestaurantDashboardStatusDocument,
     fetchPolicy: "cache-first",
   });
-  if (!data?.getDashboardRestaurantStatus) {
+
+  if (!data) {
+    return {
+      step: "NO_RESTAURANT",
+      checks: {
+        hasRestaurant: false,
+        hasMenu: false,
+        hasTable: false,
+        isServiceReady: false,
+      },
+    };
+  }
+
+  const { restaurantDashboardStatus } = data;
+
+  if (restaurantDashboardStatus.restaurant === null) {
     return {
       step: "NO_RESTAURANT",
       checks: {
@@ -21,17 +36,16 @@ export const getDashboardStatus = cache(async () => {
   }
 
   const hasMenu =
-    data.getDashboardRestaurantStatus.menus &&
-    data.getDashboardRestaurantStatus.menus.length > 0 &&
-    data.getDashboardRestaurantStatus.menus[0].items.length > 0 &&
-    data.getDashboardRestaurantStatus.menus[0].items[0].category.id;
+    restaurantDashboardStatus.restaurant?.menus &&
+    restaurantDashboardStatus.restaurant.menus.length > 0 &&
+    restaurantDashboardStatus.restaurant.menus[0].items.length > 0;
   const hasTable =
-    data.getDashboardRestaurantStatus.tables &&
-    data.getDashboardRestaurantStatus.tables.length > 0;
+    restaurantDashboardStatus.restaurant?.tables &&
+    restaurantDashboardStatus.restaurant.tables.length > 0;
 
   return {
     step: "READY",
-    restaurantId: data.getDashboardRestaurantStatus.id,
+    restaurantId: restaurantDashboardStatus.restaurant?.id,
     checks: {
       hasRestaurant: true,
       hasMenu,
