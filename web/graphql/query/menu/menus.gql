@@ -1,21 +1,17 @@
 query Menus($restaurantId: String!) {
   menus(restaurantId: $restaurantId) {
-    code
-    message
-    success
-    menus {
-      categories {
-        id
-        name
-      }
+    categories {
       id
-      items {
-        id
-        menuId
-        name
-      }
       name
-      restaurantId
     }
+    id
+    items {
+      categoryId
+      id
+      menuId
+      name
+    }
+    name
+    restaurantId
   }
 }

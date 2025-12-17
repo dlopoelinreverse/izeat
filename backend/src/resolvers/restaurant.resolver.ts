@@ -1,22 +1,17 @@
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import Restaurant, { RestaurantResponse } from "../entities/restaurant.entity";
+import Restaurant from "../entities/restaurant.entity";
 import { ContextType } from "../types";
-import { TopologyDescription } from "typeorm";
 
 @Resolver()
 class RestaurantResolver {
   @Authorized()
-  @Mutation(() => RestaurantResponse)
+  @Mutation(() => Restaurant)
   async createRestaurant(
     @Arg("name", () => String) name: string,
     @Ctx() ctx: ContextType
   ) {
     if (!ctx.currentUser) {
-      return {
-        code: 401,
-        success: false,
-        message: "Unauthorized",
-      };
+      throw new Error("Vous n'êtes pas connecté");
     }
 
     const restaurant = await Restaurant.create({
@@ -29,45 +24,27 @@ class RestaurantResolver {
 
     await restaurant.save();
 
-    return {
-      code: 200,
-      success: true,
-      message: "Le restaurant a été créé avec succès",
-      restaurant,
-    };
+    return restaurant;
   }
 
   @Authorized()
-  @Query(() => RestaurantResponse)
+  @Query(() => Restaurant)
   async userRestaurant(@Ctx() ctx: ContextType) {
     if (!ctx.currentUser) {
-      return {
-        code: 401,
-        success: false,
-        message: "Unauthorized",
-      };
+      throw new Error("Vous n'êtes pas connecté");
     }
     const restaurant = await Restaurant.findOne({
       where: { owner: { id: ctx.currentUser?.id } },
     });
 
-    return {
-      code: 200,
-      success: true,
-      message: "Le restaurant a été récupéré avec succès",
-      restaurant,
-    };
+    return restaurant;
   }
 
   @Authorized()
-  @Query(() => RestaurantResponse)
+  @Query(() => Restaurant)
   async restaurantDashboardStatus(@Ctx() ctx: ContextType) {
     if (!ctx.currentUser) {
-      return {
-        code: 401,
-        success: false,
-        message: "Unauthorized",
-      };
+      throw new Error("Vous n'êtes pas connecté");
     }
 
     const restaurant = await Restaurant.findOne({
@@ -75,12 +52,7 @@ class RestaurantResolver {
       relations: ["menus", "tables", "menus.categories", "menus.items"],
     });
 
-    return {
-      code: 200,
-      success: true,
-      message: "Le restaurant a été récupéré avec succès",
-      restaurant,
-    };
+    return restaurant;
   }
 }
 

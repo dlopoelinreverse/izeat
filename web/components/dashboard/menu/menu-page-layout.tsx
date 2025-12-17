@@ -5,7 +5,7 @@ import { Menu, MenuQuery } from "@/graphql/__generated__/graphql";
 interface MenuPageProps {
   restaurantId: string;
   isCreation?: boolean;
-  menu?: Menu | MenuQuery["menu"]["menu"];
+  menu?: Menu | MenuQuery["menu"];
 }
 
 export default function MenuPageLayout({

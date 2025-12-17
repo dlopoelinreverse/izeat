@@ -9,7 +9,8 @@ export const getDashboardStatus = cache(async () => {
     fetchPolicy: "cache-first",
   });
 
-  if (!data) {
+  if (error || !data) {
+    console.error(error);
     return {
       restaurantName: "Nom du restaurant",
       step: "NO_RESTAURANT",
@@ -24,7 +25,7 @@ export const getDashboardStatus = cache(async () => {
 
   const { restaurantDashboardStatus } = data;
 
-  if (restaurantDashboardStatus.restaurant === null) {
+  if (restaurantDashboardStatus === null) {
     return {
       restaurantName: "Nom du restaurant",
       step: "NO_RESTAURANT",
@@ -38,17 +39,17 @@ export const getDashboardStatus = cache(async () => {
   }
 
   const hasMenu =
-    restaurantDashboardStatus.restaurant?.menus &&
-    restaurantDashboardStatus.restaurant.menus.length > 0 &&
-    restaurantDashboardStatus.restaurant.menus[0].items.length > 0;
+    restaurantDashboardStatus.menus &&
+    restaurantDashboardStatus.menus.length > 0 &&
+    restaurantDashboardStatus.menus[0].items.length > 0;
   const hasTable =
-    restaurantDashboardStatus.restaurant?.tables &&
-    restaurantDashboardStatus.restaurant.tables.length > 0;
+    restaurantDashboardStatus.tables &&
+    restaurantDashboardStatus.tables.length > 0;
 
   return {
     step: "READY",
-    restaurantId: restaurantDashboardStatus.restaurant?.id,
-    restaurantName: restaurantDashboardStatus.restaurant?.name,
+    restaurantId: restaurantDashboardStatus.id,
+    restaurantName: restaurantDashboardStatus.name,
     checks: {
       hasRestaurant: true,
       hasMenu,

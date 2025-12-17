@@ -1,11 +1,6 @@
 mutation CreateMenu($restaurantId: String!, $name: String!) {
   createMenu(restaurantId: $restaurantId, name: $name) {
-    code
-    menu {
-      name
-      id
-    }
-    message
-    success
+    name
+    id
   }
 }

@@ -10,15 +10,20 @@ export default async function MenuPage({
 
   const client = await getServerApolloClient();
 
-  const { data } = await client.query({
+  const { data, error } = await client.query({
     query: MenuDocument,
     variables: { menuId },
   });
+
+  if (error) {
+    console.error(error);
+    return <p>Menu non trouvé</p>;
+  }
 
   const menu = data?.menu;
 
   if (!menu) {
     return <p>Menu non trouvé</p>;
   }
-  return <MenuPageLayout restaurantId={restaurantId} menu={menu.menu} />;
+  return <MenuPageLayout restaurantId={restaurantId} menu={menu} />;
 }

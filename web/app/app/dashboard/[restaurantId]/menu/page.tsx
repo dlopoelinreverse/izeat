@@ -11,20 +11,17 @@ export default async function MenuPage({
   const { restaurantId } = await params;
   const client = await getServerApolloClient();
 
-  const { data } = await client.query({
+  const { data, error } = await client.query({
     query: MenusDocument,
     variables: {
       restaurantId,
     },
   });
 
-  const { success, menus } = data?.menus || {};
-
-  if (success && menus?.length === 0) {
+  if (error || !data) {
+    console.error(error);
     return redirect(`/app/dashboard/${restaurantId}/menu/create`);
   }
 
-  if (menus) {
-    return <MenuList menus={menus} />;
-  }
+  return <MenuList menus={data.menus} />;
 }

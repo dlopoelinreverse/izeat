@@ -1,12 +1,12 @@
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import Menu, { MenuResponse, MenusResponse } from "../entities/menu.entity";
+import Menu from "../entities/menu.entity";
 import { ContextType } from "../types";
 import Restaurant from "../entities/restaurant.entity";
 
 @Resolver()
 class MenuResolver {
   @Authorized()
-  @Mutation(() => MenuResponse)
+  @Mutation(() => Menu)
   async createMenu(
     @Arg("name", () => String) name: string,
     @Arg("restaurantId", () => String) restaurantId: string,
@@ -14,11 +14,7 @@ class MenuResolver {
   ) {
     const user = ctx.currentUser;
     if (!user) {
-      return {
-        code: 401,
-        success: false,
-        message: "Unauthorized",
-      };
+      throw new Error("Vous n'êtes pas connecté");
     }
 
     const restaurant = await Restaurant.findOne({
@@ -27,19 +23,11 @@ class MenuResolver {
     });
 
     if (!restaurant) {
-      return {
-        code: 404,
-        success: false,
-        message: "Le restaurant n'a pas été trouvé",
-      };
+      throw new Error("Le restaurant n'a pas été trouvé");
     }
 
     if (restaurant.menus.some((menu) => menu.name === name)) {
-      return {
-        code: 400,
-        success: false,
-        message: "Le menu existe déjà",
-      };
+      throw new Error("Le menu existe déjà");
     }
 
     const menu = Menu.create({ name, restaurantId });
@@ -49,23 +37,18 @@ class MenuResolver {
 
     await menu.save();
 
-    return {
-      code: 200,
-      success: true,
-      message: "Le menu a été créé avec succès",
-      menu,
-    };
+    return menu;
   }
 
   @Authorized()
-  @Mutation(() => MenuResponse)
+  @Mutation(() => Menu)
   async deleteMenu(
     @Arg("id", () => String) id: string,
     @Ctx() ctx: ContextType
   ) {
     const user = ctx.currentUser;
     if (!user) {
-      throw new Error("Unauthorized");
+      throw new Error("Vous n'êtes pas connecté");
     }
 
     const menu = await Menu.findOne({
@@ -73,35 +56,23 @@ class MenuResolver {
     });
 
     if (!menu) {
-      return {
-        code: 404,
-        success: false,
-        message: "Le menu n'a pas été trouvé",
-      };
+      throw new Error("Le menu n'a pas été trouvé");
     }
 
     await menu.remove();
 
-    return {
-      code: 200,
-      success: true,
-      message: "Le menu a été supprimé avec succès",
-    };
+    return menu;
   }
 
   @Authorized()
-  @Query(() => MenusResponse)
+  @Query(() => [Menu])
   async menus(
     @Arg("restaurantId", () => String) restaurantId: string,
     @Ctx() ctx: ContextType
   ) {
     const user = ctx.currentUser;
     if (!user) {
-      return {
-        code: 401,
-        success: false,
-        message: "Unauthorized",
-      };
+      throw new Error("Vous n'êtes pas connecté");
     }
 
     const menus = await Menu.find({
@@ -109,34 +80,19 @@ class MenuResolver {
       relations: ["categories", "items"],
     });
 
-    console.log(menus);
-
     if (!menus) {
-      return {
-        code: 404,
-        success: false,
-        message: "Les menus n'ont pas été trouvés",
-      };
+      throw new Error("Les menus n'ont pas été trouvés");
     }
 
-    return {
-      code: 200,
-      success: true,
-      message: "Les menus ont été récupérés avec succès",
-      menus,
-    };
+    return menus;
   }
 
   @Authorized()
-  @Query(() => MenuResponse)
+  @Query(() => Menu)
   async menu(@Arg("id", () => String) id: string, @Ctx() ctx: ContextType) {
     const user = ctx.currentUser;
     if (!user) {
-      return {
-        code: 401,
-        success: false,
-        message: "Unauthorized",
-      };
+      throw new Error("Vous n'êtes pas connecté");
     }
 
     const menu = await Menu.findOne({
@@ -145,19 +101,10 @@ class MenuResolver {
     });
 
     if (!menu) {
-      return {
-        code: 404,
-        success: false,
-        message: "Le menu n'a pas été trouvé",
-      };
+      throw new Error("Le menu n'a pas été trouvé");
     }
 
-    return {
-      code: 200,
-      success: true,
-      message: "Le menu a été récupéré avec succès",
-      menu,
-    };
+    return menu;
   }
 }
 
