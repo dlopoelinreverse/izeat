@@ -1,5 +1,5 @@
 import { MenuList } from "@/components/dashboard/menu/menu-list";
-import { MenusDocument } from "@/graphql/__generated__/graphql";
+import { GetMenusDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
 import { redirect } from "next/navigation";
 
@@ -12,7 +12,7 @@ export default async function MenuPage({
   const client = await getServerApolloClient();
 
   const { data, error } = await client.query({
-    query: MenusDocument,
+    query: GetMenusDocument,
     variables: {
       restaurantId,
     },
@@ -23,5 +23,5 @@ export default async function MenuPage({
     return redirect(`/app/dashboard/${restaurantId}/menu/create`);
   }
 
-  return <MenuList menus={data.menus} />;
+  return <MenuList menus={data.getMenus} />;
 }

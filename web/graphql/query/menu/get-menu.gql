@@ -1,5 +1,5 @@
-query Menu($menuId: String!) {
-  menu(id: $menuId) {
+query GetMenu($menuId: String!) {
+  getMenu(id: $menuId) {
     categories {
       id
       name

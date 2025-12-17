@@ -1,5 +1,5 @@
 import MenuPageLayout from "@/components/dashboard/menu/menu-page-layout";
-import { MenuDocument } from "@/graphql/__generated__/graphql";
+import { GetMenuDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
 export default async function MenuPage({
   params,
@@ -11,7 +11,7 @@ export default async function MenuPage({
   const client = await getServerApolloClient();
 
   const { data, error } = await client.query({
-    query: MenuDocument,
+    query: GetMenuDocument,
     variables: { menuId },
   });
 
@@ -20,7 +20,7 @@ export default async function MenuPage({
     return <p>Menu non trouvé</p>;
   }
 
-  const menu = data?.menu;
+  const menu = data?.getMenu;
 
   if (!menu) {
     return <p>Menu non trouvé</p>;

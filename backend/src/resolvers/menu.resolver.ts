@@ -66,7 +66,7 @@ class MenuResolver {
 
   @Authorized()
   @Query(() => [Menu])
-  async menus(
+  async getMenus(
     @Arg("restaurantId", () => String) restaurantId: string,
     @Ctx() ctx: ContextType
   ) {
@@ -89,7 +89,7 @@ class MenuResolver {
 
   @Authorized()
   @Query(() => Menu)
-  async menu(@Arg("id", () => String) id: string, @Ctx() ctx: ContextType) {
+  async getMenu(@Arg("id", () => String) id: string, @Ctx() ctx: ContextType) {
     const user = ctx.currentUser;
     if (!user) {
       throw new Error("Vous n'êtes pas connecté");

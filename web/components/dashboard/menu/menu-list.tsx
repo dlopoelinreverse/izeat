@@ -1,10 +1,10 @@
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { DeleteMenuButton } from "./delete-menu-button";
-import { MenusQuery } from "@/graphql/__generated__/graphql";
+import { GetMenusQuery } from "@/graphql/__generated__/graphql";
 import Link from "next/link";
 
 interface MenuListProps {
-  menus: MenusQuery["menus"]["menus"];
+  menus: GetMenusQuery["getMenus"];
 }
 
 export const MenuList = ({ menus }: MenuListProps) => {

@@ -36,13 +36,9 @@ const CreationMenuForm = ({ restaurantId }: { restaurantId: string }) => {
   const router = useRouter();
   const [createMenu, { loading }] = useMutation(CreateMenuDocument, {
     onCompleted: (data) => {
-      const { success, message, menu } = data.createMenu;
-      if (success) {
-        toast.success(message);
+      router.push(`/app/dashboard/${restaurantId}/menu/${data.createMenu.id}`);
 
-        return router.push(`/app/dashboard/${restaurantId}/menu/${menu?.id}`);
-      }
-      return toast.error(message);
+      toast.success("Menu créé avec succès");
     },
     onError: (error) => {
       console.log(error);
