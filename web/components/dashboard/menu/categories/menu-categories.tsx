@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/select";
 import { GetMenuQuery } from "@/graphql/__generated__/graphql";
 import { AddACategoryButton } from "./add-acategory-button";
+import { useQueryState } from "nuqs";
+import { DeleteCategoryButton } from "./delete-category-button";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface MenuCategoriesProps {
   disabled?: boolean;
@@ -16,19 +20,43 @@ interface MenuCategoriesProps {
 }
 
 export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
+  const router = useRouter();
   const { categories } = menu || {};
+  const [categoryId, setCategoryId] = useQueryState("categoryId");
 
-  // On select change update the query url with the selected category id
+  useEffect(() => {
+    if (categories?.length === 0) {
+      setCategoryId(null);
+    }
+
+    if (categories && categories?.length > 0 && !categoryId) {
+      setCategoryId(categories[0].id);
+    }
+
+    if (categories?.length && categoryId) {
+      setCategoryId(categories[categories.length - 1].id);
+    }
+
+    if (categoryId && !categories?.length) {
+      setCategoryId(null);
+    }
+  }, [categories, setCategoryId, categoryId]);
+
+  const onDeleteCategory = () => {
+    router.refresh();
+  };
 
   return (
     <Card className="flex-1 ">
       <CardContent className="flex items-center justify-between gap-2">
         <Select
           disabled={disabled || !categories?.length}
-          onValueChange={(value) => console.log(value)}
-          // defaultValue={categories?.[0]?.id}
+          onValueChange={(value) => {
+            setCategoryId(value);
+          }}
+          value={categoryId || ""}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue
               placeholder={
                 categories?.length
@@ -45,8 +73,13 @@ export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
             ))}
           </SelectContent>
         </Select>
-        <div>
-          <AddACategoryButton />
+        <div className="flex items-center gap-2">
+          <DeleteCategoryButton
+            categoryId={categoryId || ""}
+            disabled={!categoryId}
+            onDeleted={onDeleteCategory}
+          />
+          <AddACategoryButton menuId={menu?.id || ""} />
         </div>
       </CardContent>
     </Card>

@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { LogoutButton } from "@/components/logout-button";
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
@@ -32,7 +30,6 @@ export default function Home() {
                 Connexion
               </button>
             </Link>
-            <LogoutButton />
             <Link href="/auth/sign-up">
               <button className="px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 font-medium">
                 Commencer

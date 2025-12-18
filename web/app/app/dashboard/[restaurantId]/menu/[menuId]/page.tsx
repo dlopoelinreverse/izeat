@@ -15,6 +15,8 @@ export default async function MenuPage({
     variables: { menuId },
   });
 
+  console.log(data);
+
   if (error) {
     console.error(error);
     return <p>Menu non trouvé</p>;

@@ -1,0 +1,6 @@
+mutation CreateMenuCategory($name: String!, $menuId: String!) {
+  createMenuCategory(name: $name, menuId: $menuId) {
+    id
+    name
+  }
+}

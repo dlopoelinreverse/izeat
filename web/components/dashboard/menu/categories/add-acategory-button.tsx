@@ -11,17 +11,38 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { CreateMenuCategoryDocument } from "@/graphql/__generated__/graphql";
+import { useMutation } from "@apollo/client/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export const AddACategoryButton = () => {
+export const AddACategoryButton = ({ menuId }: { menuId: string }) => {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
+    onCompleted: () => {
+      router.refresh();
+      setOpen(false);
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const name = formData.get("name");
-    console.log(name);
+    const name = formData.get("name") as string;
+    if (!name) {
+      return;
+    }
+    createMenuCategory({
+      variables: {
+        name,
+        menuId,
+      },
+    });
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Ajouter une categorie</Button>
       </DialogTrigger>

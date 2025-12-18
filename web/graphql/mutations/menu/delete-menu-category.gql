@@ -1,0 +1,3 @@
+mutation DeleteMenuCategory($categoryId: String!) {
+  deleteMenuCategory(categoryId: $categoryId)
+}

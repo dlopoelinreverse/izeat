@@ -31,6 +31,30 @@ class MenuCategoryResolver {
 
     return menuCategory;
   }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+  async deleteMenuCategory(
+    @Arg("categoryId", () => String) categoryId: string,
+    @Ctx() ctx: ContextType
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const menuCategory = await MenuCategory.findOne({
+      where: { id: categoryId, menu: { restaurant: { owner: user } } },
+    });
+
+    if (!menuCategory) {
+      throw new Error("La categorie n'a pas été trouvée");
+    }
+
+    await menuCategory.remove();
+
+    return true;
+  }
 }
 
 export default MenuCategoryResolver;
