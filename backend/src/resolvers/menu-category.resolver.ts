@@ -1,16 +1,34 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
 import MenuCategory from "../entities/menu-category.entity";
+import { ContextType } from "../types";
+import Menu from "../entities/menu.entity";
 
 @Resolver()
 class MenuCategoryResolver {
-  @Query(() => [MenuCategory])
-  async menuCategories() {
-    return MenuCategory.find();
-  }
-
+  @Authorized()
   @Mutation(() => MenuCategory)
-  async createMenuCategory(@Arg("name", () => String) name: string) {
-    const menuCategory = await MenuCategory.create({ name }).save();
+  async createMenuCategory(
+    @Arg("name", () => String) name: string,
+    @Arg("menuId", () => String) menuId: string,
+    @Ctx() ctx: ContextType
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const menu = await Menu.findOne({
+      where: { id: menuId, restaurant: { owner: user } },
+    });
+
+    if (!menu) {
+      throw new Error("Le menu n'a pas été trouvé");
+    }
+
+    const menuCategory = MenuCategory.create({ name, menu });
+
+    await menuCategory.save();
+
     return menuCategory;
   }
 }

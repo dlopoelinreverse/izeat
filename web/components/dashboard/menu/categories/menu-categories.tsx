@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+"use client";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -7,22 +7,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Menu } from "@/graphql/__generated__/graphql";
+import { GetMenuQuery } from "@/graphql/__generated__/graphql";
 import { AddACategoryButton } from "./add-acategory-button";
 
 interface MenuCategoriesProps {
   disabled?: boolean;
-  categories?: Menu["categories"];
+  menu?: GetMenuQuery["getMenu"];
 }
 
-export const MenuCategories = ({
-  disabled,
-  categories,
-}: MenuCategoriesProps) => {
+export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
+  const { categories } = menu || {};
+
+  // On select change update the query url with the selected category id
+
   return (
     <Card className="flex-1 ">
       <CardContent className="flex items-center justify-between gap-2">
-        <Select disabled={disabled || !categories?.length}>
+        <Select
+          disabled={disabled || !categories?.length}
+          onValueChange={(value) => console.log(value)}
+          // defaultValue={categories?.[0]?.id}
+        >
           <SelectTrigger>
             <SelectValue
               placeholder={

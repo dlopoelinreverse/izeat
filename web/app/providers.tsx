@@ -1,7 +1,10 @@
-"use client";
-import client from "@/lib/apollo-client";
-import { ApolloProvider } from "@apollo/client/react";
+import { ApolloProviderComponent } from "./apollo-provider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+export default function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ApolloProviderComponent>
+      <NuqsAdapter>{children}</NuqsAdapter>
+    </ApolloProviderComponent>
+  );
 }
