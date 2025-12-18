@@ -8,6 +8,8 @@ import MenuResolver from "./resolvers/menu.resolver";
 import MenuItemResolver from "./resolvers/menu-item.resolver";
 import MenuCategoryResolver from "./resolvers/menu-category.resolver";
 import RestaurantTableResolver from "./resolvers/restaurant-table.resolver";
+import MenuIngredientResolver from "./resolvers/menu-ingredient.resolver";
+import MenuItemIngredientResolver from "./resolvers/menu-item-ingredient.resolver";
 
 export default buildSchema({
   resolvers: [
@@ -18,6 +20,8 @@ export default buildSchema({
     MenuItemResolver,
     MenuCategoryResolver,
     RestaurantTableResolver,
+    MenuIngredientResolver,
+    MenuItemIngredientResolver,
   ],
   authChecker,
 });

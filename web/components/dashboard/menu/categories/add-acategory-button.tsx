@@ -13,16 +13,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { CreateMenuCategoryDocument } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export const AddACategoryButton = ({ menuId }: { menuId: string }) => {
-  const router = useRouter();
+export const AddACategoryButton = ({
+  menuId,
+  onAdd,
+}: {
+  menuId: string;
+  onAdd: () => void;
+}) => {
   const [open, setOpen] = useState(false);
   const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
     onCompleted: () => {
-      router.refresh();
       setOpen(false);
+      onAdd();
     },
   });
 

@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import Menu from "./menu.entity";
 import MenuCategory from "./menu-category.entity";
+import MenuItemIngredient from "./menu-item-ingredient";
 
 @ObjectType()
 @Entity()
@@ -29,6 +30,10 @@ class MenuItem extends BaseEntity {
   @ManyToOne(() => Menu, (menu) => menu.items)
   @JoinColumn({ name: "menuId" })
   menu: Menu;
+
+  @Field(() => [MenuItemIngredient])
+  @OneToMany(() => MenuItemIngredient, (link) => link.item)
+  ingredients: MenuItemIngredient[];
 
   @Field()
   @Column()
