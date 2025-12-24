@@ -15,13 +15,17 @@ import { CreateMenuCategoryDocument } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { useState } from "react";
 
+interface AddACategoryButtonProps {
+  menuId: string;
+  disabled?: boolean;
+  onAdd: () => void;
+}
+
 export const AddACategoryButton = ({
   menuId,
+  disabled,
   onAdd,
-}: {
-  menuId: string;
-  onAdd: () => void;
-}) => {
+}: AddACategoryButtonProps) => {
   const [open, setOpen] = useState(false);
   const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
     onCompleted: () => {
@@ -48,7 +52,7 @@ export const AddACategoryButton = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Ajouter une categorie</Button>
+        <Button disabled={disabled}>Ajouter une categorie</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

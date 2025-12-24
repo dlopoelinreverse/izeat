@@ -79,7 +79,11 @@ export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
             disabled={!categoryId}
             onDeleted={onDeleteCategory}
           />
-          <AddACategoryButton menuId={menu?.id || ""} onAdd={router.refresh} />
+          <AddACategoryButton
+            menuId={menu?.id || ""}
+            onAdd={router.refresh}
+            disabled={disabled}
+          />
         </div>
       </CardContent>
     </Card>

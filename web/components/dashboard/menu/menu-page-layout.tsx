@@ -1,4 +1,5 @@
 import { MenuCategories } from "./categories/menu-categories";
+import { ItemList } from "./item/item-list";
 import { MenuName } from "./menu-name";
 import { Menu, GetMenuQuery } from "@/graphql/__generated__/graphql";
 
@@ -23,6 +24,7 @@ export default function MenuPageLayout({
         />
         <MenuCategories disabled={isCreation} menu={menu} />
       </div>
+      <ItemList items={menu?.items} />
     </main>
   );
 }
