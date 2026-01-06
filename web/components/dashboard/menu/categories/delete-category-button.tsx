@@ -7,20 +7,16 @@ import { DeleteMenuCategoryDocument } from "@/graphql/__generated__/graphql";
 interface DeleteCategoryButtonProps {
   categoryId: string;
   disabled?: boolean;
-  onDeleted?: () => void;
 }
 
 export const DeleteCategoryButton = ({
   categoryId,
   disabled,
-  onDeleted,
 }: DeleteCategoryButtonProps) => {
   const [deleteMenuCategory, { loading }] = useMutation(
     DeleteMenuCategoryDocument,
     {
-      onCompleted: () => {
-        onDeleted?.();
-      },
+      refetchQueries: ["GetMenuCategories"],
     }
   );
   return (

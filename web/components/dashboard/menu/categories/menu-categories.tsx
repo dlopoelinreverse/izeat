@@ -7,12 +7,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GetMenuQuery } from "@/graphql/__generated__/graphql";
-import { AddACategoryButton } from "./add-acategory-button";
+import {
+  GetMenuCategoriesDocument,
+  GetMenuQuery,
+} from "@/graphql/__generated__/graphql";
+import { AddCategoryButton } from "./add-category-button";
 import { useQueryState } from "nuqs";
 import { DeleteCategoryButton } from "./delete-category-button";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useQuery } from "@apollo/client/react";
 
 interface MenuCategoriesProps {
   disabled?: boolean;
@@ -20,31 +23,30 @@ interface MenuCategoriesProps {
 }
 
 export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
-  const router = useRouter();
-  const { categories } = menu || {};
+  const { data, loading } = useQuery(GetMenuCategoriesDocument, {
+    variables: {
+      menuId: menu?.id || "",
+    },
+  });
+
+  const categories = data?.getMenuCategories;
+
   const [categoryId, setCategoryId] = useQueryState("categoryId");
 
   useEffect(() => {
-    if (categories?.length === 0) {
-      setCategoryId(null);
+    if (!categories?.length) {
+      if (categoryId) {
+        setCategoryId(null);
+      }
+      return;
     }
 
-    if (categories && categories?.length > 0 && !categoryId) {
-      setCategoryId(categories[0].id);
+    if (categoryId && categories.some((cat) => cat.id === categoryId)) {
+      return;
     }
 
-    if (categories?.length && categoryId) {
-      setCategoryId(categories[categories.length - 1].id);
-    }
-
-    if (categoryId && !categories?.length) {
-      setCategoryId(null);
-    }
+    setCategoryId(categories[0].id);
   }, [categories, setCategoryId, categoryId]);
-
-  const onDeleteCategory = () => {
-    router.refresh();
-  };
 
   return (
     <Card className="flex-1 ">
@@ -59,9 +61,11 @@ export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
           <SelectTrigger className="w-full">
             <SelectValue
               placeholder={
-                categories?.length
-                  ? "Selectionner une categorie"
-                  : "Creer d'abord une categorie"
+                loading
+                  ? "Chargement..."
+                  : categories?.length
+                  ? "Selectionner une catégorie"
+                  : "Créer d'abord une catégorie"
               }
             />
           </SelectTrigger>
@@ -77,13 +81,8 @@ export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
           <DeleteCategoryButton
             categoryId={categoryId || ""}
             disabled={!categoryId}
-            onDeleted={onDeleteCategory}
           />
-          <AddACategoryButton
-            menuId={menu?.id || ""}
-            onAdd={router.refresh}
-            disabled={disabled}
-          />
+          <AddCategoryButton menuId={menu?.id || ""} disabled={disabled} />
         </div>
       </CardContent>
     </Card>

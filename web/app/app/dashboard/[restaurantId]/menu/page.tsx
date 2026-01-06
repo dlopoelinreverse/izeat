@@ -18,8 +18,11 @@ export default async function MenuPage({
     },
   });
 
-  if (error || !data) {
-    console.error(error);
+  if (!data || error) {
+    return <>Erreur lors de la récupération des menus</>;
+  }
+
+  if (data?.getMenus.length === 0) {
     return redirect(`/app/dashboard/${restaurantId}/menu/create`);
   }
 

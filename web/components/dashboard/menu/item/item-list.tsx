@@ -9,13 +9,16 @@ interface ItemListProps {
 
 export const ItemList = ({ items }: ItemListProps) => {
   const [categoryId] = useQueryState("categoryId");
+
   return (
     <ul className="flex flex-wrap gap-4 w-full h-full bg-amber-50">
       <Card className="h-1/5">
         <CardContent className="flex items-center justify-center ">
+          {categoryId}
           Ajouter un plat
         </CardContent>
       </Card>
+
       {items
         ?.filter((item) => item.categoryId === categoryId)
         .map((item) => (

@@ -41,7 +41,7 @@ class RestaurantResolver {
   }
 
   @Authorized()
-  @Query(() => Restaurant)
+  @Query(() => Restaurant, { nullable: true })
   async restaurantDashboardStatus(@Ctx() ctx: ContextType) {
     if (!ctx.currentUser) {
       throw new Error("Vous n'êtes pas connecté");
