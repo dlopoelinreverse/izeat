@@ -39,7 +39,7 @@ class MenuItem extends BaseEntity {
   @Column()
   categoryId: string;
 
-  @OneToMany(() => MenuCategory, (category) => category.items)
+  @ManyToOne(() => MenuCategory, (category) => category.items)
   @JoinColumn({ name: "categoryId" })
   category: MenuCategory;
 }

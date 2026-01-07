@@ -11,6 +11,7 @@ import {
 import User from "./user.entity";
 import Menu from "./menu.entity";
 import RestaurantTable from "./restaurant-table.entity";
+import Ingredient from "./ingredient";
 
 @ObjectType()
 @Entity()
@@ -38,6 +39,10 @@ class Restaurant extends BaseEntity {
   @ManyToOne(() => User, (user) => user.restaurants)
   @JoinColumn({ name: "ownerId" })
   owner: User;
+
+  @Field(() => [Ingredient])
+  @OneToMany(() => Ingredient, (ingredient) => ingredient.restaurant)
+  ingredients: Ingredient[];
 }
 
 export default Restaurant;

@@ -15,7 +15,8 @@ class MenuItemIngredient extends BaseEntity {
   })
   item: MenuItem;
 
-  @ManyToOne(() => Ingredient, {
+  @Field(() => Ingredient)
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.menuItemLinks, {
     eager: true,
     onDelete: "CASCADE",
   })
