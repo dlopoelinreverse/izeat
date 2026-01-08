@@ -1,5 +1,3 @@
 mutation DeleteMenu($deleteMenuId: String!) {
-  deleteMenu(id: $deleteMenuId) {
-    id
-  }
+  deleteMenu(id: $deleteMenuId)
 }

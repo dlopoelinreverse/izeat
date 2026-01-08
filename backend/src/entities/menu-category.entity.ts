@@ -23,7 +23,9 @@ class MenuCategory extends BaseEntity {
   @ManyToOne(() => MenuItem, (menuItem) => menuItem.category)
   items: MenuItem[];
 
-  @ManyToOne(() => Menu, (menu) => menu.categories)
+  @ManyToOne(() => Menu, (menu) => menu.categories, {
+    onDelete: "CASCADE",
+  })
   menu: Menu;
 }
 

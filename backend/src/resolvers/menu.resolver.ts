@@ -41,7 +41,7 @@ class MenuResolver {
   }
 
   @Authorized()
-  @Mutation(() => Menu)
+  @Mutation(() => Boolean)
   async deleteMenu(
     @Arg("id", () => String) id: string,
     @Ctx() ctx: ContextType
@@ -61,7 +61,7 @@ class MenuResolver {
 
     await menu.remove();
 
-    return menu;
+    return true;
   }
 
   @Authorized()
