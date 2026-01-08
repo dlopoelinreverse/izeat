@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node-dev --exit-child --watch src --poll src/index.ts",
-    "resetDB": "ts-node-dev --exit-child src/reset-db.ts"
+    "resetDB": "ts-node-dev --exit-child src/reset-db.ts",
+    "typeorm": "ts-node -r dotenv/config ./node_modules/typeorm/cli.js",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/data-base.ts",
+    "migration:run": "npm run typeorm -- migration:run -d src/data-base.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/data-base.ts"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +36,6 @@
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
     "ts-node": "^10.9.2",
-    "typeorm-ts-node-commonjs": "^0.3.20",
     "typescript": "^5.9.3"
   }
 }
