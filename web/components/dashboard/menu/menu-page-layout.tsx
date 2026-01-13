@@ -24,7 +24,11 @@ export default function MenuPageLayout({
         />
         <MenuCategories disabled={isCreation} menu={menu} />
       </div>
-      <ItemList items={menu?.items} categories={menu?.categories} />
+      <ItemList
+        items={menu?.items}
+        categories={menu?.categories}
+        restaurantId={restaurantId}
+      />
     </main>
   );
 }

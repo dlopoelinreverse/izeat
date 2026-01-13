@@ -1,0 +1,8 @@
+mutation CreateMenuItem($menuItemInput: MenuItemInput!) {
+  createMenuItem(menuItemInput: $menuItemInput) {
+    categoryId
+    id
+    menuId
+    name
+  }
+}

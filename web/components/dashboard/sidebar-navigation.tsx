@@ -1,4 +1,9 @@
-import { HandPlatterIcon, BookOpenText, ForkKnife } from "lucide-react";
+import {
+  HandPlatterIcon,
+  BookOpenText,
+  ForkKnife,
+  LucideShoppingBasket,
+} from "lucide-react";
 import { SidebarContent } from "@/components/ui/sidebar";
 import { getDashboardStatus } from "@/lib/get-dashboard-status";
 import { SidebarNavigationItem } from "./sidebar-navigation-item";
@@ -29,6 +34,11 @@ const sidebarNavigation: NavItem[] = [
     icon: ForkKnife,
     href: "/app/dashboard/tables",
   },
+  {
+    title: "Ingredients",
+    icon: LucideShoppingBasket,
+    href: "/app/dashboard/ingredients",
+  },
 ];
 
 export async function SidebarNavigation() {
@@ -47,6 +57,10 @@ export async function SidebarNavigation() {
       <SidebarNavigationItem
         item={sidebarNavigation[2]}
         disabled={status.step !== "READY" || !status.checks.hasTable}
+      />
+      <SidebarNavigationItem
+        item={sidebarNavigation[3]}
+        disabled={status.step !== "READY" || !status.checks.hasMenu}
       />
     </SidebarContent>
   );

@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -11,6 +11,7 @@ import {
 import Menu from "./menu.entity";
 import MenuCategory from "./menu-category.entity";
 import MenuItemIngredient from "./menu-item-ingredient";
+import Ingredient from "./ingredient.entity";
 
 @ObjectType()
 @Entity()
@@ -45,3 +46,18 @@ class MenuItem extends BaseEntity {
 }
 
 export default MenuItem;
+
+@InputType()
+export class MenuItemInput {
+  @Field()
+  name: string;
+
+  @Field()
+  menuId: string;
+
+  @Field()
+  categoryId: string;
+
+  @Field(() => [String])
+  ingredientsId: string[];
+}

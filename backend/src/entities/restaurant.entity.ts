@@ -11,7 +11,8 @@ import {
 import User from "./user.entity";
 import Menu from "./menu.entity";
 import RestaurantTable from "./restaurant-table.entity";
-import Ingredient from "./ingredient";
+import Ingredient from "./ingredient.entity";
+import IngredientCategory from "./ingredient-category";
 
 @ObjectType()
 @Entity()
@@ -43,6 +44,10 @@ class Restaurant extends BaseEntity {
   @Field(() => [Ingredient])
   @OneToMany(() => Ingredient, (ingredient) => ingredient.restaurant)
   ingredients: Ingredient[];
+
+  @Field(() => [IngredientCategory])
+  @OneToMany(() => IngredientCategory, (category) => category.restaurant)
+  categories: IngredientCategory[];
 }
 
 export default Restaurant;

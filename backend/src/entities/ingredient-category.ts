@@ -8,35 +8,31 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import Ingredient from "./ingredient.entity";
 import Restaurant from "./restaurant.entity";
-import MenuItemIngredient from "./menu-item-ingredient";
 
 @ObjectType()
 @Entity()
-class Ingredient extends BaseEntity {
+class IngredientCategory extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   name: string;
 
-  @Field()
-  @Column({ default: true })
-  available: boolean;
-
-  @Field()
   @Column()
   restaurantId: string;
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.ingredients, {
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.categories, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
 
-  @OneToMany(() => MenuItemIngredient, (link) => link.ingredient)
-  menuItemLinks: MenuItemIngredient[];
+  @OneToMany(() => Ingredient, (ingredient) => ingredient.ingredientCategory)
+  ingredients: Ingredient[];
 }
-export default Ingredient;
+
+export default IngredientCategory;

@@ -1,0 +1,6 @@
+mutation CreateIngredientCategory($name: String!, $restaurantId: String!) {
+  createIngredientCategory(name: $name, restaurantId: $restaurantId) {
+    id
+    name
+  }
+}
