@@ -2,6 +2,10 @@ query GetRestaurantIngredients($restaurantId: String!) {
   getRestaurantIngredients(restaurantId: $restaurantId) {
     available
     id
+    ingredientCategory {
+      id
+      name
+    }
     name
   }
 }

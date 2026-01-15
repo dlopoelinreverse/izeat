@@ -45,14 +45,32 @@ export const IngredientCategory = ({
         nameRef.current = "";
         console.log(data);
       },
-      refetchQueries: [
-        {
+      update: (cache, { data }) => {
+        const existingData = cache.readQuery({
           query: GetRestaurantIngredientCategoriesDocument,
           variables: {
             restaurantId,
           },
-        },
-      ],
+        });
+        if (
+          existingData &&
+          data &&
+          existingData.getRestaurantIngredientCategories
+        ) {
+          cache.writeQuery({
+            query: GetRestaurantIngredientCategoriesDocument,
+            variables: {
+              restaurantId,
+            },
+            data: {
+              getRestaurantIngredientCategories: [
+                ...existingData.getRestaurantIngredientCategories,
+                data?.createIngredientCategory,
+              ],
+            },
+          });
+        }
+      },
     }
   );
 

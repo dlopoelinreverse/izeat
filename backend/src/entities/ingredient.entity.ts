@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -20,23 +20,21 @@ class Ingredient extends BaseEntity {
   id: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Field()
   @Column({ default: true })
   available: boolean;
 
-  @Field()
   @Column()
   ingredientCategoryId: string;
 
+  @Field()
   @ManyToOne(
     () => IngredientCategory,
     (ingredientCategory) => ingredientCategory.ingredients,
-    {
-      onDelete: "CASCADE",
-    }
+    { onDelete: "CASCADE" }
   )
   @JoinColumn({ name: "ingredientCategoryId" })
   ingredientCategory: IngredientCategory;
@@ -54,3 +52,15 @@ class Ingredient extends BaseEntity {
   menuItemLinks: MenuItemIngredient[];
 }
 export default Ingredient;
+
+@InputType()
+export class IngredientInput {
+  @Field()
+  name: string;
+
+  @Field()
+  ingredientCategoryId: string;
+
+  @Field()
+  restaurantId: string;
+}

@@ -65,7 +65,7 @@ export const AddItem = ({
       </Card>
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent>
-          <div className="flex flex-col gap-2 p-2">
+          <div className="flex flex-col gap-2 p-2 max-w-[800px] mx-auto w-full">
             <DrawerHeader>
               <DialogTitle>Ajouter un plat</DialogTitle>
               <DialogDescription>
