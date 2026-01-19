@@ -16,6 +16,7 @@ export default async function MenuPage({
     variables: {
       restaurantId,
     },
+    fetchPolicy: "cache-first",
   });
 
   if (!data || error) {

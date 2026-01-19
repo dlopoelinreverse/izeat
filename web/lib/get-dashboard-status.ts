@@ -39,21 +39,21 @@ export const getDashboardStatus = cache(async () => {
   }
 
   const hasMenu =
-    restaurantDashboardStatus.menus &&
+    restaurantDashboardStatus?.menus &&
     restaurantDashboardStatus.menus.length > 0 &&
     restaurantDashboardStatus.menus[0].items.length > 0;
   const hasTable =
-    restaurantDashboardStatus.tables &&
+    restaurantDashboardStatus?.tables &&
     restaurantDashboardStatus.tables.length > 0;
 
   return {
     step: "READY",
-    restaurantId: restaurantDashboardStatus.id,
-    restaurantName: restaurantDashboardStatus.name,
+    restaurantId: restaurantDashboardStatus?.id,
+    restaurantName: restaurantDashboardStatus?.name,
     checks: {
       hasRestaurant: true,
       hasMenu,
-      hasTable,
+      hasTable: hasMenu,
       isServiceReady: hasMenu && hasTable,
     },
   };

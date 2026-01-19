@@ -28,9 +28,9 @@ export async function SidebarNavigation() {
       href: `/app/dashboard/${status.restaurantId}/service`,
     },
     {
-      title: "Menu",
+      title: "Menus",
       icon: BookOpenText,
-      href: `/app/dashboard/${status.restaurantId}/menu`,
+      href: `/app/dashboard/${status.restaurantId}/menus`,
     },
     {
       title: "Tables",
