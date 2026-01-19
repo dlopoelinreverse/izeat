@@ -49,6 +49,27 @@ class RestaurantTableResolver {
 
     return table;
   }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+  async deleteTable(@Arg("id") id: string, @Ctx() ctx: ContextType) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const table = await RestaurantTable.findOne({
+      where: { id, restaurant: { owner: user } },
+    });
+
+    if (!table) {
+      throw new Error("Table non trouvée");
+    }
+
+    await table.remove();
+
+    return true;
+  }
 }
 
 export default RestaurantTableResolver;

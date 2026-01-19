@@ -21,7 +21,7 @@ class RestaurantTable extends BaseEntity {
   number: number;
 
   @Field(() => Number)
-  @Column({ type: "int" })
+  @Column({ type: "int", unique: true })
   capacity: number;
 
   @Field(() => String)

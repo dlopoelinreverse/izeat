@@ -4,6 +4,7 @@ import { CreateTable } from "./create-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, LayoutGrid } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { DeleteTableButton } from "./delete-table-button";
 
 export const TableList = ({
   restaurantId,
@@ -33,6 +34,12 @@ export const TableList = ({
                 >
                   {table.status === "available" ? "Libre" : "Occupée"}
                 </Badge>
+                <div className="mt-2 flex justify-end">
+                  <DeleteTableButton
+                    tableId={table.id}
+                    restaurantId={restaurantId}
+                  />
+                </div>
               </div>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-3">

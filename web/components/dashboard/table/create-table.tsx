@@ -41,8 +41,9 @@ export const CreateTable = ({ restaurantId }: CreateTableProps) => {
       router.refresh();
     },
     onError: (error) => {
-      console.log(error);
-      toast.error(error.message || "Erreur lors de l'ajout de la table");
+      toast.error(
+        "Erreur lors de l'ajout de la table, vérifiez que le numéro de la table n'est pas déjà utilisé",
+      );
     },
     update: (cache, { data }) => {
       const existingData = cache.readQuery<GetRestaurantTablesQuery>({
