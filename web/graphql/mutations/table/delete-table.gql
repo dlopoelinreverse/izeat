@@ -1,0 +1,3 @@
+mutation DeleteTable($id: String!) {
+  deleteTable(id: $id)
+}

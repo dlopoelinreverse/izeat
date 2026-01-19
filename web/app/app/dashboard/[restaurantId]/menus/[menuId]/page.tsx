@@ -1,3 +1,4 @@
+import { MenuList } from "@/components/dashboard/menu/menu-list";
 import MenuPageLayout from "@/components/dashboard/menu/menu-page-layout";
 import { GetMenuDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
@@ -25,5 +26,5 @@ export default async function MenuPage({
   if (!menu) {
     return <p>Menu non trouvé</p>;
   }
-  return <MenuPageLayout restaurantId={restaurantId} menu={menu} />;
+  return <MenuList restaurantId={restaurantId} menus={[menu]} />;
 }

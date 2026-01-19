@@ -2,5 +2,16 @@ mutation CreateMenu($restaurantId: String!, $name: String!) {
   createMenu(restaurantId: $restaurantId, name: $name) {
     name
     id
+    restaurantId
+    categories {
+      id
+      name
+    }
+    items {
+      id
+      name
+      categoryId
+      menuId
+    }
   }
 }
