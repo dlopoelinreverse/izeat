@@ -25,11 +25,8 @@ export const DeleteMenuButton = ({ menuId }: { menuId: string }) => {
   });
 
   const handleDeleteMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
     e.stopPropagation();
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce menu ?")) {
-      deleteMenu();
-    }
+    deleteMenu();
   };
 
   return (

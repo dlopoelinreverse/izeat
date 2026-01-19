@@ -28,7 +28,7 @@ class MenuItem extends BaseEntity {
   @Column()
   menuId: string;
 
-  @ManyToOne(() => Menu, (menu) => menu.items)
+  @ManyToOne(() => Menu, (menu) => menu.items, { onDelete: "CASCADE" })
   @JoinColumn({ name: "menuId" })
   menu: Menu;
 
