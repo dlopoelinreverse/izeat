@@ -18,31 +18,31 @@ interface NavItem {
   }[];
 }
 
-const sidebarNavigation: NavItem[] = [
-  {
-    title: "Service",
-    icon: HandPlatterIcon,
-    href: "/app/dashboard/service",
-  },
-  {
-    title: "Menu",
-    icon: BookOpenText,
-    href: "/app/dashboard/menu",
-  },
-  {
-    title: "Tables",
-    icon: ForkKnife,
-    href: "/app/dashboard/tables",
-  },
-  {
-    title: "Ingredients",
-    icon: LucideShoppingBasket,
-    href: "/app/dashboard/ingredients",
-  },
-];
-
 export async function SidebarNavigation() {
   const status = await getDashboardStatus();
+
+  const sidebarNavigation: NavItem[] = [
+    {
+      title: "Service",
+      icon: HandPlatterIcon,
+      href: `/app/dashboard/${status.restaurantId}/service`,
+    },
+    {
+      title: "Menu",
+      icon: BookOpenText,
+      href: `/app/dashboard/${status.restaurantId}/menu`,
+    },
+    {
+      title: "Tables",
+      icon: ForkKnife,
+      href: `/app/dashboard/${status.restaurantId}/tables`,
+    },
+    {
+      title: "Ingredients",
+      icon: LucideShoppingBasket,
+      href: `/app/dashboard/${status.restaurantId}/ingredients`,
+    },
+  ];
 
   return (
     <SidebarContent className="flex flex-col gap-2 mt-5">

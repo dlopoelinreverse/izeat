@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export const DeleteMenuButton = ({ menuId }: { menuId: string }) => {
   const router = useRouter();
-  const [deleteMenu, { loading, error }] = useMutation(DeleteMenuDocument, {
+  const [deleteMenu, { loading }] = useMutation(DeleteMenuDocument, {
     onCompleted: () => {
       toast.success("Menu supprimé avec succès");
       router.refresh();
@@ -18,7 +18,6 @@ export const DeleteMenuButton = ({ menuId }: { menuId: string }) => {
       router.refresh();
     },
   });
-  console.log(error);
   const handleDeleteMenu = () => {
     deleteMenu({
       variables: {
