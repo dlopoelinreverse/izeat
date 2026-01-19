@@ -11,7 +11,7 @@ interface MenuListProps {
 export const MenuList = ({ menus }: MenuListProps) => {
   return (
     <>
-      <Link href={`/app/dashboard/${menus[0].restaurantId}/menu/create`}>
+      <Link href={`/app/dashboard/${menus[0].restaurantId}/menus/create`}>
         <Button>Ajouter un menu</Button>
       </Link>
       <ul className="flex flex-col gap-4">

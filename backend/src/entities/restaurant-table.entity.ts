@@ -1,8 +1,9 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -24,11 +25,28 @@ class RestaurantTable extends BaseEntity {
   capacity: number;
 
   @Field(() => String)
-  @Column({ type: "text" })
+  @Column({ type: "text", default: "available" })
   status: string;
 
+  @Field(() => String)
+  @Column({ type: "text" })
+  restaurantId: string;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.tables)
+  @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
 }
 
 export default RestaurantTable;
+
+@InputType()
+export class CreateTableInput {
+  @Field(() => String)
+  restaurantId: string;
+
+  @Field(() => Number)
+  number: number;
+
+  @Field(() => Number)
+  capacity: number;
+}

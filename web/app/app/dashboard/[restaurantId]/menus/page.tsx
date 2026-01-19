@@ -24,7 +24,7 @@ export default async function MenuPage({
   }
 
   if (data?.getMenus.length === 0) {
-    return redirect(`/app/dashboard/${restaurantId}/menu/create`);
+    return redirect(`/app/dashboard/${restaurantId}/menus/create`);
   }
 
   return <MenuList menus={data.getMenus} />;

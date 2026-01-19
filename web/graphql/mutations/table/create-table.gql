@@ -1,0 +1,9 @@
+mutation CreateTable($tableInput: CreateTableInput!) {
+  createTable(tableInput: $tableInput) {
+    capacity
+    id
+    number
+    status
+    restaurantId
+  }
+}

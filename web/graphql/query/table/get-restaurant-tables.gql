@@ -1,0 +1,9 @@
+query GetRestaurantTables($restaurantId: String!) {
+  getRestaurantTables(restaurantId: $restaurantId) {
+    capacity
+    id
+    number
+    status
+    restaurantId
+  }
+}

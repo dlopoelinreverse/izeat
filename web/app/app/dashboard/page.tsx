@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   }
 
   if (!checks.hasMenu) {
-    redirect(`/app/dashboard/${restaurantId}/menu`);
+    redirect(`/app/dashboard/${restaurantId}/menus`);
   }
 
   if (!checks.hasTable) {
