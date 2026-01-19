@@ -10,7 +10,7 @@ class MenuResolver {
   async createMenu(
     @Arg("name", () => String) name: string,
     @Arg("restaurantId", () => String) restaurantId: string,
-    @Ctx() ctx: ContextType
+    @Ctx() ctx: ContextType,
   ) {
     const user = ctx.currentUser;
     if (!user) {
@@ -44,7 +44,7 @@ class MenuResolver {
   @Mutation(() => Boolean)
   async deleteMenu(
     @Arg("id", () => String) id: string,
-    @Ctx() ctx: ContextType
+    @Ctx() ctx: ContextType,
   ) {
     const user = ctx.currentUser;
     if (!user) {
@@ -68,7 +68,7 @@ class MenuResolver {
   @Query(() => [Menu])
   async getMenus(
     @Arg("restaurantId", () => String) restaurantId: string,
-    @Ctx() ctx: ContextType
+    @Ctx() ctx: ContextType,
   ) {
     const user = ctx.currentUser;
     if (!user) {
@@ -77,7 +77,7 @@ class MenuResolver {
 
     const menus = await Menu.find({
       where: { restaurantId, restaurant: { owner: user } },
-      relations: ["categories", "items"],
+      relations: ["categories", "items", "items.ingredients"],
     });
 
     if (!menus) {
@@ -97,7 +97,7 @@ class MenuResolver {
 
     const menu = await Menu.findOne({
       where: { id, restaurant: { owner: user } },
-      relations: ["categories", "items"],
+      relations: ["categories", "items", "items.ingredients"],
     });
 
     if (!menu) {

@@ -10,6 +10,9 @@ query GetMenu($menuId: String!) {
       id
       menuId
       name
+      ingredients {
+        id
+      }
     }
     name
     restaurantId

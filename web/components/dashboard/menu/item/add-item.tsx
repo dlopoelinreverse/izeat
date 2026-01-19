@@ -1,4 +1,4 @@
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import clsx from "clsx";
 
 import { useState } from "react";
@@ -19,6 +19,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface AddItemProps {
@@ -41,7 +42,7 @@ export const AddItem = ({
 
   const router = useRouter();
 
-  const [createMenuItem, { loading }] = useMutation(CreateMenuItemDocument, {
+  const [createMenuItem] = useMutation(CreateMenuItemDocument, {
     refetchQueries: ["GetMenu"],
     onCompleted: () => {
       setOpen(false);
@@ -74,20 +75,24 @@ export const AddItem = ({
     <>
       <Card
         className={clsx(
-          "h-1/5 cursor-pointer border-dashed border-2 hover:bg-accent transition-colors",
+          "h-[150px] w-full max-w-[280px] cursor-pointer border-dashed border-2 flex flex-col items-center justify-center gap-2 hover:bg-accent hover:border-primary/50 transition-all group",
           !categoryId && "opacity-50 cursor-not-allowed",
         )}
         onClick={() => {
           if (categoryId) setOpen(true);
         }}
       >
-        <CardContent className="flex flex-col items-center justify-between h-full  ">
-          Ajouter un plat
-          <CardFooter>
-            a la categorie{" "}
-            {categories?.find((category) => category.id === categoryId)?.name}
-          </CardFooter>
-        </CardContent>
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <Plus className="w-6 h-6 text-primary" />
+        </div>
+        <div className="text-center px-4">
+          <p className="font-medium">Ajouter un plat</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {categoryId
+              ? `Dans ${categories?.find((c) => c.id === categoryId)?.name}`
+              : "Choisissez une catégorie"}
+          </p>
+        </div>
       </Card>
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent className="max-h-[96vh]">
