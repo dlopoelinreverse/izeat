@@ -28,6 +28,7 @@ export default function MenuPageLayout({
         items={menu?.items}
         categories={menu?.categories}
         restaurantId={restaurantId}
+        menuId={menu?.id || ""}
       />
     </main>
   );

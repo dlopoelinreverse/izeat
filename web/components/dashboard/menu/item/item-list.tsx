@@ -7,12 +7,14 @@ interface ItemListProps {
   items?: GetMenuQuery["getMenu"]["items"];
   categories?: GetMenuQuery["getMenu"]["categories"];
   restaurantId: string;
+  menuId: string;
 }
 
 export const ItemList = ({
   items,
   categories,
   restaurantId,
+  menuId,
 }: ItemListProps) => {
   const [categoryId] = useQueryState("categoryId");
 
@@ -22,6 +24,7 @@ export const ItemList = ({
         categoryId={categoryId}
         categories={categories}
         restaurantId={restaurantId}
+        menuId={menuId}
       />
       {items
         ?.filter((item) => item.categoryId === categoryId)

@@ -3,15 +3,6 @@ import { ContextType } from "../types";
 import Ingredient from "../entities/ingredient.entity";
 
 @Resolver()
-class MenuIngredientResolver {
-  @Authorized()
-  @Mutation(() => Ingredient)
-  async createMenuIngredient(
-    @Arg("name", () => String) name: string,
-    @Ctx() ctx: ContextType
-  ) {
-    return await Ingredient.create({ name }).save();
-  }
-}
+class MenuIngredientResolver {}
 
 export default MenuIngredientResolver;

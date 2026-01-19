@@ -1,0 +1,11 @@
+mutation CreateIngredient($ingredient: IngredientInput!) {
+  createIngredient(ingredient: $ingredient) {
+    id
+    name
+    available
+    ingredientCategory {
+      id
+      name
+    }
+  }
+}
