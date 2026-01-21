@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, LayoutGrid } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeleteTableButton } from "./delete-table-button";
+import { EmptyState } from "../empty-state";
 
 export const TableList = ({
   restaurantId,
@@ -62,16 +63,11 @@ export const TableList = ({
             </Card>
           ))
         ) : (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed rounded-xl border-muted bg-muted/30">
-            <LayoutGrid className="h-12 w-12 text-muted-foreground/30 mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">
-              Aucune table configurée
-            </p>
-            <p className="text-sm text-muted-foreground/60 max-w-xs text-center mt-1">
-              Commencez par ajouter votre première table pour gérer vos
-              services.
-            </p>
-          </div>
+          <EmptyState
+            icon={LayoutGrid}
+            title="Aucune table configurée"
+            description="Commencez par ajouter votre première table pour gérer vos services."
+          />
         )}
       </div>
     </DashboardPageLayout>

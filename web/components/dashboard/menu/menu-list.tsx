@@ -3,9 +3,9 @@ import { DeleteMenuButton } from "./delete-menu-button";
 import { GetMenusQuery } from "@/graphql/__generated__/graphql";
 import Link from "next/link";
 import DashboardPageLayout from "../dashboard-page-layout";
-import { Badge } from "@/components/ui/badge";
 import { LayoutGrid, BookOpen, List, UtensilsCrossed } from "lucide-react";
 import { CreateMenu } from "./create-menu";
+import { EmptyState } from "../empty-state";
 
 interface MenuListProps {
   restaurantId: string;
@@ -62,16 +62,11 @@ export const MenuList = ({ restaurantId, menus }: MenuListProps) => {
             </Card>
           ))
         ) : (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed rounded-xl border-muted bg-muted/30">
-            <LayoutGrid className="h-12 w-12 text-muted-foreground/30 mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">
-              Aucun menu configuré
-            </p>
-            <p className="text-sm text-muted-foreground/60 max-w-xs text-center mt-1">
-              Commencez par ajouter votre premier menu pour gérer vos cartes et
-              plats.
-            </p>
-          </div>
+          <EmptyState
+            icon={LayoutGrid}
+            title="Aucun menu configuré"
+            description="Commencez par ajouter votre premier menu pour gérer vos cartes et plats."
+          />
         )}
       </div>
     </DashboardPageLayout>
