@@ -16,6 +16,8 @@ import { useQueryState } from "nuqs";
 import { DeleteCategoryButton } from "./delete-category-button";
 import { useEffect } from "react";
 import { useQuery } from "@apollo/client/react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface MenuCategoriesProps {
   disabled?: boolean;
@@ -49,42 +51,51 @@ export const MenuCategories = ({ disabled, menu }: MenuCategoriesProps) => {
   }, [categories, setCategoryId, categoryId]);
 
   return (
-    <Card className="flex-1 ">
-      <CardContent className="flex items-center justify-between gap-2">
-        <Select
-          disabled={disabled || !categories?.length}
-          onValueChange={(value) => {
-            setCategoryId(value);
-          }}
-          value={categoryId || ""}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue
-              placeholder={
-                loading
-                  ? "Chargement..."
-                  : categories?.length
-                  ? "Selectionner une catégorie"
-                  : "Créer d'abord une catégorie"
-              }
-            />
-          </SelectTrigger>
-          <SelectContent>
-            {categories?.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="flex items-center gap-2">
-          <DeleteCategoryButton
-            categoryId={categoryId || ""}
-            disabled={!categoryId}
-          />
-          <AddCategoryButton menuId={menu?.id || ""} disabled={disabled} />
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      {categories?.length === 0 ? (
+        <Button variant="outline">
+          <Plus /> Catégorie
+        </Button>
+      ) : (
+        <></>
+      )}
+    </>
+    // <Card className="flex-1 ">
+    //   <CardContent className="flex items-center justify-between gap-2">
+    //     <Select
+    //       disabled={disabled || !categories?.length}
+    //       onValueChange={(value) => {
+    //         setCategoryId(value);
+    //       }}
+    //       value={categoryId || ""}
+    //     >
+    //       <SelectTrigger className="w-full">
+    //         <SelectValue
+    //           placeholder={
+    //             loading
+    //               ? "Chargement..."
+    //               : categories?.length
+    //               ? "Selectionner une catégorie"
+    //               : "Créer d'abord une catégorie"
+    //           }
+    //         />
+    //       </SelectTrigger>
+    //       <SelectContent>
+    //         {categories?.map((category) => (
+    //           <SelectItem key={category.id} value={category.id}>
+    //             {category.name}
+    //           </SelectItem>
+    //         ))}
+    //       </SelectContent>
+    //     </Select>
+    //     <div className="flex items-center gap-2">
+    //       <DeleteCategoryButton
+    //         categoryId={categoryId || ""}
+    //         disabled={!categoryId}
+    //       />
+    //       <AddCategoryButton menuId={menu?.id || ""} disabled={disabled} />
+    //     </div>
+    //   </CardContent>
+    // </Card>
   );
 };

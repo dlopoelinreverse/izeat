@@ -1,69 +1,52 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CreateMenuDocument } from "@/graphql/__generated__/graphql";
-import { useMutation } from "@apollo/client/react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { Pencil, X } from "lucide-react";
 
 interface MenuNameProps {
   restaurantId: string;
-  isCreation?: boolean;
-  menuName?: string;
+  menuName: string;
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
 }
 
 export const MenuName = ({
   restaurantId,
-  isCreation,
   menuName,
+  isEditing,
+  setIsEditing,
 }: MenuNameProps) => {
   return (
-    <Card className="xl:w-1/3 lg:flex-1">
-      <CardContent>
-        {isCreation ? (
-          <CreationMenuForm restaurantId={restaurantId} />
-        ) : (
-          <CardTitle className="py-2.5">{menuName}</CardTitle>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
-
-const CreationMenuForm = ({ restaurantId }: { restaurantId: string }) => {
-  const router = useRouter();
-  const [createMenu, { loading }] = useMutation(CreateMenuDocument, {
-    onCompleted: (data) => {
-      router.push(`/app/dashboard/${restaurantId}/menu/${data.createMenu.id}`);
-
-      toast.success("Menu créé avec succès");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    createMenu({
-      variables: {
-        name,
-        restaurantId,
-      },
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="w-full flex items-center gap-4">
-      <Input placeholder="Nom du menu" name="name" />
-      <Button type="submit" disabled={loading}>
-        Créer
-      </Button>
-    </form>
+    <div className="h-full flex gap-2">
+      {!isEditing ? (
+        <>
+          <h1 className="text-2xl font-bold">{menuName}</h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsEditing(true)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </>
+      ) : (
+        <>
+          <Input
+            placeholder="Nom du menu"
+            name="name"
+            defaultValue={menuName}
+            autoFocus
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsEditing(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </>
+      )}
+    </div>
   );
 };

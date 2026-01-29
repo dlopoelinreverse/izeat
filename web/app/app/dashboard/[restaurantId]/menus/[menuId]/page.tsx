@@ -1,7 +1,8 @@
-import { MenuList } from "@/components/dashboard/menu/menu-list";
-import MenuPageLayout from "@/components/dashboard/menu/menu-page-layout";
+import DashboardPageLayout from "@/components/dashboard/dashboard-page-layout";
+import { EditMenuActions } from "@/components/dashboard/menu/edit-menu-actions";
 import { GetMenuDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
+
 export default async function MenuPage({
   params,
 }: {
@@ -26,5 +27,12 @@ export default async function MenuPage({
   if (!menu) {
     return <p>Menu non trouvé</p>;
   }
-  return <MenuList restaurantId={restaurantId} menus={[menu]} />;
+  return (
+    <DashboardPageLayout
+      hasBackButton
+      headerAction={<EditMenuActions menu={menu} restaurantId={restaurantId} />}
+    >
+      <></>
+    </DashboardPageLayout>
+  );
 }

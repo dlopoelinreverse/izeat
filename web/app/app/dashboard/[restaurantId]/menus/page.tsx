@@ -1,7 +1,6 @@
 import { MenuList } from "@/components/dashboard/menu/menu-list";
 import { GetMenusDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
-import { redirect } from "next/navigation";
 
 export default async function MenuPage({
   params,

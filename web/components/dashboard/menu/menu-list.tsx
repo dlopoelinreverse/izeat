@@ -18,12 +18,12 @@ export const MenuList = ({ restaurantId, menus }: MenuListProps) => {
       title="Menus"
       headerAction={<CreateMenu restaurantId={restaurantId} />}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="flex flex-wrap gap-4 justify-start">
         {menus.length > 0 ? (
           menus.map((menu) => (
             <Card
               key={menu.id}
-              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer"
+              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer w-full lg:w-[32%]"
             >
               <div className="absolute top-0 right-0 p-2 z-10">
                 <DeleteMenuButton menuId={menu.id} />
