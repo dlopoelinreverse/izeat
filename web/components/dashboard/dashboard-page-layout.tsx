@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { BackButton } from "../back-button";
+import clsx from "clsx";
 
 export default function DashboardPageLayout({
   children,
@@ -14,7 +15,7 @@ export default function DashboardPageLayout({
   hasBackButton?: boolean;
 }) {
   return (
-    <div className="flex flex-col h-screen relative">
+    <div className="flex flex-col h-screen overflow-hidden relative">
       {hasBackButton && (
         <div className="top-16 left-2 right-0 h-14 absolute z-20">
           <BackButton />
@@ -27,8 +28,13 @@ export default function DashboardPageLayout({
           {headerAction}
         </div>
       </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6 lg:gap-8 lg:p-8">
-        <div className="mx-auto w-full max-w-[1440px] h-full">{children}</div>
+      <main
+        className={clsx(
+          "mx-auto w-full max-w-[1440px] flex-1 overflow-y-auto p-2",
+          hasBackButton && "mt-12",
+        )}
+      >
+        {children}
       </main>
     </div>
   );

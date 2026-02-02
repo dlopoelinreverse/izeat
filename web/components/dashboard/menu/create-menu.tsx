@@ -76,10 +76,7 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        className="gap-2 shadow-sm transition-all hover:scale-105"
-      >
+      <Button onClick={() => setOpen(true)}>
         <Plus className="h-4 w-4" />
         Ajouter un menu
       </Button>

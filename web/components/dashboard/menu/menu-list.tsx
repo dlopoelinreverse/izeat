@@ -23,7 +23,7 @@ export const MenuList = ({ restaurantId, menus }: MenuListProps) => {
           menus.map((menu) => (
             <Card
               key={menu.id}
-              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer w-full lg:w-[32%]"
+              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer w-full xl:w-[22%] lg:w-[30%] md:w-[48%]"
             >
               <div className="absolute top-0 right-0 p-2 z-10">
                 <DeleteMenuButton menuId={menu.id} />

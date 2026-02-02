@@ -1,5 +1,6 @@
 import DashboardPageLayout from "@/components/dashboard/dashboard-page-layout";
 import { EditMenuActions } from "@/components/dashboard/menu/edit-menu-actions";
+import { MenuEdition } from "@/components/dashboard/menu/menu-edition";
 import { GetMenuDocument } from "@/graphql/__generated__/graphql";
 import { getServerApolloClient } from "@/lib/apollo-client-server";
 
@@ -32,7 +33,7 @@ export default async function MenuPage({
       hasBackButton
       headerAction={<EditMenuActions menu={menu} restaurantId={restaurantId} />}
     >
-      <></>
+      <MenuEdition menu={menu} />
     </DashboardPageLayout>
   );
 }
