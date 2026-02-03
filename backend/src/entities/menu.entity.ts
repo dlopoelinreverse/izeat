@@ -32,13 +32,31 @@ class Menu extends BaseEntity {
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
 
-  @Field(() => [MenuItem])
+  @Field(() => [MenuItem], { nullable: true })
   @OneToMany(() => MenuItem, (item) => item.menu)
   items: MenuItem[];
 
-  @Field(() => [MenuCategory])
+  @Field(() => [MenuCategory], { nullable: true })
   @OneToMany(() => MenuCategory, (category) => category.menu)
   categories: MenuCategory[];
 }
 
 export default Menu;
+
+@ObjectType()
+export class MenuResponse {
+  @Field(() => String)
+  id: string;
+
+  @Field(() => String)
+  name: string;
+
+  @Field(() => String)
+  restaurantId: string;
+
+  @Field(() => [MenuItem], { nullable: true })
+  items: MenuItem[];
+
+  @Field(() => [MenuCategory], { nullable: true })
+  categories: MenuCategory[];
+}

@@ -1,5 +1,5 @@
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import Menu from "../entities/menu.entity";
+import Menu, { MenuResponse } from "../entities/menu.entity";
 import { ContextType } from "../types";
 import Restaurant from "../entities/restaurant.entity";
 
@@ -77,7 +77,11 @@ class MenuResolver {
 
     const menus = await Menu.find({
       where: { restaurantId, restaurant: { owner: user } },
-      relations: ["categories", "items", "items.ingredients"],
+      relations: [
+        "categories",
+        "categories.items",
+        "categories.items.ingredients",
+      ],
     });
 
     if (!menus) {
@@ -88,7 +92,7 @@ class MenuResolver {
   }
 
   @Authorized()
-  @Query(() => Menu)
+  @Query(() => MenuResponse)
   async getMenu(@Arg("id", () => String) id: string, @Ctx() ctx: ContextType) {
     const user = ctx.currentUser;
     if (!user) {
@@ -97,14 +101,24 @@ class MenuResolver {
 
     const menu = await Menu.findOne({
       where: { id, restaurant: { owner: user } },
-      relations: ["categories", "items", "items.ingredients"],
+      relations: [
+        "categories",
+        "categories.items",
+        "categories.items.ingredients",
+      ],
     });
 
     if (!menu) {
       throw new Error("Le menu n'a pas été trouvé");
     }
 
-    return menu;
+    return {
+      id: menu.id,
+      name: menu.name,
+      restaurantId: menu.restaurantId,
+      items: menu.items,
+      categories: menu.categories,
+    };
   }
 }
 

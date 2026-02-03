@@ -20,6 +20,7 @@ class MenuCategory extends BaseEntity {
   @Column({ type: "text" })
   name: string;
 
+  @Field(() => [MenuItem], { nullable: true })
   @ManyToOne(() => MenuItem, (menuItem) => menuItem.category)
   items: MenuItem[];
 

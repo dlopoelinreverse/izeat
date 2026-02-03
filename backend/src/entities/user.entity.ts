@@ -19,7 +19,7 @@ class User extends BaseEntity {
   @PrimaryColumn("text")
   id!: string;
 
-  @Field(() => String) // 👈 explicit pour TypeGraphQL
+  @Field(() => String)
   @Column({ type: "text" })
   name!: string;
 
