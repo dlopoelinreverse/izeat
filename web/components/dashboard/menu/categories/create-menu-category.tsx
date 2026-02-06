@@ -16,15 +16,16 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 
-interface MenuCategoriesProps {
+interface CreateMenuCategoryProps {
   disabled?: boolean;
   menu: GetMenuQuery["getMenu"];
 }
 
-export const CreateMenuCategory = ({ disabled, menu }: MenuCategoriesProps) => {
-  const router = useRouter();
+export const CreateMenuCategory = ({
+  disabled,
+  menu,
+}: CreateMenuCategoryProps) => {
   const [open, setOpen] = useState(false);
 
   const { id: menuId } = menu;
@@ -32,7 +33,18 @@ export const CreateMenuCategory = ({ disabled, menu }: MenuCategoriesProps) => {
   const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
     onCompleted: (data) => {
       setOpen(false);
-      router.refresh();
+    },
+    update(cache, { data }) {
+      const newCategory = data?.createMenuCategory;
+      if (!newCategory) return;
+
+      cache.modify({
+        fields: {
+          getMenuCategories(existingCategories) {
+            return [...existingCategories, newCategory];
+          },
+        },
+      });
     },
   });
 

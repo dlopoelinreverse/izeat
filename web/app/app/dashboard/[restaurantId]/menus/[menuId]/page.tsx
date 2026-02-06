@@ -33,7 +33,7 @@ export default async function MenuPage({
       hasBackButton
       headerAction={<EditMenuActions menu={menu} restaurantId={restaurantId} />}
     >
-      <MenuEdition menu={menu} />
+      <MenuEdition menu={menu} restaurantId={restaurantId} />
     </DashboardPageLayout>
   );
 }

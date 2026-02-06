@@ -20,34 +20,40 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 interface AddItemProps {
-  categoryId?: string | null;
-  categories?: { id: string; name: string }[];
+  categoryId: string;
+  // categories?: { id: string; name: string }[];
   restaurantId: string;
   menuId: string;
 }
 
-export const AddItem = ({
-  categoryId,
-  categories,
-  restaurantId,
-  menuId,
-}: AddItemProps) => {
+export const AddItem = ({ categoryId, restaurantId, menuId }: AddItemProps) => {
   const [open, setOpen] = useState(false);
   const [selectedIngredients, setSelectedIngredients] = useState<
     IngredientType[]
   >([]);
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const [createMenuItem] = useMutation(CreateMenuItemDocument, {
-    refetchQueries: ["GetMenu"],
+    // refetchQueries: ["GetMenu"],
     onCompleted: () => {
       setOpen(false);
       setSelectedIngredients([]);
-      router.refresh();
+      // router.refresh();
+    },
+    update(cache, { data }) {
+      cache.modify({
+        fields: {
+          getMenuCategories(existingCategories) {
+            const newItem = data?.createMenuItem;
+            if (!newItem) return existingCategories;
+            return [...existingCategories, newItem];
+          },
+        },
+      });
     },
   });
 
@@ -73,27 +79,10 @@ export const AddItem = ({
 
   return (
     <>
-      <Card
-        className={clsx(
-          "h-[150px] w-full max-w-[280px] cursor-pointer border-dashed border-2 flex flex-col items-center justify-center gap-2 hover:bg-accent hover:border-primary/50 transition-all group",
-          !categoryId && "opacity-50 cursor-not-allowed",
-        )}
-        onClick={() => {
-          if (categoryId) setOpen(true);
-        }}
-      >
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <Plus className="w-6 h-6 text-primary" />
-        </div>
-        <div className="text-center px-4">
-          <p className="font-medium">Ajouter un plat</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {categoryId
-              ? `Dans ${categories?.find((c) => c.id === categoryId)?.name}`
-              : "Choisissez une catégorie"}
-          </p>
-        </div>
-      </Card>
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <Plus />
+        <span>Ajouter un plat</span>
+      </Button>
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent className="max-h-[96vh]">
           <div className="mx-auto w-full max-w-[800px] flex flex-col h-full overflow-hidden">
@@ -101,10 +90,10 @@ export const AddItem = ({
               <DrawerTitle>Ajouter un plat</DrawerTitle>
               <DrawerDescription>
                 Ajouter un plat à la catégorie{" "}
-                {
+                {/* {
                   categories?.find((category) => category.id === categoryId)
                     ?.name
-                }
+                } */}
               </DrawerDescription>
             </DrawerHeader>
 
@@ -131,7 +120,7 @@ export const AddItem = ({
                 </div>
               </div>
 
-              <DrawerFooter className="border-t">
+              <DrawerFooter>
                 <div className="flex flex-col gap-2 w-full">
                   <Button type="submit" className="w-full">
                     Ajouter le plat
