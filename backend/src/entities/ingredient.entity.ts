@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import Restaurant from "./restaurant.entity";
 import MenuItemIngredient from "./menu-item-ingredient";
@@ -14,13 +15,14 @@ import IngredientCategory from "./ingredient-category";
 
 @ObjectType()
 @Entity()
+@Unique(["name", "restaurantId"])
 class Ingredient extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   @Field()
@@ -34,7 +36,7 @@ class Ingredient extends BaseEntity {
   @ManyToOne(
     () => IngredientCategory,
     (ingredientCategory) => ingredientCategory.ingredients,
-    { onDelete: "CASCADE" }
+    { onDelete: "CASCADE" },
   )
   @JoinColumn({ name: "ingredientCategoryId" })
   ingredientCategory: IngredientCategory;
