@@ -1,6 +1,9 @@
 "use client";
 import {
   CreateMenuCategoryDocument,
+  GetMenuCategoriesDocument,
+  // GetMenuCategoriesDocument,
+  // GetMenuDocument,
   GetMenuQuery,
 } from "@/graphql/__generated__/graphql";
 import { useState } from "react";
@@ -18,31 +21,37 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface CreateMenuCategoryProps {
-  disabled?: boolean;
   menu: GetMenuQuery["getMenu"];
 }
 
-export const CreateMenuCategory = ({
-  disabled,
-  menu,
-}: CreateMenuCategoryProps) => {
+export const CreateMenuCategory = ({ menu }: CreateMenuCategoryProps) => {
   const [open, setOpen] = useState(false);
 
   const { id: menuId } = menu;
 
   const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
-    onCompleted: (data) => {
+    onCompleted: () => {
       setOpen(false);
     },
     update(cache, { data }) {
-      const newCategory = data?.createMenuCategory;
-      if (!newCategory) return;
+      if (!data?.createMenuCategory) return;
+      const existingMenuCategories = cache.readQuery({
+        query: GetMenuCategoriesDocument,
+        variables: {
+          menuId,
+        },
+      });
 
-      cache.modify({
-        fields: {
-          getMenuCategories(existingCategories) {
-            return [...existingCategories, newCategory];
-          },
+      if (!existingMenuCategories) return;
+      const existingCategories = existingMenuCategories.getMenuCategories;
+      const newCategories = [...existingCategories, data.createMenuCategory];
+      cache.writeQuery({
+        query: GetMenuCategoriesDocument,
+        variables: {
+          menuId,
+        },
+        data: {
+          getMenuCategories: newCategories,
         },
       });
     },

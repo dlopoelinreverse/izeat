@@ -123,3 +123,14 @@ class MenuResolver {
 }
 
 export default MenuResolver;
+
+export function getMenuById(
+  menuId: string,
+  additionnalParameter: {},
+  relations: string[] = [],
+) {
+  return Menu.findOne({
+    where: { id: menuId, ...additionnalParameter },
+    relations: relations,
+  });
+}

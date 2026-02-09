@@ -1,8 +1,18 @@
 mutation CreateMenuItem($menuItemInput: MenuItemInput!) {
   createMenuItem(menuItemInput: $menuItemInput) {
-    categoryId
     id
-    menuId
     name
+    items {
+      id
+      name
+      menuId
+      categoryId
+      ingredients {
+        ingredient {
+          id
+          name
+        }
+      }
+    }
   }
 }

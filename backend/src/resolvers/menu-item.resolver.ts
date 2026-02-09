@@ -1,6 +1,8 @@
 import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
 import MenuItem, { MenuItemInput } from "../entities/menu-item.entity";
 import MenuItemIngredient from "../entities/menu-item-ingredient";
+import MenuCategory from "../entities/menu-category.entity";
+import { getMenuById } from "./menu.resolver";
 
 @Resolver()
 class MenuItemResolver {
@@ -10,9 +12,27 @@ class MenuItemResolver {
   }
 
   @Authorized()
-  @Mutation(() => MenuItem)
+  @Mutation(() => MenuCategory)
   async createMenuItem(@Arg("menuItemInput") input: MenuItemInput) {
-    const { name, menuId, categoryId, ingredientsId } = input;
+    const { name, restaurantId, menuId, categoryId, ingredientsId } = input;
+
+    const menu = await getMenuById(menuId, { restaurantId }, [
+      "restaurant",
+      "categories",
+    ]);
+
+    if (!menu) {
+      throw new Error("Menu not found");
+    }
+
+    const category = menu.categories.find(
+      (category) => category.id === categoryId,
+    );
+
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
     const menuItem = await MenuItem.create({
       name,
       menuId,
@@ -30,7 +50,10 @@ class MenuItemResolver {
       await MenuItemIngredient.save(ingredientLinks);
     }
 
-    return menuItem;
+    return await MenuItem.findOneOrFail({
+      where: { id: menuItem.id },
+      relations: ["ingredients"],
+    });
   }
 }
 

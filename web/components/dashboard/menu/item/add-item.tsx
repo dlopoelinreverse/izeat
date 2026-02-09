@@ -38,22 +38,9 @@ export const AddItem = ({ categoryId, restaurantId, menuId }: AddItemProps) => {
   // const router = useRouter();
 
   const [createMenuItem] = useMutation(CreateMenuItemDocument, {
-    // refetchQueries: ["GetMenu"],
     onCompleted: () => {
       setOpen(false);
       setSelectedIngredients([]);
-      // router.refresh();
-    },
-    update(cache, { data }) {
-      cache.modify({
-        fields: {
-          getMenuCategories(existingCategories) {
-            const newItem = data?.createMenuItem;
-            if (!newItem) return existingCategories;
-            return [...existingCategories, newItem];
-          },
-        },
-      });
     },
   });
 

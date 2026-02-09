@@ -21,7 +21,6 @@ export const Category = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log(category);
   return (
     <Collapsible
       open={isOpen}
@@ -57,14 +56,21 @@ export const Category = ({
       </div>
 
       <CollapsibleContent className="flex flex-col gap-2">
-        <div className="rounded-md border px-4 py-2 text-sm">
-          <p className="font-medium">Shipping address</p>
-          <p className="text-muted-foreground">100 Market St, San Francisco</p>
-        </div>
-        <div className="rounded-md border px-4 py-2 text-sm">
-          <p className="font-medium">Items</p>
-          <p className="text-muted-foreground">2x Studio Headphones</p>
-        </div>
+        {category.items && category.items.length > 0 ? (
+          category.items.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-md border px-4 py-2 text-sm flex justify-between items-center"
+            >
+              <p className="font-medium">{item.name}</p>
+              {/* Add more item details here if needed */}
+            </div>
+          ))
+        ) : (
+          <div className="rounded-md border px-4 py-2 text-sm text-muted-foreground w-full text-center bg-muted/50">
+            Aucun plat dans cette catégorie
+          </div>
+        )}
       </CollapsibleContent>
     </Collapsible>
   );

@@ -53,6 +53,9 @@ export class MenuItemInput {
   name: string;
 
   @Field()
+  restaurantId: string;
+
+  @Field()
   menuId: string;
 
   @Field()

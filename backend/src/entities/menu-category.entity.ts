@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import MenuItem from "./menu-item.entity";
@@ -21,7 +22,7 @@ class MenuCategory extends BaseEntity {
   name: string;
 
   @Field(() => [MenuItem], { nullable: true })
-  @ManyToOne(() => MenuItem, (menuItem) => menuItem.category)
+  @OneToMany(() => MenuItem, (menuItem) => menuItem.category)
   items: MenuItem[];
 
   @ManyToOne(() => Menu, (menu) => menu.categories, {
