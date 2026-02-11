@@ -19,6 +19,8 @@ export const CategoriesList = ({
 
   const categories = data?.getMenuCategories;
 
+  console.log(categories);
+
   return (
     <ul className="flex flex-col gap-4 w-full">
       {categories?.map((category) => (

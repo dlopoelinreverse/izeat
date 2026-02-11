@@ -12,7 +12,7 @@ class MenuItemResolver {
   }
 
   @Authorized()
-  @Mutation(() => MenuCategory)
+  @Mutation(() => MenuItem)
   async createMenuItem(@Arg("menuItemInput") input: MenuItemInput) {
     const { name, restaurantId, menuId, categoryId, ingredientsId } = input;
 
@@ -33,26 +33,29 @@ class MenuItemResolver {
       throw new Error("Category not found");
     }
 
+    // 1. Création de l'item (ça suffit pour la relation)
     const menuItem = await MenuItem.create({
       name,
-      menuId,
-      category: { id: categoryId },
+      menu,
+      category,
     }).save();
 
+    // 2. Lien ingrédients
     if (ingredientsId && ingredientsId.length > 0) {
-      const ingredientLinks = ingredientsId.map((id) => {
-        return MenuItemIngredient.create({
+      const ingredientLinks = ingredientsId.map((id) =>
+        MenuItemIngredient.create({
           item: menuItem,
           ingredient: { id },
-        });
-      });
+        }),
+      );
 
       await MenuItemIngredient.save(ingredientLinks);
     }
 
-    return await MenuItem.findOneOrFail({
+    // 3. Retour avec relations
+    return MenuItem.findOneOrFail({
       where: { id: menuItem.id },
-      relations: ["ingredients"],
+      relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
     });
   }
 }

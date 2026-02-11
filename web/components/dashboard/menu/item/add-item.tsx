@@ -1,9 +1,9 @@
-import { Card } from "@/components/ui/card";
-import clsx from "clsx";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CreateMenuItemDocument } from "@/graphql/__generated__/graphql";
+import {
+  CreateMenuItemDocument,
+  GetMenuCategoriesDocument,
+} from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,17 +14,14 @@ import {
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Plus } from "lucide-react";
-// import { useRouter } from "next/navigation";
 
 interface AddItemProps {
   categoryId: string;
-  // categories?: { id: string; name: string }[];
   restaurantId: string;
   menuId: string;
 }
@@ -35,14 +32,42 @@ export const AddItem = ({ categoryId, restaurantId, menuId }: AddItemProps) => {
     IngredientType[]
   >([]);
 
-  // const router = useRouter();
-
-  const [createMenuItem] = useMutation(CreateMenuItemDocument, {
+  const [createMenuItem, { error }] = useMutation(CreateMenuItemDocument, {
     onCompleted: () => {
       setOpen(false);
       setSelectedIngredients([]);
     },
+    update: (cache, { data }) => {
+      if (!data?.createMenuItem) return;
+
+      const existing = cache.readQuery({
+        query: GetMenuCategoriesDocument,
+        variables: { menuId },
+      });
+
+      if (!existing) return;
+
+      const newCategories = existing.getMenuCategories.map((category) => {
+        if (category.id !== categoryId) return category;
+
+        return {
+          ...category,
+          __typename: category.__typename,
+          items: [...(category.items ?? []), data.createMenuItem],
+        };
+      });
+
+      cache.writeQuery({
+        query: GetMenuCategoriesDocument,
+        variables: { menuId },
+        data: {
+          getMenuCategories: newCategories,
+        },
+      });
+    },
   });
+
+  console.log(error);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,6 +84,7 @@ export const AddItem = ({ categoryId, restaurantId, menuId }: AddItemProps) => {
           ingredientsId: selectedIngredients.map((i) => i.id),
           categoryId,
           menuId,
+          restaurantId,
         },
       },
     });
@@ -75,13 +101,6 @@ export const AddItem = ({ categoryId, restaurantId, menuId }: AddItemProps) => {
           <div className="mx-auto w-full max-w-[800px] flex flex-col h-full overflow-hidden">
             <DrawerHeader>
               <DrawerTitle>Ajouter un plat</DrawerTitle>
-              <DrawerDescription>
-                Ajouter un plat à la catégorie{" "}
-                {/* {
-                  categories?.find((category) => category.id === categoryId)
-                    ?.name
-                } */}
-              </DrawerDescription>
             </DrawerHeader>
 
             <form
