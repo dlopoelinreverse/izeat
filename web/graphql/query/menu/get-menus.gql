@@ -2,14 +2,10 @@ query GetMenus($restaurantId: String!) {
   getMenus(restaurantId: $restaurantId) {
     categories {
       id
-      name
     }
     id
     items {
-      categoryId
       id
-      menuId
-      name
     }
     name
     restaurantId

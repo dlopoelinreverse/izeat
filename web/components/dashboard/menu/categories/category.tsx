@@ -63,7 +63,6 @@ export const Category = ({
               className="rounded-md border px-4 py-2 text-sm flex justify-between items-center"
             >
               <p className="font-medium">{item.name}</p>
-              {/* Add more item details here if needed */}
             </div>
           ))
         ) : (

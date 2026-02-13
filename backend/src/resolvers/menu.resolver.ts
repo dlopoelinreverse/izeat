@@ -77,11 +77,7 @@ class MenuResolver {
 
     const menus = await Menu.find({
       where: { restaurantId, restaurant: { owner: user } },
-      relations: [
-        "categories",
-        "categories.items",
-        "categories.items.ingredients",
-      ],
+      relations: ["items", "categories"],
     });
 
     if (!menus) {
