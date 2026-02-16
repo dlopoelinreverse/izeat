@@ -1,0 +1,19 @@
+mutation UpdateMenuItem($id: String!, $menuItemInput: MenuItemInput!) {
+  updateMenuItem(id: $id, menuItemInput: $menuItemInput) {
+    id
+    menuId
+    name
+    description
+    price
+    ingredients {
+      ingredient {
+        id
+        name
+        ingredientCategory {
+          id
+          name
+        }
+      }
+    }
+  }
+}

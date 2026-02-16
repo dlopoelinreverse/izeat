@@ -75,7 +75,8 @@ export const CreateMenuCategory = ({ menu }: CreateMenuCategoryProps) => {
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
-        <Plus /> Ajouter une catégorie
+        <Plus />{" "}
+        <span className="text-xs sm:text-sm">Ajouter une catégorie</span>
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen}>

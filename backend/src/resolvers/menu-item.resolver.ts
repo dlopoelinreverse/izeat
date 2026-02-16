@@ -12,9 +12,26 @@ class MenuItemResolver {
   }
 
   @Authorized()
+  @Query(() => MenuItem, { nullable: true })
+  async getMenuItem(@Arg("id") id: string) {
+    return MenuItem.findOne({
+      where: { id },
+      relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
+    });
+  }
+
+  @Authorized()
   @Mutation(() => MenuItem)
   async createMenuItem(@Arg("menuItemInput") input: MenuItemInput) {
-    const { name, restaurantId, menuId, categoryId, ingredientsId } = input;
+    const {
+      name,
+      description,
+      price,
+      restaurantId,
+      menuId,
+      categoryId,
+      ingredientsId,
+    } = input;
 
     const menu = await getMenuById(menuId, { restaurantId }, [
       "restaurant",
@@ -33,14 +50,14 @@ class MenuItemResolver {
       throw new Error("Category not found");
     }
 
-    // 1. Création de l'item (ça suffit pour la relation)
     const menuItem = await MenuItem.create({
       name,
       menu,
+      description,
+      price,
       category,
     }).save();
 
-    // 2. Lien ingrédients
     if (ingredientsId && ingredientsId.length > 0) {
       const ingredientLinks = ingredientsId.map((id) =>
         MenuItemIngredient.create({
@@ -52,7 +69,57 @@ class MenuItemResolver {
       await MenuItemIngredient.save(ingredientLinks);
     }
 
-    // 3. Retour avec relations
+    return MenuItem.findOneOrFail({
+      where: { id: menuItem.id },
+      relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
+    });
+  }
+
+  @Authorized()
+  @Mutation(() => MenuItem)
+  async updateMenuItem(
+    @Arg("id") id: string,
+    @Arg("menuItemInput") input: MenuItemInput,
+  ) {
+    const { name, description, price, ingredientsId, categoryId } = input;
+
+    const menuItem = await MenuItem.findOne({
+      where: { id },
+      relations: ["ingredients"],
+    });
+
+    if (!menuItem) {
+      throw new Error("MenuItem not found");
+    }
+
+    menuItem.name = name;
+    menuItem.description = description;
+    menuItem.price = price;
+
+    if (categoryId !== menuItem.categoryId) {
+      const category = await MenuCategory.findOne({
+        where: { id: categoryId },
+      });
+      if (!category) {
+        throw new Error("Category not found");
+      }
+      menuItem.category = category;
+    }
+
+    await menuItem.save();
+
+    await MenuItemIngredient.delete({ item: { id: menuItem.id } });
+
+    if (ingredientsId && ingredientsId.length > 0) {
+      const ingredientLinks = ingredientsId.map((ingId) =>
+        MenuItemIngredient.create({
+          item: menuItem,
+          ingredient: { id: ingId },
+        }),
+      );
+      await MenuItemIngredient.save(ingredientLinks);
+    }
+
     return MenuItem.findOneOrFail({
       where: { id: menuItem.id },
       relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],

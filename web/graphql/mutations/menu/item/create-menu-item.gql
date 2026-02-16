@@ -4,5 +4,7 @@ mutation CreateMenuItem($menuItemInput: MenuItemInput!) {
     id
     menuId
     name
+    description
+    price
   }
 }

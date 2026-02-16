@@ -11,7 +11,6 @@ import {
 import Menu from "./menu.entity";
 import MenuCategory from "./menu-category.entity";
 import MenuItemIngredient from "./menu-item-ingredient";
-import Ingredient from "./ingredient.entity";
 
 @ObjectType()
 @Entity()
@@ -27,6 +26,14 @@ class MenuItem extends BaseEntity {
   @Field()
   @Column()
   menuId: string;
+
+  @Field()
+  @Column()
+  description: string;
+
+  @Field()
+  @Column()
+  price: number;
 
   @ManyToOne(() => Menu, (menu) => menu.items, { onDelete: "CASCADE" })
   @JoinColumn({ name: "menuId" })
@@ -63,4 +70,12 @@ export class MenuItemInput {
 
   @Field(() => [String])
   ingredientsId: string[];
+
+  @Field()
+  @Column()
+  description: string;
+
+  @Field()
+  @Column()
+  price: number;
 }

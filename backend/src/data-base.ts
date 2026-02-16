@@ -4,12 +4,15 @@ import { DataSource } from "typeorm";
 
 dotenv.config({ path: join(__dirname, "../../.env") });
 
+const isDev = process.env.NODE_ENV === "development";
+
 const DataBase = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL,
   entities: ["src/entities/*.ts"],
   migrations: ["src/migrations/*.ts"],
-  synchronize: false,
+  synchronize: isDev,
+  migrationsRun: !isDev,
   logging: process.env.NODE_ENV === "development",
   schema: "public",
 });
@@ -20,13 +23,13 @@ export async function clearDB() {
 
   await Promise.all(
     DataBase.entityMetadatas.map(async (entity) =>
-      runner.query(`ALTER TABLE "${entity.tableName}" DISABLE TRIGGER ALL`)
-    )
+      runner.query(`ALTER TABLE "${entity.tableName}" DISABLE TRIGGER ALL`),
+    ),
   );
   await Promise.all(
     DataBase.entityMetadatas.map(async (entity) =>
-      runner.query(`DROP TABLE IF EXISTS "${entity.tableName}" CASCADE`)
-    )
+      runner.query(`DROP TABLE IF EXISTS "${entity.tableName}" CASCADE`),
+    ),
   );
   await runner.query("SET session_replication_role = 'origin'");
   await DataBase.synchronize();

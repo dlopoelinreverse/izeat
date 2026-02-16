@@ -36,7 +36,7 @@ export const Category = ({
               {category.items?.length > 1 ? "s" : ""}
             </p>
           ) : (
-            <p>Aucun plat</p>
+            <p>0 plat</p>
           )}
         </div>
 
@@ -58,12 +58,16 @@ export const Category = ({
       <CollapsibleContent className="flex flex-col gap-2">
         {category.items && category.items.length > 0 ? (
           category.items.map((item) => (
-            <div
+            <AddItem
               key={item.id}
-              className="rounded-md border px-4 py-2 text-sm flex justify-between items-center"
-            >
-              <p className="font-medium">{item.name}</p>
-            </div>
+              trigger={
+                <div className="rounded-md border px-4 py-2 text-sm flex justify-between items-center">
+                  <p className="font-medium">{item.name}</p>
+                </div>
+              }
+              itemId={item.id}
+              restaurantId={restaurantId}
+            />
           ))
         ) : (
           <div className="rounded-md border px-4 py-2 text-sm text-muted-foreground w-full text-center bg-muted/50">

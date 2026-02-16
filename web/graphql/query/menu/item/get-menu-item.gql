@@ -1,0 +1,20 @@
+query GetMenuItem($id: String!) {
+  getMenuItem(id: $id) {
+    id
+    name
+    description
+    price
+    categoryId
+    ingredients {
+      ingredient {
+        id
+        name
+        available
+        ingredientCategory {
+          id
+          name
+        }
+      }
+    }
+  }
+}
