@@ -1,7 +1,7 @@
 "use client";
 import { GetMenuQuery } from "@/graphql/__generated__/graphql";
 import { useQueryState } from "nuqs";
-import { AddItem } from "./add-item";
+import { AddItem } from "./item-sheet";
 
 interface ItemListProps {
   items?: GetMenuQuery["getMenu"]["items"];

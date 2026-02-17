@@ -6,9 +6,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { GetMenuCategoriesQuery } from "@/graphql/__generated__/graphql";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
-import { AddItem } from "../item/add-item";
+import { ItemSheet } from "../item/item-sheet";
 
 export const Category = ({
   category,
@@ -41,7 +41,8 @@ export const Category = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <AddItem
+          <ItemSheet
+            variant="CREATE"
             menuId={menuId}
             categoryId={category.id}
             restaurantId={restaurantId}
@@ -58,14 +59,11 @@ export const Category = ({
       <CollapsibleContent className="flex flex-col gap-2">
         {category.items && category.items.length > 0 ? (
           category.items.map((item) => (
-            <AddItem
+            <ItemSheet
               key={item.id}
-              trigger={
-                <div className="rounded-md border px-4 py-2 text-sm flex justify-between items-center">
-                  <p className="font-medium">{item.name}</p>
-                </div>
-              }
+              variant="EDIT"
               itemId={item.id}
+              menuId={menuId}
               restaurantId={restaurantId}
             />
           ))

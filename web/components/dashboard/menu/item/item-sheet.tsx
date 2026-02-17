@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   CreateMenuItemDocument,
@@ -9,36 +9,32 @@ import {
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  IngredientType,
-  IngredientsList,
-} from "../../ingredient/ingredients-list";
+import { IngredientsList } from "../../ingredient/ingredients-list";
 import {
   Sheet,
   SheetContent,
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
-import { Plus, Pencil } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { DeleteItemButton } from "./delete-item-button";
 
-interface AddItemProps {
+interface ItemSheetProps {
   categoryId?: string;
   restaurantId?: string;
   menuId?: string;
   itemId?: string;
-  trigger?: React.ReactNode;
+  variant: "CREATE" | "EDIT";
 }
 
-export const AddItem = ({
+export const ItemSheet = ({
   categoryId,
   restaurantId,
   menuId,
   itemId,
-  trigger,
-}: AddItemProps) => {
+  variant,
+}: ItemSheetProps) => {
   const [open, setOpen] = useState(false);
 
   const { data } = useQuery(GetMenuItemDocument, {
@@ -86,20 +82,48 @@ export const AddItem = ({
         },
       });
     },
-    onError: (error) => {
-      console.error(error);
-    },
   });
 
   const [updateMenuItem] = useMutation(UpdateMenuItemDocument, {
     onCompleted: () => {
       setOpen(false);
     },
-    refetchQueries: menuId
-      ? [{ query: GetMenuCategoriesDocument, variables: { menuId } }]
-      : [],
-    onError: (error) => {
-      console.error(error);
+    update: (cache, { data }) => {
+      if (!data?.updateMenuItem || !menuId) return;
+
+      const existing = cache.readQuery({
+        query: GetMenuCategoriesDocument,
+        variables: { menuId },
+      });
+
+      if (!existing) return;
+
+      const updatedItem = data.updateMenuItem;
+
+      const categoriesWithoutItem = existing.getMenuCategories.map(
+        (category) => ({
+          ...category,
+          items: category.items?.filter((item) => item.id !== updatedItem.id),
+        }),
+      );
+
+      const newCategories = categoriesWithoutItem.map((category) => {
+        if (category.id === updatedItem.categoryId) {
+          return {
+            ...category,
+            items: [...(category.items || []), updatedItem],
+          };
+        }
+        return category;
+      });
+
+      cache.writeQuery({
+        query: GetMenuCategoriesDocument,
+        variables: { menuId },
+        data: {
+          getMenuCategories: newCategories,
+        },
+      });
     },
   });
 
@@ -111,7 +135,7 @@ export const AddItem = ({
     const description = formData.get("description") as string;
     const price = formData.get("price") as string;
 
-    if (itemId) {
+    if (variant === "EDIT" && itemId) {
       const itemData = data?.getMenuItem;
       updateMenuItem({
         variables: {
@@ -145,15 +169,21 @@ export const AddItem = ({
     }
   };
 
-  const isEdit = !!itemId;
+  const isEdit = variant === "EDIT";
+
+  const itemData = data?.getMenuItem;
 
   return (
     <>
-      {trigger ? (
-        <div onClick={() => setOpen(true)}>{trigger}</div>
+      {itemData ? (
+        <div
+          onClick={() => setOpen(true)}
+          className="rounded-md border px-4 py-2 text-sm flex justify-between items-center hover:bg-accent cursor-pointer"
+        >
+          <p className="font-medium">{itemData.name}</p>
+        </div>
       ) : (
         <Button variant="outline" onClick={() => setOpen(true)}>
-          {isEdit ? <Pencil className="size-4" /> : <Plus />}
           <span className="hidden sm:inline">
             {isEdit ? "Modifier" : "Ajouter un plat"}
           </span>
@@ -218,14 +248,12 @@ export const AddItem = ({
                 <Button type="submit" className="w-full">
                   {isEdit ? "Modifier" : "Ajouter le plat"}
                 </Button>
-                {isEdit && (
-                  <Button
-                    variant="destructive"
-                    type="button"
-                    className="w-full"
-                  >
-                    Supprimer le plat
-                  </Button>
+                {isEdit && itemId && menuId && (
+                  <DeleteItemButton
+                    itemId={itemId}
+                    menuId={menuId}
+                    setOpen={setOpen}
+                  />
                 )}
                 <Button
                   variant="outline"

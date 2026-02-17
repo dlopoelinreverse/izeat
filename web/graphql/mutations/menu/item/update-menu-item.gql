@@ -5,6 +5,7 @@ mutation UpdateMenuItem($id: String!, $menuItemInput: MenuItemInput!) {
     name
     description
     price
+    categoryId
     ingredients {
       ingredient {
         id

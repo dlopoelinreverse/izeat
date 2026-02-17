@@ -79,3 +79,9 @@ export class MenuItemInput {
   @Column()
   price: number;
 }
+
+@ObjectType()
+export class DeleteMenuItemResponse {
+  @Field()
+  id: string;
+}

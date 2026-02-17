@@ -1,5 +1,8 @@
 import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
-import MenuItem, { MenuItemInput } from "../entities/menu-item.entity";
+import MenuItem, {
+  DeleteMenuItemResponse,
+  MenuItemInput,
+} from "../entities/menu-item.entity";
 import MenuItemIngredient from "../entities/menu-item-ingredient";
 import MenuCategory from "../entities/menu-category.entity";
 import { getMenuById } from "./menu.resolver";
@@ -124,6 +127,23 @@ class MenuItemResolver {
       where: { id: menuItem.id },
       relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
     });
+  }
+  @Authorized()
+  @Mutation(() => DeleteMenuItemResponse)
+  async deleteMenuItem(@Arg("id") id: string) {
+    const menuItem = await MenuItem.findOne({
+      where: { id },
+    });
+
+    if (!menuItem) {
+      throw new Error("MenuItem not found");
+    }
+
+    const itemId = menuItem.id;
+
+    await menuItem.remove();
+
+    return { id: itemId };
   }
 }
 
