@@ -56,7 +56,7 @@ export async function SidebarNavigation() {
       />
       <SidebarNavigationItem
         item={sidebarNavigation[2]}
-        disabled={status.step !== "READY" || !status.checks.hasTable}
+        disabled={status.step !== "READY" || !status.checks.hasMenu}
       />
       <SidebarNavigationItem
         item={sidebarNavigation[3]}

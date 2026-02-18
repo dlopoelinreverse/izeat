@@ -58,8 +58,8 @@ services:
           path: ./web/components.json
           target: /app/components.json
         - action: sync
-          path: ./web/middleware.ts
-          target: /app/middleware.ts
+          path: ./web/proxy.ts
+          target: /app/proxy.ts
         - action: sync
           path: ./web/graphql
           target: /app/graphql

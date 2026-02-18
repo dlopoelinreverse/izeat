@@ -19,7 +19,7 @@ class IngredientCategory extends BaseEntity {
   id: string;
 
   @Field()
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   @Column()
