@@ -13,33 +13,6 @@ import Account from "./account.entity";
 import Restaurant from "./restaurant.entity";
 
 @ObjectType()
-export class Onboarding {
-  @Field(() => Boolean)
-  hasRestaurant: boolean;
-
-  @Field(() => String, { nullable: true })
-  restaurantId?: string;
-
-  @Field(() => String, { nullable: true })
-  restaurantName?: string;
-
-  @Field(() => Boolean)
-  hasMenu: boolean;
-
-  @Field(() => Boolean)
-  hasCategory: boolean;
-
-  @Field(() => Boolean)
-  hasDish: boolean;
-
-  @Field(() => Boolean)
-  hasTable: boolean;
-
-  @Field(() => Boolean)
-  isReady: boolean;
-}
-
-@ObjectType()
 @Entity()
 class User extends BaseEntity {
   @Field(() => ID)
@@ -81,9 +54,6 @@ class User extends BaseEntity {
   @Field(() => [Account])
   @OneToMany(() => Account, (account) => account.user)
   accounts!: Account[];
-
-  @Field(() => Onboarding, { nullable: true })
-  onboarding?: Onboarding;
 }
 
 export default User;

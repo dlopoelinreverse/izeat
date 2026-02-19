@@ -14,7 +14,7 @@ export const CreateRestaurantForm = () => {
   const [createRestaurant] = useMutation(CreateRestaurantDocument, {
     onCompleted: (data) => {
       refetchOnboarding();
-      router.push(`/app/dashboard/${data.createRestaurant.id}`);
+      router.push(`/app/dashboard/${data.createRestaurant.id}/menus`);
     },
     onError: (error) => {
       console.error("Error creating restaurant:", error);
