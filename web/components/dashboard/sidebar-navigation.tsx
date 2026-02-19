@@ -1,3 +1,5 @@
+"use client";
+
 import {
   HandPlatterIcon,
   BookOpenText,
@@ -5,42 +7,35 @@ import {
   LucideShoppingBasket,
 } from "lucide-react";
 import { SidebarContent } from "@/components/ui/sidebar";
-import { getDashboardStatus } from "@/lib/get-dashboard-status";
+import { useDashboardStatus } from "@/hooks/use-dashboard-status";
 import { SidebarNavigationItem } from "./sidebar-navigation-item";
 
-interface NavItem {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  href: string;
-  items?: {
-    title: string;
-    href: string;
-  }[];
-}
+export function SidebarNavigation() {
+  const { status, loading } = useDashboardStatus();
 
-export async function SidebarNavigation() {
-  const status = await getDashboardStatus();
+  const restaurantId = status?.restaurantId ?? "";
+  const allDisabled = loading || !status?.hasRestaurant;
 
-  const sidebarNavigation: NavItem[] = [
+  const sidebarNavigation = [
     {
       title: "Service",
       icon: HandPlatterIcon,
-      href: `/app/dashboard/${status.restaurantId}/service`,
+      href: `/app/dashboard/${restaurantId}/service`,
     },
     {
       title: "Menus",
       icon: BookOpenText,
-      href: `/app/dashboard/${status.restaurantId}/menus`,
+      href: `/app/dashboard/${restaurantId}/menus`,
     },
     {
       title: "Tables",
       icon: ForkKnife,
-      href: `/app/dashboard/${status.restaurantId}/tables`,
+      href: `/app/dashboard/${restaurantId}/tables`,
     },
     {
       title: "Ingredients",
       icon: LucideShoppingBasket,
-      href: `/app/dashboard/${status.restaurantId}/ingredients`,
+      href: `/app/dashboard/${restaurantId}/ingredients`,
     },
   ];
 
@@ -48,19 +43,19 @@ export async function SidebarNavigation() {
     <SidebarContent className="flex flex-col gap-2 mt-5">
       <SidebarNavigationItem
         item={sidebarNavigation[0]}
-        disabled={status.step !== "READY" || !status.checks.isServiceReady}
+        disabled={allDisabled || !status?.isFullySetup}
       />
       <SidebarNavigationItem
         item={sidebarNavigation[1]}
-        disabled={status.step !== "READY" || !status.checks.hasMenu}
+        disabled={allDisabled || !status?.hasMenu}
       />
       <SidebarNavigationItem
         item={sidebarNavigation[2]}
-        disabled={status.step !== "READY" || !status.checks.hasMenu}
+        disabled={allDisabled || !status?.hasMenu}
       />
       <SidebarNavigationItem
         item={sidebarNavigation[3]}
-        disabled={status.step !== "READY" || !status.checks.hasMenu}
+        disabled={allDisabled || !status?.hasMenu}
       />
     </SidebarContent>
   );

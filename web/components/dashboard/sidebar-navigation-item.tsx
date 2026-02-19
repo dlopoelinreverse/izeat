@@ -18,11 +18,19 @@ export const SidebarNavigationItem = ({
         asChild
         tooltip={item.title}
         className="flex justify-between gap-2 px-6"
+        disabled={disabled}
       >
-        <Link href={item.href} aria-disabled={disabled}>
-          <item.icon className="size-4" />
-          <span>{item.title}</span>
-        </Link>
+        {disabled ? (
+          <span aria-disabled="true" className="cursor-not-allowed opacity-50">
+            <item.icon className="size-4" />
+            <span>{item.title}</span>
+          </span>
+        ) : (
+          <Link href={item.href}>
+            <item.icon className="size-4" />
+            <span>{item.title}</span>
+          </Link>
+        )}
       </SidebarMenuButton>
     </SidebarMenuItem>
   );

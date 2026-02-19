@@ -1,0 +1,12 @@
+query GetDashboardSetupStatus {
+  dashboardSetupStatus {
+    hasRestaurant
+    restaurantId
+    restaurantName
+    hasMenu
+    hasMenuCategory
+    hasMenuItem
+    hasTable
+    isFullySetup
+  }
+}

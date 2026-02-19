@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface SidebarFooterComponentProps {
   user?: {
@@ -32,6 +33,7 @@ export function SidebarFooterComponent({
     email: "user@example.com",
   },
 }: SidebarFooterComponentProps) {
+  const router = useRouter();
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -39,9 +41,14 @@ export function SidebarFooterComponent({
     .toUpperCase()
     .slice(0, 2);
 
-  const handleLogout = () => {
-    // TODO: Implémenter la logique de déconnexion
-    signOut();
+  const handleLogout = async () => {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+      },
+    });
   };
 
   const handleSettings = () => {
