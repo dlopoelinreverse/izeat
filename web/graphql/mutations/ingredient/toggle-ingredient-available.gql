@@ -1,0 +1,3 @@
+mutation ToggleIngredientAvailable($id: String!) {
+  toggleIngredientAvailable(id: $id)
+}

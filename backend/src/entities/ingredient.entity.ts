@@ -66,3 +66,15 @@ export class IngredientInput {
   @Field()
   restaurantId: string;
 }
+
+@InputType()
+export class UpdateIngredientInput {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  ingredientCategoryId: string;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, ForkKnife, HandPlatterIcon } from "lucide-react";
+import { BookOpenText, Carrot, ForkKnife, HandPlatterIcon } from "lucide-react";
 import { SidebarContent } from "@/components/ui/sidebar";
 import { useOnboarding } from "@/contexts/onboarding-context";
 import { SidebarNavigationItem } from "./sidebar-navigation-item";
@@ -15,6 +15,12 @@ export function SidebarNavigation() {
       title: "Menus",
       icon: BookOpenText,
       href: `/app/dashboard/${rid}/menus`,
+      disabled: off || !onboarding?.hasRestaurant,
+    },
+    {
+      title: "Ingrédients",
+      icon: Carrot,
+      href: `/app/dashboard/${rid}/ingredients`,
       disabled: off || !onboarding?.hasRestaurant,
     },
     {

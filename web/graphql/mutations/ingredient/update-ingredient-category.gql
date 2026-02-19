@@ -1,0 +1,6 @@
+mutation UpdateIngredientCategory($id: String!, $name: String!) {
+  updateIngredientCategory(id: $id, name: $name) {
+    id
+    name
+  }
+}
