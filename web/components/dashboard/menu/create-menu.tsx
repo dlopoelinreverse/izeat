@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useOnboarding } from "@/contexts/onboarding-context";
 
 interface CreateMenuProps {
   restaurantId: string;
@@ -30,12 +31,14 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const router = useRouter();
+  const { refetchOnboarding } = useOnboarding();
 
   const [createMenu, { loading }] = useMutation(CreateMenuDocument, {
     onCompleted: () => {
       toast.success("Menu créé avec succès");
       setOpen(false);
       setName("");
+      refetchOnboarding();
       router.refresh();
     },
     onError: (error) => {

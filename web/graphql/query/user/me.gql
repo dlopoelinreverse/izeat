@@ -1,0 +1,16 @@
+query Me {
+  me {
+    id
+    name
+    onboarding {
+      hasRestaurant
+      restaurantId
+      restaurantName
+      hasMenu
+      hasCategory
+      hasDish
+      hasTable
+      isReady
+    }
+  }
+}

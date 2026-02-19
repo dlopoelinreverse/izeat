@@ -1,62 +1,70 @@
 "use client";
 
 import {
-  HandPlatterIcon,
+  Store,
   BookOpenText,
+  Tag,
+  UtensilsCrossed,
   ForkKnife,
-  LucideShoppingBasket,
+  HandPlatterIcon,
 } from "lucide-react";
 import { SidebarContent } from "@/components/ui/sidebar";
-import { useDashboardStatus } from "@/hooks/use-dashboard-status";
+import { useOnboarding } from "@/contexts/onboarding-context";
 import { SidebarNavigationItem } from "./sidebar-navigation-item";
 
 export function SidebarNavigation() {
-  const { status, loading } = useDashboardStatus();
+  const { onboarding, loading } = useOnboarding();
+  const rid = onboarding?.restaurantId ?? "";
+  const off = loading || !onboarding;
 
-  const restaurantId = status?.restaurantId ?? "";
-  const allDisabled = loading || !status?.hasRestaurant;
-
-  const sidebarNavigation = [
+  const items = [
     {
-      title: "Service",
-      icon: HandPlatterIcon,
-      href: `/app/dashboard/${restaurantId}/service`,
+      title: "Restaurant",
+      icon: Store,
+      href: `/app/dashboard`,
+      disabled: false,
     },
     {
       title: "Menus",
       icon: BookOpenText,
-      href: `/app/dashboard/${restaurantId}/menus`,
+      href: `/app/dashboard/${rid}/menus`,
+      disabled: off || !onboarding?.hasRestaurant,
+    },
+    {
+      title: "Catégories",
+      icon: Tag,
+      href: `/app/dashboard/${rid}/menus`,
+      disabled: off || !onboarding?.hasMenu,
+    },
+    {
+      title: "Plats",
+      icon: UtensilsCrossed,
+      href: `/app/dashboard/${rid}/menus`,
+      disabled: off || !onboarding?.hasCategory,
     },
     {
       title: "Tables",
       icon: ForkKnife,
-      href: `/app/dashboard/${restaurantId}/tables`,
+      href: `/app/dashboard/${rid}/tables`,
+      disabled: off || !onboarding?.hasDish,
     },
     {
-      title: "Ingredients",
-      icon: LucideShoppingBasket,
-      href: `/app/dashboard/${restaurantId}/ingredients`,
+      title: "Service",
+      icon: HandPlatterIcon,
+      href: `/app/dashboard/${rid}/service`,
+      disabled: off || !onboarding?.isReady,
     },
   ];
 
   return (
     <SidebarContent className="flex flex-col gap-2 mt-5">
-      <SidebarNavigationItem
-        item={sidebarNavigation[0]}
-        disabled={allDisabled || !status?.isFullySetup}
-      />
-      <SidebarNavigationItem
-        item={sidebarNavigation[1]}
-        disabled={allDisabled || !status?.hasMenu}
-      />
-      <SidebarNavigationItem
-        item={sidebarNavigation[2]}
-        disabled={allDisabled || !status?.hasMenu}
-      />
-      <SidebarNavigationItem
-        item={sidebarNavigation[3]}
-        disabled={allDisabled || !status?.hasMenu}
-      />
+      {items.map((item) => (
+        <SidebarNavigationItem
+          key={item.title}
+          item={item}
+          disabled={item.disabled}
+        />
+      ))}
     </SidebarContent>
   );
 }

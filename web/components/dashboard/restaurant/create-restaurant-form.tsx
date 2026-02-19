@@ -6,11 +6,14 @@ import { CreateRestaurantDocument } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { useRouter } from "next/navigation";
 import { FormEventHandler } from "react";
+import { useOnboarding } from "@/contexts/onboarding-context";
 
 export const CreateRestaurantForm = () => {
   const router = useRouter();
+  const { refetchOnboarding } = useOnboarding();
   const [createRestaurant] = useMutation(CreateRestaurantDocument, {
     onCompleted: (data) => {
+      refetchOnboarding();
       router.push(`/app/dashboard/${data.createRestaurant.id}`);
     },
     onError: (error) => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useOnboarding } from "@/contexts/onboarding-context";
 import {
   CreateMenuItemDocument,
   GetMenuCategoriesDocument,
@@ -36,6 +37,7 @@ export const ItemSheet = ({
   variant,
 }: ItemSheetProps) => {
   const [open, setOpen] = useState(false);
+  const { refetchOnboarding } = useOnboarding();
 
   const { data } = useQuery(GetMenuItemDocument, {
     variables: { id: itemId || "" },
@@ -53,6 +55,7 @@ export const ItemSheet = ({
     onCompleted: () => {
       setOpen(false);
       setSelectedIngredients([]);
+      refetchOnboarding();
     },
     update: (cache, { data }) => {
       if (!data?.createMenuItem || !menuId || !categoryId) return;

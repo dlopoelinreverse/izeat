@@ -20,17 +20,17 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { useOnboarding } from "@/contexts/onboarding-context";
 
 interface CreateTableProps {
   restaurantId: string;
 }
 
 export const CreateTable = ({ restaurantId }: CreateTableProps) => {
+  const { refetchOnboarding } = useOnboarding();
   const [open, setOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
   const [capacity, setCapacity] = useState("");
-  const router = useRouter();
 
   const [createTable, { loading }] = useMutation(CreateTableDocument, {
     onCompleted: () => {
@@ -38,11 +38,11 @@ export const CreateTable = ({ restaurantId }: CreateTableProps) => {
       setOpen(false);
       setTableNumber("");
       setCapacity("");
-      router.refresh();
+      refetchOnboarding();
     },
     onError: (error) => {
       toast.error(
-        "Erreur lors de l'ajout de la table, vérifiez que le numéro de la table n'est pas déjà utilisé",
+        "Erreur lors de l'ajout de la table, vérifiez que le numéro de la table n'est pas déjà utilisé"
       );
     },
     update: (cache, { data }) => {

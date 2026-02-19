@@ -1,9 +1,12 @@
+"use client";
+
 import { SidebarHeader } from "@/components/ui/sidebar";
-import { getDashboardStatus } from "@/lib/get-dashboard-status";
+import { useOnboarding } from "@/contexts/onboarding-context";
 import { Store } from "lucide-react";
 
-export async function SidebarHeaderComponent() {
-  const { restaurantName } = await getDashboardStatus();
+export function SidebarHeaderComponent() {
+  const { onboarding } = useOnboarding();
+  const restaurantName = onboarding?.restaurantName ?? "Nom du restaurant";
 
   return (
     <SidebarHeader className="border-b border-sidebar-border h-14 ">

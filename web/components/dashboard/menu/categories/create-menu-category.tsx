@@ -19,6 +19,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { useOnboarding } from "@/contexts/onboarding-context";
 
 interface CreateMenuCategoryProps {
   menu: GetMenuQuery["getMenu"];
@@ -26,12 +27,14 @@ interface CreateMenuCategoryProps {
 
 export const CreateMenuCategory = ({ menu }: CreateMenuCategoryProps) => {
   const [open, setOpen] = useState(false);
+  const { refetchOnboarding } = useOnboarding();
 
   const { id: menuId } = menu;
 
   const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
     onCompleted: () => {
       setOpen(false);
+      refetchOnboarding();
     },
     update(cache, { data }) {
       if (!data?.createMenuCategory) return;
