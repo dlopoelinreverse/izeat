@@ -1,5 +1,10 @@
+"use client";
+
 import DashboardPageLayout from "../dashboard-page-layout";
-import { RestaurantTable } from "@/graphql/__generated__/graphql";
+import {
+  GetRestaurantTablesDocument,
+} from "@/graphql/__generated__/graphql";
+import { useQuery } from "@apollo/client/react";
 import { CreateTable } from "./create-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, LayoutGrid } from "lucide-react";
@@ -7,17 +12,21 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteTableButton } from "./delete-table-button";
 import { EmptyState } from "../empty-state";
 
-export const TableList = ({
-  restaurantId,
-  tables,
-}: {
-  restaurantId: string;
-  tables: RestaurantTable[];
-}) => {
+export const TableList = ({ restaurantId }: { restaurantId: string }) => {
+  const { data } = useQuery(GetRestaurantTablesDocument, {
+    variables: { restaurantId },
+  });
+
+  const tables = data?.getRestaurantTables ?? [];
   return (
     <DashboardPageLayout
       title="Tables"
-      headerAction={<CreateTable restaurantId={restaurantId} />}
+      headerAction={
+        <CreateTable
+          restaurantId={restaurantId}
+          existingNumbers={tables.map((t) => t.number)}
+        />
+      }
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {tables.length > 0 ? (

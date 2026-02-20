@@ -41,6 +41,14 @@ class RestaurantTableResolver {
 
     const { restaurantId, number, capacity } = tableInput;
 
+    const existing = await RestaurantTable.findOne({
+      where: { restaurantId, number },
+    });
+
+    if (existing) {
+      throw new Error(`Une table avec le numéro ${number} existe déjà`);
+    }
+
     const table = await RestaurantTable.create({
       restaurantId,
       number,

@@ -17,11 +17,11 @@ class RestaurantTable extends BaseEntity {
   id: string;
 
   @Field(() => Number)
-  @Column({ type: "int" })
+  @Column()
   number: number;
 
   @Field(() => Number)
-  @Column({ type: "int", unique: true })
+  @Column()
   capacity: number;
 
   @Field(() => String)
@@ -29,7 +29,7 @@ class RestaurantTable extends BaseEntity {
   status: string;
 
   @Field(() => String)
-  @Column({ type: "text" })
+  @Column()
   restaurantId: string;
 
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.tables)

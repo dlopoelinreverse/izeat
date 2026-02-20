@@ -24,13 +24,17 @@ import { useOnboarding } from "@/contexts/onboarding-context";
 
 interface CreateTableProps {
   restaurantId: string;
+  existingNumbers: number[];
 }
 
-export const CreateTable = ({ restaurantId }: CreateTableProps) => {
+export const CreateTable = ({ restaurantId, existingNumbers }: CreateTableProps) => {
   const { refetchOnboarding } = useOnboarding();
   const [open, setOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
   const [capacity, setCapacity] = useState("");
+
+  const isDuplicate =
+    tableNumber !== "" && existingNumbers.includes(parseInt(tableNumber));
 
   const [createTable, { loading }] = useMutation(CreateTableDocument, {
     onCompleted: () => {
@@ -70,6 +74,10 @@ export const CreateTable = ({ restaurantId }: CreateTableProps) => {
     e.preventDefault();
     if (!tableNumber || !capacity) {
       toast.error("Veuillez remplir tous les champs");
+      return;
+    }
+    if (isDuplicate) {
+      toast.error(`La table n°${tableNumber} existe déjà`);
       return;
     }
 
@@ -134,9 +142,14 @@ export const CreateTable = ({ restaurantId }: CreateTableProps) => {
                     placeholder="Ex: 1, 10, 42..."
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
-                    className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
+                    className={`h-11 transition-all focus:ring-2 ${isDuplicate ? "border-destructive focus:ring-destructive/20" : "focus:ring-primary/20"}`}
                     autoFocus
                   />
+                  {isDuplicate && (
+                    <p className="text-xs text-destructive">
+                      La table n°{tableNumber} existe déjà
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -171,7 +184,7 @@ export const CreateTable = ({ restaurantId }: CreateTableProps) => {
                 <Button
                   type="submit"
                   className="flex-1 h-11 font-semibold"
-                  disabled={loading}
+                  disabled={loading || isDuplicate}
                 >
                   {loading ? "Ajout..." : "Créer la table"}
                 </Button>
