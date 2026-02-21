@@ -35,13 +35,13 @@ export const TableList = ({ restaurantId }: { restaurantId: string }) => {
         />
       }
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="flex flex-wrap gap-4 justify-start">
         {tables.length > 0 ? (
           tables.map((table) => (
             <Card
               key={table.id}
               onClick={() => setSelectedTable(table)}
-              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer"
+              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer w-full xl:w-[22%] lg:w-[30%] md:w-[48%]"
             >
               <div className="absolute top-0 right-0 p-2">
                 <Badge
