@@ -1,22 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
-import QRCode from "qrcode";
 import {
   GetRestaurantTablesDocument,
   GetRestaurantTablesQuery,
   UpdateTableDocument,
 } from "@/graphql/__generated__/graphql";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Hash, Users, X, Download, QrCode } from "lucide-react";
+import { Hash, Users, Download, QrCode, ExternalLink } from "lucide-react";
 
 type Table = GetRestaurantTablesQuery["getRestaurantTables"][number];
 
@@ -42,11 +41,36 @@ export const TableDetailDrawer = ({
   restaurantId,
   onClose,
 }: TableDetailDrawerProps) => {
-  const [number, setNumber] = useState("");
-  const [capacity, setCapacity] = useState("");
-  const [status, setStatus] = useState("available");
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const [generatingQr, setGeneratingQr] = useState(false);
+  return (
+    <Sheet open={!!table} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent className="flex flex-col gap-0 p-0 sm:max-w-md overflow-hidden">
+        {table && (
+          <TableDetailForm
+            key={table.id}
+            table={table}
+            restaurantId={restaurantId}
+            onClose={onClose}
+          />
+        )}
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+interface TableDetailFormProps {
+  table: Table;
+  restaurantId: string;
+  onClose: () => void;
+}
+
+const TableDetailForm = ({
+  table,
+  restaurantId,
+  onClose,
+}: TableDetailFormProps) => {
+  const [number, setNumber] = useState(String(table.number));
+  const [capacity, setCapacity] = useState(String(table.capacity));
+  const [status, setStatus] = useState(table.status);
 
   const [updateTable, { loading }] = useMutation(UpdateTableDocument, {
     onError: (error) => {
@@ -71,41 +95,8 @@ export const TableDetailDrawer = ({
     },
   });
 
-  // Sync form state when table changes
-  useEffect(() => {
-    if (table) {
-      setNumber(String(table.number));
-      setCapacity(String(table.capacity));
-      setStatus(table.status);
-      setQrDataUrl(table.qrCode ?? null);
-    }
-  }, [table]);
-
-  // Generate QR code if not yet stored
-  useEffect(() => {
-    if (!table || qrDataUrl) return;
-
-    const url = `${window.location.origin}/menu/${restaurantId}?table=${table.id}`;
-    setGeneratingQr(true);
-
-    QRCode.toDataURL(url, { width: 256, margin: 2 })
-      .then((dataUrl) => {
-        setQrDataUrl(dataUrl);
-        // Persist to DB
-        updateTable({
-          variables: { input: { id: table.id, qrCode: dataUrl } },
-        });
-      })
-      .catch(() => {
-        toast.error("Impossible de générer le QR code");
-      })
-      .finally(() => setGeneratingQr(false));
-  }, [table, qrDataUrl, restaurantId, updateTable]);
-
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!table) return;
-
     updateTable({
       variables: {
         input: {
@@ -120,152 +111,145 @@ export const TableDetailDrawer = ({
   };
 
   const handleDownloadQr = () => {
-    if (!qrDataUrl || !table) return;
+    if (!table.qrCode) return;
     const a = document.createElement("a");
-    a.href = qrDataUrl;
+    a.href = table.qrCode;
     a.download = `table-${table.number}.png`;
     a.click();
   };
 
-  const menuUrl = table
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/menu/${restaurantId}?table=${table.id}`
-    : "";
+  const menuUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/menu/${restaurantId}?table=${table.id}`;
 
   return (
-    <Drawer open={!!table} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="max-h-[96vh]">
-        <div className="mx-auto w-full max-w-md flex flex-col h-full overflow-hidden">
-          <DrawerHeader className="relative border-b pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <DrawerTitle className="text-xl font-bold">
-                  Table {table?.number}
-                </DrawerTitle>
-                <DrawerDescription className="text-muted-foreground mt-1">
-                  Modifiez les informations de la table.
-                </DrawerDescription>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full h-8 w-8"
-                onClick={onClose}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </DrawerHeader>
+    <>
+      <SheetHeader className="border-b px-6 py-4">
+        <SheetTitle className="text-xl font-bold">
+          Table {table.number}
+        </SheetTitle>
+        <SheetDescription>
+          Modifiez les informations de la table.
+        </SheetDescription>
+      </SheetHeader>
 
-          <div className="flex flex-col flex-1 overflow-y-auto p-6 space-y-6">
-            {/* Editable fields */}
-            <form onSubmit={handleSave} className="space-y-4" id="table-form">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="table-number"
-                  className="text-sm font-medium flex items-center gap-2"
-                >
-                  <Hash className="h-4 w-4 text-primary" />
-                  Numéro de la table
-                </Label>
-                <Input
-                  id="table-number"
-                  type="number"
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
-                  className="h-11"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="table-capacity"
-                  className="text-sm font-medium flex items-center gap-2"
-                >
-                  <Users className="h-4 w-4 text-primary" />
-                  Capacité (personnes)
-                </Label>
-                <Input
-                  id="table-capacity"
-                  type="number"
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                  className="h-11"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Statut</Label>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="h-11">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="available">Libre</SelectItem>
-                    <SelectItem value="occupied">Occupée</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </form>
-
-            {/* QR Code section */}
-            <div className="border-t pt-6 space-y-3">
-              <div className="flex items-center gap-2">
-                <QrCode className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">QR Code de la table</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-3">
-                {generatingQr && (
-                  <div className="h-[180px] w-[180px] flex items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
-                    Génération...
-                  </div>
-                )}
-                {qrDataUrl && !generatingQr && (
-                  <img
-                    src={qrDataUrl}
-                    alt={`QR Code Table ${table?.number}`}
-                    className="h-[180px] w-[180px] rounded-lg border p-1"
-                  />
-                )}
-                <p className="text-[10px] text-muted-foreground text-center break-all px-2">
-                  {menuUrl}
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={handleDownloadQr}
-                  disabled={!qrDataUrl}
-                >
-                  <Download className="h-4 w-4" />
-                  Télécharger le QR code
-                </Button>
-              </div>
-            </div>
+      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <form onSubmit={handleSave} className="space-y-4" id="table-form">
+          <div className="space-y-2">
+            <Label
+              htmlFor="table-number"
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <Hash className="h-4 w-4 text-primary" />
+              Numéro de la table
+            </Label>
+            <Input
+              id="table-number"
+              type="number"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className="h-11"
+            />
           </div>
 
-          <DrawerFooter className="px-6 pt-4 gap-3 flex-row border-t">
+          <div className="space-y-2">
+            <Label
+              htmlFor="table-capacity"
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <Users className="h-4 w-4 text-primary" />
+              Capacité (personnes)
+            </Label>
+            <Input
+              id="table-capacity"
+              type="number"
+              value={capacity}
+              onChange={(e) => setCapacity(e.target.value)}
+              className="h-11"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Statut</Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="available">Libre</SelectItem>
+                <SelectItem value="occupied">Occupée</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </form>
+
+        <div className="border-t pt-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <QrCode className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">QR Code de la table</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-3">
+            {table.qrCode ? (
+              <a
+                href={menuUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative block rounded-lg border p-1 hover:border-primary transition-colors"
+                title="Ouvrir la page menu"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- data: URL, Next/Image ne supporte pas le base64 */}
+                <img
+                  src={table.qrCode}
+                  alt={`QR Code Table ${table.number}`}
+                  className="h-[200px] w-[200px] rounded"
+                />
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 group-hover:bg-black/10 transition-colors">
+                  <ExternalLink className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 drop-shadow transition-opacity" />
+                </div>
+              </a>
+            ) : (
+              <div className="h-[200px] w-[200px] flex items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
+                QR non disponible
+              </div>
+            )}
+
+            <p className="text-[10px] text-muted-foreground text-center break-all">
+              {menuUrl}
+            </p>
+
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
-              className="flex-1 h-11"
-              disabled={loading}
+              size="sm"
+              className="gap-2"
+              onClick={handleDownloadQr}
+              disabled={!table.qrCode}
             >
-              Annuler
+              <Download className="h-4 w-4" />
+              Télécharger le QR code
             </Button>
-            <Button
-              type="submit"
-              form="table-form"
-              className="flex-1 h-11 font-semibold"
-              disabled={loading}
-            >
-              {loading ? "Enregistrement..." : "Enregistrer"}
-            </Button>
-          </DrawerFooter>
+          </div>
         </div>
-      </DrawerContent>
-    </Drawer>
+      </div>
+
+      <SheetFooter className="border-t px-6 py-4 flex-row gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          className="flex-1 h-11"
+          disabled={loading}
+        >
+          Annuler
+        </Button>
+        <Button
+          type="submit"
+          form="table-form"
+          className="flex-1 h-11 font-semibold"
+          disabled={loading}
+        >
+          {loading ? "Enregistrement..." : "Enregistrer"}
+        </Button>
+      </SheetFooter>
+    </>
   );
 };
