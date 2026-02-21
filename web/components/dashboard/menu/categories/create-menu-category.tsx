@@ -2,8 +2,8 @@
 import {
   CreateMenuCategoryDocument,
   GetMenuCategoriesDocument,
-  // GetMenuCategoriesDocument,
-  // GetMenuDocument,
+  GetMenusDocument,
+  GetMenusQuery,
   GetMenuQuery,
 } from "@/graphql/__generated__/graphql";
 import { useState } from "react";
@@ -23,9 +23,10 @@ import { useOnboarding } from "@/contexts/onboarding-context";
 
 interface CreateMenuCategoryProps {
   menu: GetMenuQuery["getMenu"];
+  restaurantId: string;
 }
 
-export const CreateMenuCategory = ({ menu }: CreateMenuCategoryProps) => {
+export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryProps) => {
   const [open, setOpen] = useState(false);
   const { refetchOnboarding } = useOnboarding();
 
@@ -38,25 +39,47 @@ export const CreateMenuCategory = ({ menu }: CreateMenuCategoryProps) => {
     },
     update(cache, { data }) {
       if (!data?.createMenuCategory) return;
+
       const existingMenuCategories = cache.readQuery({
         query: GetMenuCategoriesDocument,
-        variables: {
-          menuId,
-        },
+        variables: { menuId },
       });
+      if (existingMenuCategories) {
+        cache.writeQuery({
+          query: GetMenuCategoriesDocument,
+          variables: { menuId },
+          data: {
+            getMenuCategories: [
+              ...existingMenuCategories.getMenuCategories,
+              data.createMenuCategory,
+            ],
+          },
+        });
+      }
 
-      if (!existingMenuCategories) return;
-      const existingCategories = existingMenuCategories.getMenuCategories;
-      const newCategories = [...existingCategories, data.createMenuCategory];
-      cache.writeQuery({
-        query: GetMenuCategoriesDocument,
-        variables: {
-          menuId,
-        },
-        data: {
-          getMenuCategories: newCategories,
-        },
+      const existingMenus = cache.readQuery<GetMenusQuery>({
+        query: GetMenusDocument,
+        variables: { restaurantId },
       });
+      if (existingMenus) {
+        cache.writeQuery({
+          query: GetMenusDocument,
+          variables: { restaurantId },
+          data: {
+            getMenus: existingMenus.getMenus.map((m) =>
+              m.id === menuId
+                ? {
+                    ...m,
+                    categories: [
+                      ...(m.categories ?? []),
+                      { __typename: "MenuCategory" as const, id: data.createMenuCategory.id },
+                    ],
+                  }
+                : m
+            ),
+          },
+        });
+      }
     },
   });
 

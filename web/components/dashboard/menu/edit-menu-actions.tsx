@@ -23,7 +23,7 @@ export const EditMenuActions = ({
         isEditing={isNameEditing}
         setIsEditing={setIsNameEditing}
       />
-      {!isNameEditing && <CreateMenuCategory menu={menu} />}
+      {!isNameEditing && <CreateMenuCategory menu={menu} restaurantId={restaurantId} />}
     </div>
   );
 };
