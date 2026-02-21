@@ -14,22 +14,34 @@ import { CreateMenu } from "./create-menu";
 import { EmptyState } from "../empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { toast } from "sonner";
 
 interface MenuListProps {
   restaurantId: string;
-  menus: GetMenusQuery["getMenus"];
 }
 
-export const MenuList = ({ restaurantId, menus }: MenuListProps) => {
+export const MenuList = ({ restaurantId }: MenuListProps) => {
+  const { data, loading, error } = useQuery(GetMenusDocument, {
+    variables: { restaurantId },
+  });
+
+  const menus = data?.getMenus ?? [];
+
   return (
     <DashboardPageLayout
       title="Menus"
       headerAction={<CreateMenu restaurantId={restaurantId} />}
     >
+      {error && (
+        <p className="text-sm text-destructive">
+          Erreur lors de la récupération des menus
+        </p>
+      )}
       <div className="flex flex-wrap gap-4 justify-start">
-        {menus.length > 0 ? (
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Chargement...</p>
+        ) : menus.length > 0 ? (
           menus.map((menu) => (
             <MenuCard key={menu.id} menu={menu} restaurantId={restaurantId} />
           ))
