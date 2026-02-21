@@ -112,8 +112,58 @@ class MenuResolver {
       id: menu.id,
       name: menu.name,
       restaurantId: menu.restaurantId,
+      isActive: menu.isActive,
       items: menu.items,
       categories: menu.categories,
+    };
+  }
+
+  @Authorized()
+  @Mutation(() => Menu)
+  async setActiveMenu(
+    @Arg("menuId", () => String) menuId: string,
+    @Arg("restaurantId", () => String) restaurantId: string,
+    @Ctx() ctx: ContextType,
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const menu = await Menu.findOne({
+      where: { id: menuId, restaurantId, restaurant: { owner: user } },
+    });
+
+    if (!menu) {
+      throw new Error("Le menu n'a pas été trouvé");
+    }
+
+    await Menu.update({ restaurantId }, { isActive: false });
+
+    menu.isActive = true;
+    await menu.save();
+
+    return menu;
+  }
+
+  @Query(() => MenuResponse, { nullable: true })
+  async getActiveMenu(@Arg("restaurantId", () => String) restaurantId: string) {
+    const menu = await Menu.findOne({
+      where: { restaurantId, isActive: true },
+      relations: ["categories", "categories.items"],
+    });
+
+    if (!menu) {
+      return null;
+    }
+
+    return {
+      id: menu.id,
+      name: menu.name,
+      restaurantId: menu.restaurantId,
+      isActive: menu.isActive,
+      items: menu.items ?? [],
+      categories: menu.categories ?? [],
     };
   }
 }

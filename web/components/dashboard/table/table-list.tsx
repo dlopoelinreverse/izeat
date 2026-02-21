@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import DashboardPageLayout from "../dashboard-page-layout";
 import {
   GetRestaurantTablesDocument,
+  GetRestaurantTablesQuery,
 } from "@/graphql/__generated__/graphql";
 import { useQuery } from "@apollo/client/react";
 import { CreateTable } from "./create-table";
@@ -11,11 +13,16 @@ import { Users, LayoutGrid } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeleteTableButton } from "./delete-table-button";
 import { EmptyState } from "../empty-state";
+import { TableDetailDrawer } from "./table-detail-drawer";
+
+type Table = GetRestaurantTablesQuery["getRestaurantTables"][number];
 
 export const TableList = ({ restaurantId }: { restaurantId: string }) => {
   const { data } = useQuery(GetRestaurantTablesDocument, {
     variables: { restaurantId },
   });
+
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
 
   const tables = data?.getRestaurantTables ?? [];
   return (
@@ -33,7 +40,8 @@ export const TableList = ({ restaurantId }: { restaurantId: string }) => {
           tables.map((table) => (
             <Card
               key={table.id}
-              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden"
+              onClick={() => setSelectedTable(table)}
+              className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer"
             >
               <div className="absolute top-0 right-0 p-2">
                 <Badge
@@ -79,6 +87,12 @@ export const TableList = ({ restaurantId }: { restaurantId: string }) => {
           />
         )}
       </div>
+
+      <TableDetailDrawer
+        table={selectedTable}
+        restaurantId={restaurantId}
+        onClose={() => setSelectedTable(null)}
+      />
     </DashboardPageLayout>
   );
 };

@@ -1,0 +1,8 @@
+mutation SetActiveMenu($menuId: String!, $restaurantId: String!) {
+  setActiveMenu(menuId: $menuId, restaurantId: $restaurantId) {
+    id
+    name
+    isActive
+    restaurantId
+  }
+}

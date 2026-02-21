@@ -1,11 +1,21 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteMenuButton } from "./delete-menu-button";
-import { GetMenusQuery } from "@/graphql/__generated__/graphql";
+import {
+  GetMenusDocument,
+  GetMenusQuery,
+  SetActiveMenuDocument,
+} from "@/graphql/__generated__/graphql";
 import Link from "next/link";
 import DashboardPageLayout from "../dashboard-page-layout";
-import { LayoutGrid, BookOpen, List, UtensilsCrossed } from "lucide-react";
+import { LayoutGrid, BookOpen, List, UtensilsCrossed, Zap } from "lucide-react";
 import { CreateMenu } from "./create-menu";
 import { EmptyState } from "../empty-state";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useMutation } from "@apollo/client/react";
+import { toast } from "sonner";
 
 interface MenuListProps {
   restaurantId: string;
@@ -42,12 +52,40 @@ const MenuCard = ({
   menu: GetMenusQuery["getMenus"][number];
   restaurantId: string;
 }) => {
+  const [setActiveMenu, { loading }] = useMutation(SetActiveMenuDocument, {
+    onCompleted: () => toast.success(`Menu "${menu.name}" activé`),
+    onError: (err) => toast.error(err.message),
+    update: (cache, { data }) => {
+      const existing = cache.readQuery<GetMenusQuery>({
+        query: GetMenusDocument,
+        variables: { restaurantId },
+      });
+      if (existing && data?.setActiveMenu) {
+        cache.writeQuery({
+          query: GetMenusDocument,
+          variables: { restaurantId },
+          data: {
+            getMenus: existing.getMenus.map((m) => ({
+              ...m,
+              isActive: m.id === data.setActiveMenu.id,
+            })),
+          },
+        });
+      }
+    },
+  });
+
   return (
     <Card
       key={menu.id}
       className="group hover:shadow-lg transition-all border-muted h-[160px] flex flex-col relative overflow-hidden cursor-pointer w-full xl:w-[22%] lg:w-[30%] md:w-[48%]"
     >
-      <div className="absolute top-0 right-0 p-2 z-10">
+      <div className="absolute top-0 right-0 p-2 z-10 flex flex-col items-end gap-1">
+        {menu.isActive && (
+          <Badge className="text-[10px] uppercase tracking-wider bg-green-500 hover:bg-green-500">
+            Actif
+          </Badge>
+        )}
         <DeleteMenuButton menuId={menu.id} />
       </div>
 
@@ -79,6 +117,24 @@ const MenuCard = ({
           </div>
         </CardContent>
       </Link>
+
+      {!menu.isActive && (
+        <div className="absolute bottom-2 right-2 z-10">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs gap-1"
+            disabled={loading}
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveMenu({ variables: { menuId: menu.id, restaurantId } });
+            }}
+          >
+            <Zap className="h-3 w-3" />
+            Activer
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };

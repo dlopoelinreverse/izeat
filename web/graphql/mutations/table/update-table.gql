@@ -1,0 +1,10 @@
+mutation UpdateTable($input: UpdateTableInput!) {
+  updateTable(input: $input) {
+    id
+    number
+    capacity
+    status
+    restaurantId
+    qrCode
+  }
+}

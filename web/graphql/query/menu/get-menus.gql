@@ -4,6 +4,7 @@ query GetMenus($restaurantId: String!) {
       id
     }
     id
+    isActive
     items {
       id
     }

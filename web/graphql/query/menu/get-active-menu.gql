@@ -1,0 +1,18 @@
+query GetActiveMenu($restaurantId: String!) {
+  getActiveMenu(restaurantId: $restaurantId) {
+    id
+    name
+    isActive
+    restaurantId
+    categories {
+      id
+      name
+      items {
+        id
+        name
+        description
+        price
+      }
+    }
+  }
+}

@@ -28,6 +28,10 @@ class Menu extends BaseEntity {
   @Column({ type: "text" })
   restaurantId: string;
 
+  @Field(() => Boolean)
+  @Column({ default: false })
+  isActive: boolean;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menus)
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
@@ -53,6 +57,9 @@ export class MenuResponse {
 
   @Field(() => String)
   restaurantId: string;
+
+  @Field(() => Boolean)
+  isActive: boolean;
 
   @Field(() => [MenuItem], { nullable: true })
   items: MenuItem[];

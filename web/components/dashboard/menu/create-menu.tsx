@@ -55,7 +55,10 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
           query: GetMenusDocument,
           variables: { restaurantId },
           data: {
-            getMenus: [...existingData.getMenus, data.createMenu],
+            getMenus: [
+              ...existingData.getMenus,
+              { ...data.createMenu, isActive: false },
+            ],
           },
         });
       }

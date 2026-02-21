@@ -1,7 +1,9 @@
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import RestaurantTable, {
   CreateTableInput,
+  UpdateTableInput,
 } from "../entities/restaurant-table.entity";
+
 import { ContextType } from "../types";
 
 @Resolver()
@@ -55,6 +57,34 @@ class RestaurantTableResolver {
       capacity,
     }).save();
 
+    return table;
+  }
+
+  @Authorized()
+  @Mutation(() => RestaurantTable)
+  async updateTable(
+    @Arg("input") input: UpdateTableInput,
+    @Ctx() ctx: ContextType,
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const table = await RestaurantTable.findOne({
+      where: { id: input.id, restaurant: { owner: user } },
+    });
+
+    if (!table) {
+      throw new Error("Table non trouvée");
+    }
+
+    if (input.number !== undefined) table.number = input.number;
+    if (input.capacity !== undefined) table.capacity = input.capacity;
+    if (input.status !== undefined) table.status = input.status;
+    if (input.qrCode !== undefined) table.qrCode = input.qrCode;
+
+    await table.save();
     return table;
   }
 

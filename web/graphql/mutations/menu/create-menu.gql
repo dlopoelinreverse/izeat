@@ -2,6 +2,7 @@ mutation CreateMenu($restaurantId: String!, $name: String!) {
   createMenu(restaurantId: $restaurantId, name: $name) {
     name
     id
+    isActive
     restaurantId
     categories {
       id

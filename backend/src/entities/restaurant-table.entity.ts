@@ -32,6 +32,10 @@ class RestaurantTable extends BaseEntity {
   @Column()
   restaurantId: string;
 
+  @Field(() => String, { nullable: true })
+  @Column({ type: "text", nullable: true })
+  qrCode: string | null;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.tables)
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
@@ -49,4 +53,22 @@ export class CreateTableInput {
 
   @Field(() => Number)
   capacity: number;
+}
+
+@InputType()
+export class UpdateTableInput {
+  @Field(() => String)
+  id: string;
+
+  @Field(() => Number, { nullable: true })
+  number?: number;
+
+  @Field(() => Number, { nullable: true })
+  capacity?: number;
+
+  @Field(() => String, { nullable: true })
+  status?: string;
+
+  @Field(() => String, { nullable: true })
+  qrCode?: string;
 }
