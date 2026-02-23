@@ -4,7 +4,12 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
-      "Bash(npm run codegen:*)"
+      "Bash(npm run codegen:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(timeout 15 npx ts-node-dev:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -e:*)"
     ]
   }
 }

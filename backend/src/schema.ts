@@ -1,5 +1,6 @@
 import { buildSchema } from "type-graphql";
 import { authChecker } from "./auth";
+import pubsub from "./pubsub";
 
 import UserResolver from "./resolvers/user.resolver";
 import RestaurantResolver from "./resolvers/restaurant.resolver";
@@ -11,6 +12,7 @@ import RestaurantTableResolver from "./resolvers/restaurant-table.resolver";
 import MenuItemIngredientResolver from "./resolvers/menu-item-ingredient.resolver";
 import IngredientResolver from "./resolvers/ingredient.resolver";
 import IngredientCategoryResolver from "./resolvers/ingredient-category.resolver";
+import OrderResolver from "./resolvers/order.resolver";
 
 export default buildSchema({
   resolvers: [
@@ -24,6 +26,8 @@ export default buildSchema({
     MenuItemIngredientResolver,
     IngredientResolver,
     IngredientCategoryResolver,
+    OrderResolver,
   ],
   authChecker,
+  pubSub: pubsub,
 });

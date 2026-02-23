@@ -5,6 +5,8 @@ import cors from "cors";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express5";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/use/ws";
 import DataBase from "./data-base";
 import schema from "./schema";
 
@@ -17,9 +19,28 @@ schema.then(async (builtSchema) => {
   const app = express();
   const httpServer = http.createServer(app);
 
+  // WebSocket server pour les subscriptions GraphQL
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql",
+  });
+
+  const serverCleanup = useServer({ schema: builtSchema }, wsServer);
+
   const server = new ApolloServer({
     schema: builtSchema,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
   });
 
   await server.start();
@@ -40,4 +61,5 @@ schema.then(async (builtSchema) => {
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
   console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+  console.log(`🔌 WebSocket subscriptions ready at ws://localhost:${port}/graphql`);
 });
