@@ -61,6 +61,9 @@ services:
           path: ./web/proxy.ts
           target: /app/proxy.ts
         - action: sync
+          path: ./web/types
+          target: /app/types
+        - action: sync
           path: ./web/graphql
           target: /app/graphql
         - action: sync

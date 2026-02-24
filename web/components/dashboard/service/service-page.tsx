@@ -13,13 +13,9 @@ import { Button } from "@/components/ui/button";
 import { ChefHat, FlaskConical, Wifi } from "lucide-react";
 import { SimulatorPanel } from "./simulator-panel";
 import { OrderColumn } from "./order-column";
-import { useOrders } from "../../../hooks/use-orders";
-import {
-  STATUSES,
-  STATUS_LABELS,
-  type Order,
-  type Status,
-} from "../../../types/service-types";
+
+import { useOrders } from "@/hooks/use-orders";
+import { Order, Status, STATUS_LABELS, STATUSES } from "@/types/service-types";
 
 interface ServicePageProps {
   restaurantId: string;
