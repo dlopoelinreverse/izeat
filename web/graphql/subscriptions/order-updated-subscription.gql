@@ -1,0 +1,9 @@
+subscription OrderUpdated($restaurantId: ID!) {
+  orderUpdated(restaurantId: $restaurantId) {
+    id
+    restaurantId
+    tableId
+    status
+    createdAt
+  }
+}

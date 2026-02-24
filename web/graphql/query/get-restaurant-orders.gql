@@ -1,0 +1,9 @@
+query GetRestaurantOrders($restaurantId: ID!) {
+  getRestaurantOrders(restaurantId: $restaurantId) {
+    id
+    restaurantId
+    tableId
+    status
+    createdAt
+  }
+}

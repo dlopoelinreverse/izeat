@@ -1,0 +1,9 @@
+mutation CreateOrder($restaurantId: ID!, $tableId: ID!) {
+  createOrder(restaurantId: $restaurantId, tableId: $tableId) {
+    id
+    restaurantId
+    tableId
+    status
+    createdAt
+  }
+}
