@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Table } from "./service-types";
+import type { Table } from "../../../types/service-types";
 
 interface SimulatorPanelProps {
   tables: Table[];
@@ -48,11 +48,7 @@ export function SimulatorPanel({
         </div>
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-4 pt-6">
-        <form
-          id="order-form"
-          onSubmit={onSubmit}
-          className="flex-1 space-y-2"
-        >
+        <form id="order-form" onSubmit={onSubmit} className="flex-1 space-y-2">
           <Label htmlFor="table-select" className="text-sm font-medium">
             Table
           </Label>

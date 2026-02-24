@@ -7,7 +7,7 @@ import {
   type Table,
   STATUS_COLORS,
   STATUS_LABELS,
-} from "./service-types";
+} from "../../../types/service-types";
 
 interface OrderColumnProps {
   status: Status;

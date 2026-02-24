@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { NetworkStatus } from "@apollo/client";
 import {
@@ -6,15 +6,15 @@ import {
   OrderCreatedDocument,
   OrderUpdatedDocument,
   type GetRestaurantOrdersQuery,
+  type GetRestaurantOrdersQueryVariables,
   type OrderCreatedSubscription,
   type OrderCreatedSubscriptionVariables,
   type OrderUpdatedSubscription,
   type OrderUpdatedSubscriptionVariables,
 } from "@/graphql/__generated__/graphql";
-import type { Order } from "./service-types";
+import type { Order } from "../types/service-types";
 
 interface UseOrdersOptions {
-  /** Called when a new order arrives via subscription (useful for toasts). */
   onOrderCreated?: (order: Order) => void;
 }
 
@@ -32,25 +32,24 @@ export function useOrders(
 ): UseOrdersResult {
   const [subError, setSubError] = useState<Error | undefined>();
 
-  // Keep a stable ref so the subscribeToMore callbacks never go stale
   const onOrderCreatedRef = useRef(options?.onOrderCreated);
-  onOrderCreatedRef.current = options?.onOrderCreated;
+  useLayoutEffect(() => {
+    onOrderCreatedRef.current = options?.onOrderCreated;
+  });
 
-  const queryResult = useQuery<GetRestaurantOrdersQuery>(
-    GetRestaurantOrdersDocument,
-    {
-      variables: { restaurantId },
-      // Fetch fresh data on mount, then serve updates from the cache
-      fetchPolicy: "cache-and-network",
-    },
-  );
+  const queryResult = useQuery<
+    GetRestaurantOrdersQuery,
+    GetRestaurantOrdersQueryVariables
+  >(GetRestaurantOrdersDocument, {
+    variables: { restaurantId },
+    fetchPolicy: "cache-and-network",
+  });
 
   const { subscribeToMore } = queryResult;
 
   useEffect(() => {
     if (!restaurantId) return;
 
-    // ── Subscription : nouvelle commande ──────────────────────────────────
     const unsubCreate = subscribeToMore<
       OrderCreatedSubscription,
       OrderCreatedSubscriptionVariables
@@ -58,25 +57,22 @@ export function useOrders(
       document: OrderCreatedDocument,
       variables: { restaurantId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+        const orders = prev.getRestaurantOrders;
+        if (!subscriptionData.data || !orders)
+          return prev as GetRestaurantOrdersQuery;
 
         const newOrder = subscriptionData.data.orderCreated;
 
-        // Deduplicate (hot-reload, WS reconnection…)
-        if (prev.getRestaurantOrders.some((o) => o.id === newOrder.id)) {
-          return prev;
+        if (orders.some((o) => o?.id === newOrder.id)) {
+          return prev as GetRestaurantOrdersQuery;
         }
 
-        // Side-effect via stable ref — safe to call inside updateQuery
         onOrderCreatedRef.current?.(newOrder as Order);
 
         return {
           ...prev,
-          getRestaurantOrders: [
-            newOrder,
-            ...prev.getRestaurantOrders,
-          ] as GetRestaurantOrdersQuery["getRestaurantOrders"],
-        };
+          getRestaurantOrders: [newOrder, ...orders],
+        } as GetRestaurantOrdersQuery;
       },
       onError: (err) => {
         console.error("[subscription:orderCreated]", err);
@@ -84,7 +80,6 @@ export function useOrders(
       },
     });
 
-    // ── Subscription : mise à jour de statut ──────────────────────────────
     const unsubUpdate = subscribeToMore<
       OrderUpdatedSubscription,
       OrderUpdatedSubscriptionVariables
@@ -92,16 +87,18 @@ export function useOrders(
       document: OrderUpdatedDocument,
       variables: { restaurantId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+        const orders = prev.getRestaurantOrders;
+        if (!subscriptionData.data || !orders)
+          return prev as GetRestaurantOrdersQuery;
 
         const updated = subscriptionData.data.orderUpdated;
 
         return {
           ...prev,
-          getRestaurantOrders: prev.getRestaurantOrders.map((o) =>
-            o.id === updated.id ? { ...o, ...updated } : o,
+          getRestaurantOrders: orders.map((o) =>
+            o?.id === updated.id ? { ...o, ...updated } : o,
           ),
-        };
+        } as GetRestaurantOrdersQuery;
       },
       onError: (err) => {
         console.error("[subscription:orderUpdated]", err);
@@ -109,7 +106,6 @@ export function useOrders(
       },
     });
 
-    // Cleanup: close WS connections on unmount or restaurantId change
     return () => {
       unsubCreate();
       unsubUpdate();

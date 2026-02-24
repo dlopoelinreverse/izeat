@@ -13,8 +13,13 @@ import { Button } from "@/components/ui/button";
 import { ChefHat, FlaskConical, Wifi } from "lucide-react";
 import { SimulatorPanel } from "./simulator-panel";
 import { OrderColumn } from "./order-column";
-import { useOrders } from "./use-orders";
-import { STATUSES, STATUS_LABELS, type Order, type Status } from "./service-types";
+import { useOrders } from "../../../hooks/use-orders";
+import {
+  STATUSES,
+  STATUS_LABELS,
+  type Order,
+  type Status,
+} from "../../../types/service-types";
 
 interface ServicePageProps {
   restaurantId: string;
@@ -33,18 +38,23 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
   const { orders, subError } = useOrders(restaurantId, {
     onOrderCreated: (order: Order) => {
       const table = tables.find((t) => t.id === order.tableId);
-      toast.success(`Nouvelle commande — Table ${table?.number ?? order.tableId}`);
+      toast.success(
+        `Nouvelle commande — Table ${table?.number ?? order.tableId}`,
+      );
     },
   });
 
-  const [createOrder, { loading: creating }] = useMutation(CreateOrderDocument, {
-    onCompleted: () => {
-      const table = tables.find((t) => t.id === tableId);
-      toast.success(`Commande envoyée — Table ${table?.number ?? tableId}`);
-      setTableId("");
+  const [createOrder, { loading: creating }] = useMutation(
+    CreateOrderDocument,
+    {
+      onCompleted: () => {
+        const table = tables.find((t) => t.id === tableId);
+        toast.success(`Commande envoyée — Table ${table?.number ?? tableId}`);
+        setTableId("");
+      },
+      onError: () => toast.error("Erreur lors de l'envoi de la commande"),
     },
-    onError: () => toast.error("Erreur lors de l'envoi de la commande"),
-  });
+  );
 
   const [updateOrderStatus, { loading: updating }] = useMutation(
     UpdateOrderStatusDocument,
@@ -71,7 +81,9 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           className={`h-3.5 w-3.5 ${subError ? "text-destructive" : "text-green-500"}`}
         />
         <span
-          className={subError ? "text-destructive" : "text-green-600 font-medium"}
+          className={
+            subError ? "text-destructive" : "text-green-600 font-medium"
+          }
         >
           {subError ? "Déconnecté" : "En direct"}
         </span>

@@ -8,7 +8,7 @@ import {
   STATUS_LABELS,
   STATUS_NEXT,
   STATUS_NEXT_LABEL,
-} from "./service-types";
+} from "../../../types/service-types";
 
 interface OrderCardProps {
   order: Order;
@@ -17,7 +17,12 @@ interface OrderCardProps {
   loading: boolean;
 }
 
-export function OrderCard({ order, table, onAdvance, loading }: OrderCardProps) {
+export function OrderCard({
+  order,
+  table,
+  onAdvance,
+  loading,
+}: OrderCardProps) {
   const status = order.status as Status;
   const nextStatus = STATUS_NEXT[status];
   const nextLabel = STATUS_NEXT_LABEL[status];
@@ -28,7 +33,9 @@ export function OrderCard({ order, table, onAdvance, loading }: OrderCardProps) 
         <div className="space-y-0.5 min-w-0">
           <p className="font-semibold text-sm">
             Table{" "}
-            <span className="text-primary">{table?.number ?? order.tableId}</span>
+            <span className="text-primary">
+              {table?.number ?? order.tableId}
+            </span>
           </p>
           <p className="text-xs text-muted-foreground font-mono truncate">
             {order.id}
