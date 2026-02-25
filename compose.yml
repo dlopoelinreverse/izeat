@@ -58,8 +58,8 @@ services:
           path: ./web/components.json
           target: /app/components.json
         - action: sync
-          path: ./web/context
-          target: /app/context
+          path: ./web/contexts
+          target: /app/contexts
         - action: sync
           path: ./web/hooks
           target: /app/hooks

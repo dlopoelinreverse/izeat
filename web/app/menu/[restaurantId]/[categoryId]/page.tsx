@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { GetActiveMenuDocument } from "@/graphql/__generated__/graphql";
-import { getServerApolloClient } from "@/lib/apollo-client-server";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { MenuCategorySearch } from "@/components/client/menu-category-search";
+import { getMenuForRestaurant } from "@/lib/get-menu";
 
 export default async function MenuCategoryPage({
   params,
@@ -15,13 +14,7 @@ export default async function MenuCategoryPage({
   const { restaurantId, categoryId } = await params;
   const { table } = await searchParams;
 
-  const client = await getServerApolloClient();
-  const { data } = await client.query({
-    query: GetActiveMenuDocument,
-    variables: { restaurantId },
-  });
-
-  const menu = data?.getActiveMenu;
+  const menu = await getMenuForRestaurant(restaurantId);
   const category = menu?.categories?.find((c) => c.id === categoryId);
 
   if (!menu || !category) notFound();

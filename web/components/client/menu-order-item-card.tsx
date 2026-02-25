@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { PlusIcon, MinusIcon } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useMenuOrder } from "@/hooks/use-menu-order"
+import { PlusIcon, MinusIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useMenuOrder } from "@/contexts/menu-order-context";
 
 interface MenuOrderItemCardProps {
-  id: string
-  name: string
-  price: number
-  description?: string | null
-  categoryName?: string
+  id: string;
+  name: string;
+  price: number;
+  description?: string | null;
+  categoryName?: string;
 }
 
 export function MenuOrderItemCard({
@@ -19,8 +19,8 @@ export function MenuOrderItemCard({
   description,
   categoryName,
 }: MenuOrderItemCardProps) {
-  const { addItem, removeItem, getItemQty } = useMenuOrder()
-  const qty = getItemQty(id)
+  const { addItem, removeItem, getItemQty } = useMenuOrder();
+  const qty = getItemQty(id);
 
   return (
     <div className="flex items-start gap-4 p-4 rounded-lg border bg-card">
@@ -34,12 +34,14 @@ export function MenuOrderItemCard({
             {description}
           </p>
         )}
-        <p className="text-sm font-bold text-primary mt-1">{price.toFixed(2)} €</p>
+        <p className="text-sm font-bold text-primary mt-1">
+          {price.toFixed(2)} €
+        </p>
       </div>
 
       {qty === 0 ? (
         <button
-          onClick={() => addItem({ id, name, price })}
+          onClick={() => addItem(id)}
           className="shrink-0 size-8 flex items-center justify-center rounded-full
                      bg-primary text-primary-foreground
                      transition-transform duration-100 active:scale-90 hover:bg-primary/90"
@@ -61,7 +63,7 @@ export function MenuOrderItemCard({
             {qty}
           </span>
           <button
-            onClick={() => addItem({ id, name, price })}
+            onClick={() => addItem(id)}
             className="size-8 flex items-center justify-center rounded-full
                        bg-primary text-primary-foreground
                        transition-transform duration-100 active:scale-90 hover:bg-primary/90"
@@ -72,7 +74,7 @@ export function MenuOrderItemCard({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function MenuOrderItemCardSkeleton() {
@@ -86,5 +88,5 @@ export function MenuOrderItemCardSkeleton() {
       </div>
       <Skeleton className="size-8 rounded-full shrink-0" />
     </div>
-  )
+  );
 }

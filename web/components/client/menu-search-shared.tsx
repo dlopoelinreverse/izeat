@@ -3,8 +3,6 @@
 import { useMemo } from "react";
 import { Search, X } from "lucide-react";
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
-
 export type FilterableItem = {
   id: string;
   name: string;
@@ -30,8 +28,6 @@ export function useMenuItemSearch<T extends FilterableItem>(
     );
   }, [items, q]);
 }
-
-// ── MenuSearchInput ───────────────────────────────────────────────────────────
 
 interface MenuSearchInputProps {
   value: string;
@@ -62,8 +58,6 @@ export function MenuSearchInput({ value, onChange }: MenuSearchInputProps) {
     </div>
   );
 }
-
-// ── MenuItemCard ──────────────────────────────────────────────────────────────
 
 interface MenuItemCardProps {
   name: string;

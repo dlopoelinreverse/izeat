@@ -1,7 +1,6 @@
-import { GetActiveMenuDocument } from "@/graphql/__generated__/graphql";
-import { getServerApolloClient } from "@/lib/apollo-client-server";
 import { UtensilsCrossed } from "lucide-react";
 import { MenuHomeSearch } from "@/components/client/menu-home-search";
+import { getMenuForRestaurant } from "@/lib/get-menu";
 
 export default async function MenuPage({
   params,
@@ -13,13 +12,7 @@ export default async function MenuPage({
   const { restaurantId } = await params;
   const { table } = await searchParams;
 
-  const client = await getServerApolloClient();
-  const { data } = await client.query({
-    query: GetActiveMenuDocument,
-    variables: { restaurantId },
-  });
-
-  const menu = data?.getActiveMenu;
+  const menu = await getMenuForRestaurant(restaurantId);
 
   return (
     <div className="min-h-screen bg-background">

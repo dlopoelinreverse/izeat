@@ -1,36 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { BellIcon, ShoppingCartIcon, MinusIcon, PlusIcon } from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { BellIcon, ShoppingCartIcon, MinusIcon, PlusIcon } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerFooter,
-} from "@/components/ui/drawer"
-import { useMenuOrder } from "@/hooks/use-menu-order"
+} from "@/components/ui/drawer";
+import { useMenuOrder } from "@/contexts/menu-order-context";
 
 export function MenuFooter() {
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const { cart, totalCount, totalPrice, addItem, removeItem, clearOrder } = useMenuOrder()
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { cart, totalCount, totalPrice, addItem, removeItem, clearOrder } =
+    useMenuOrder();
 
-  const handleCallWaiter = () => toast.info("Un serveur arrive !")
+  const handleCallWaiter = () => toast.info("Un serveur arrive !");
 
   const handlePlaceOrder = () => {
-    toast.success("Commande envoyée !")
-    clearOrder()
-    setDrawerOpen(false)
-  }
+    toast.success("Commande envoyée !");
+    clearOrder();
+    setDrawerOpen(false);
+  };
 
   return (
     <>
       {/* ─── Barre footer sticky ─── */}
       <footer className="sticky bottom-0 z-10 border-t bg-background/95 backdrop-blur">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
-
           {/* Bouton appeler serveur — compact, toujours visible */}
           <Button
             variant="outline"
@@ -76,9 +76,10 @@ export function MenuFooter() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerContent className="max-h-[96vh]">
           <div className="mx-auto w-full max-w-md flex flex-col h-full overflow-hidden">
-
             <DrawerHeader className="border-b pb-4">
-              <DrawerTitle className="text-xl font-bold">Ma commande</DrawerTitle>
+              <DrawerTitle className="text-xl font-bold">
+                Ma commande
+              </DrawerTitle>
             </DrawerHeader>
 
             {/* Zone scrollable */}
@@ -86,7 +87,9 @@ export function MenuFooter() {
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
                   <ShoppingCartIcon className="h-10 w-10 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Votre commande est vide.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Votre commande est vide.
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Ajoutez des plats depuis le menu.
                   </p>
@@ -100,7 +103,9 @@ export function MenuFooter() {
                                  animate-in fade-in duration-200"
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm leading-snug truncate">{item.name}</p>
+                        <p className="font-medium text-sm leading-snug truncate">
+                          {item.name}
+                        </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {item.price.toFixed(2)} € / unité
                         </p>
@@ -118,7 +123,7 @@ export function MenuFooter() {
                           {item.qty}
                         </span>
                         <button
-                          onClick={() => addItem({ id: item.id, name: item.name, price: item.price })}
+                          onClick={() => addItem(item.id)}
                           className="size-7 flex items-center justify-center rounded-full
                                      bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                           aria-label="Ajouter un"
@@ -139,7 +144,9 @@ export function MenuFooter() {
               {cart.length > 0 && (
                 <div className="flex items-center justify-between text-sm font-semibold px-1">
                   <span>Total</span>
-                  <span className="tabular-nums">{totalPrice.toFixed(2)} €</span>
+                  <span className="tabular-nums">
+                    {totalPrice.toFixed(2)} €
+                  </span>
                 </div>
               )}
               <Button
@@ -150,10 +157,9 @@ export function MenuFooter() {
                 Passer la commande
               </Button>
             </DrawerFooter>
-
           </div>
         </DrawerContent>
       </Drawer>
     </>
-  )
+  );
 }
