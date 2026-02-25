@@ -150,7 +150,7 @@ class MenuResolver {
   async getActiveMenu(@Arg("restaurantId", () => String) restaurantId: string) {
     const menu = await Menu.findOne({
       where: { restaurantId, isActive: true },
-      relations: ["categories", "categories.items"],
+      relations: ["categories", "categories.items", "categories.items.ingredients"],
     });
 
     if (!menu) {

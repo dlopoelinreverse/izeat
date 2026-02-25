@@ -12,6 +12,11 @@ query GetActiveMenu($restaurantId: String!) {
         name
         description
         price
+        ingredients {
+          ingredient {
+            name
+          }
+        }
       }
     }
   }
