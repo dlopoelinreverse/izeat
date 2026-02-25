@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import type { GetActiveMenuQuery } from "@/graphql/__generated__/graphql";
 import {
@@ -24,6 +25,8 @@ export function MenuHomeSearch({
   tableId,
 }: MenuHomeSearchProps) {
   const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const cart = searchParams.get("cart");
 
   const allItems = useMemo(
     () =>
@@ -46,9 +49,11 @@ export function MenuHomeSearch({
           <div className="space-y-2">
             {menu.categories && menu.categories.length > 0 ? (
               menu.categories.map((category) => {
-                const href = tableId
-                  ? `/menu/${restaurantId}/${category.id}?table=${tableId}`
-                  : `/menu/${restaurantId}/${category.id}`;
+                const catParams = new URLSearchParams();
+                if (tableId) catParams.set("table", tableId);
+                if (cart) catParams.set("cart", cart);
+                const catQuery = catParams.toString();
+                const href = `/menu/${restaurantId}/${category.id}${catQuery ? `?${catQuery}` : ""}`;
                 return (
                   <Link
                     key={category.id}
