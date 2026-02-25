@@ -7,8 +7,8 @@ import type { GetActiveMenuQuery } from "@/graphql/__generated__/graphql";
 import {
   useMenuItemSearch,
   MenuSearchInput,
-  MenuItemCard,
 } from "./menu-search-shared";
+import { MenuOrderItemCard } from "./menu-order-item-card";
 
 type Menu = NonNullable<GetActiveMenuQuery["getActiveMenu"]>;
 
@@ -81,8 +81,9 @@ export function MenuHomeSearch({
           /* Search results */
           <div className="space-y-3">
             {filteredItems.map((item) => (
-              <MenuItemCard
+              <MenuOrderItemCard
                 key={item.id}
+                id={item.id}
                 name={item.name}
                 price={item.price}
                 description={item.description}
