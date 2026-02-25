@@ -6,5 +6,11 @@ subscription OrderCreated($restaurantId: ID!) {
     status
     type
     createdAt
+    items {
+      id
+      name
+      price
+      qty
+    }
   }
 }

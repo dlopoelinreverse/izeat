@@ -24,8 +24,8 @@ export const STATUS_NEXT: Record<Status, Status | null> = {
 };
 
 export const STATUS_NEXT_LABEL: Record<Status, string | null> = {
-  pending: "Commencer",
-  preparing: "Servir",
+  pending: "Envoyer en préparation",
+  preparing: "Apporter à table",
   served: null,
 };
 
