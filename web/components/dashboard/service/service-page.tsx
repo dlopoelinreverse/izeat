@@ -10,9 +10,10 @@ import {
 } from "@/graphql/__generated__/graphql";
 import DashboardPageLayout from "../dashboard-page-layout";
 import { Button } from "@/components/ui/button";
-import { ChefHat, FlaskConical, Wifi } from "lucide-react";
+import { BellRing, ChefHat, FlaskConical, Wifi } from "lucide-react";
 import { SimulatorPanel } from "./simulator-panel";
 import { OrderColumn } from "./order-column";
+import { WaiterCallSheet } from "./waiter-call-sheet";
 
 import { useOrders } from "@/hooks/use-orders";
 import { Order, Status, STATUS_LABELS, STATUSES } from "@/types/service-types";
@@ -25,6 +26,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
   const [tableId, setTableId] = useState("");
   const [activeTab, setActiveTab] = useState<Status>("pending");
   const [showSimulator, setShowSimulator] = useState(false);
+  const [waiterSheetOpen, setWaiterSheetOpen] = useState(false);
 
   const { data: tablesData } = useQuery(GetRestaurantTablesDocument, {
     variables: { restaurantId },
@@ -38,7 +40,18 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
         `Nouvelle commande — Table ${table?.number ?? order.tableId}`,
       );
     },
+    onWaiterCallCreated: (order: Order) => {
+      const table = tables.find((t) => t.id === order.tableId);
+      toast.warning(
+        `Appel serveur — Table ${table?.number ?? order.tableId}`,
+      );
+    },
   });
+
+  const waiterCallOrders = orders.filter(
+    (o) => o?.type === "waiter_call" && o?.status !== "served",
+  );
+  const foodOrders = orders.filter((o) => o?.type !== "waiter_call");
 
   const [createOrder, { loading: creating }] = useMutation(
     CreateOrderDocument,
@@ -70,6 +83,10 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
     updateOrderStatus({ variables: { orderId, status } });
   };
 
+  const handleResolveWaiterCall = (orderId: string) => {
+    updateOrderStatus({ variables: { orderId, status: "served" } });
+  };
+
   const headerAction = (
     <div className="flex items-center gap-2">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-2">
@@ -90,6 +107,17 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           </span>
         )}
       </div>
+      {waiterCallOrders.length > 0 && (
+        <Button
+          variant="destructive"
+          size="sm"
+          className="gap-1.5 animate-pulse"
+          onClick={() => setWaiterSheetOpen(true)}
+        >
+          <BellRing className="h-4 w-4" />
+          {waiterCallOrders.length}
+        </Button>
+      )}
       <Button
         variant={showSimulator ? "default" : "outline"}
         size="sm"
@@ -119,7 +147,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
         <div className="lg:hidden">
           <div className="flex overflow-x-auto border-b">
             {STATUSES.map((status) => {
-              const count = orders.filter((o) => o.status === status).length;
+              const count = foodOrders.filter((o) => o?.status === status).length;
               const isActive = activeTab === status;
               return (
                 <button
@@ -142,7 +170,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           <div className="mt-3">
             <OrderColumn
               status={activeTab}
-              orders={orders}
+              orders={foodOrders}
               tables={tables}
               onAdvance={handleAdvance}
               loading={updating}
@@ -156,7 +184,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
             <OrderColumn
               key={status}
               status={status}
-              orders={orders}
+              orders={foodOrders}
               tables={tables}
               onAdvance={handleAdvance}
               loading={updating}
@@ -164,7 +192,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           ))}
         </div>
 
-        {orders.length === 0 && (
+        {foodOrders.length === 0 && (
           <div className="hidden lg:flex flex-col items-center justify-center py-16 text-center">
             <ChefHat className="h-12 w-12 text-muted-foreground/20 mb-3" />
             <p className="text-muted-foreground font-medium">
@@ -176,6 +204,15 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           </div>
         )}
       </div>
+
+      <WaiterCallSheet
+        open={waiterSheetOpen}
+        onClose={() => setWaiterSheetOpen(false)}
+        orders={waiterCallOrders}
+        tables={tables}
+        onResolve={handleResolveWaiterCall}
+        loading={updating}
+      />
     </DashboardPageLayout>
   );
 }

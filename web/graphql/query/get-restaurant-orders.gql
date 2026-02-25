@@ -4,6 +4,7 @@ query GetRestaurantOrders($restaurantId: ID!) {
     restaurantId
     tableId
     status
+    type
     createdAt
   }
 }

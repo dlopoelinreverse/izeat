@@ -4,6 +4,7 @@ subscription OrderUpdated($restaurantId: ID!) {
     restaurantId
     tableId
     status
+    type
     createdAt
   }
 }

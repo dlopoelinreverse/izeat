@@ -16,6 +16,7 @@ import type { Order } from "../types/service-types";
 
 interface UseOrdersOptions {
   onOrderCreated?: (order: Order) => void;
+  onWaiterCallCreated?: (order: Order) => void;
 }
 
 interface UseOrdersResult {
@@ -33,8 +34,10 @@ export function useOrders(
   const [subError, setSubError] = useState<Error | undefined>();
 
   const onOrderCreatedRef = useRef(options?.onOrderCreated);
+  const onWaiterCallCreatedRef = useRef(options?.onWaiterCallCreated);
   useLayoutEffect(() => {
     onOrderCreatedRef.current = options?.onOrderCreated;
+    onWaiterCallCreatedRef.current = options?.onWaiterCallCreated;
   });
 
   const queryResult = useQuery<
@@ -67,7 +70,11 @@ export function useOrders(
           return prev as GetRestaurantOrdersQuery;
         }
 
-        onOrderCreatedRef.current?.(newOrder as Order);
+        if (newOrder.type === "waiter_call") {
+          onWaiterCallCreatedRef.current?.(newOrder as Order);
+        } else {
+          onOrderCreatedRef.current?.(newOrder as Order);
+        }
 
         return {
           ...prev,
