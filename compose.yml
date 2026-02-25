@@ -58,6 +58,12 @@ services:
           path: ./web/components.json
           target: /app/components.json
         - action: sync
+          path: ./web/context
+          target: /app/context
+        - action: sync
+          path: ./web/hooks
+          target: /app/hooks
+        - action: sync
           path: ./web/proxy.ts
           target: /app/proxy.ts
         - action: sync

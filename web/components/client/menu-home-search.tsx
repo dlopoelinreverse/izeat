@@ -2,8 +2,13 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronRight, Search, X } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import type { GetActiveMenuQuery } from "@/graphql/__generated__/graphql";
+import {
+  useMenuItemSearch,
+  MenuSearchInput,
+  MenuItemCard,
+} from "./menu-search-shared";
 
 type Menu = NonNullable<GetActiveMenuQuery["getActiveMenu"]>;
 
@@ -19,7 +24,6 @@ export function MenuHomeSearch({
   tableId,
 }: MenuHomeSearchProps) {
   const [query, setQuery] = useState("");
-  const q = query.toLowerCase().trim();
 
   const allItems = useMemo(
     () =>
@@ -29,42 +33,12 @@ export function MenuHomeSearch({
     [menu.categories],
   );
 
-  const filteredItems = useMemo(() => {
-    if (!q) return [];
-    return allItems.filter(
-      (item) =>
-        item.name.toLowerCase().includes(q) ||
-        item.ingredients?.some((link) =>
-          link.ingredient.name.toLowerCase().includes(q),
-        ),
-    );
-  }, [allItems, q]);
-
-  const isSearching = q.length > 0;
+  const filteredItems = useMenuItemSearch(allItems, query);
+  const isSearching = query.trim().length > 0;
 
   return (
     <div>
-      {/* Search input */}
-      <div className="px-4 py-3 border-b">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher un plat ou un ingrédient…"
-            className="w-full h-10 pl-9 pr-9 rounded-lg border bg-background text-sm outline-none focus:ring-2 focus:ring-ring"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      </div>
+      <MenuSearchInput value={query} onChange={setQuery} />
 
       <div className="px-4 py-4">
         {!isSearching ? (
@@ -104,28 +78,16 @@ export function MenuHomeSearch({
             Aucun plat trouvé pour &laquo;&nbsp;{query}&nbsp;&raquo;.
           </p>
         ) : (
-          /* Search results: flat list with category label */
+          /* Search results */
           <div className="space-y-3">
             {filteredItems.map((item) => (
-              <div
+              <MenuItemCard
                 key={item.id}
-                className="flex items-start justify-between gap-4 p-4 rounded-lg border bg-card"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm leading-snug">{item.name}</p>
-                  <p className="text-xs text-primary/70 mt-0.5">
-                    {item.categoryName}
-                  </p>
-                  {item.description && (
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                      {item.description}
-                    </p>
-                  )}
-                </div>
-                <span className="text-sm font-bold text-primary whitespace-nowrap shrink-0">
-                  {item.price.toFixed(2)} €
-                </span>
-              </div>
+                name={item.name}
+                price={item.price}
+                description={item.description}
+                categoryName={item.categoryName}
+              />
             ))}
           </div>
         )}
