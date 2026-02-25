@@ -1,9 +1,20 @@
-mutation CreateOrder($restaurantId: ID!, $tableId: ID!) {
-  createOrder(restaurantId: $restaurantId, tableId: $tableId) {
+mutation CreateOrder(
+  $restaurantId: ID!
+  $tableId: ID!
+  $type: String
+  $items: [OrderItemInput!]
+) {
+  createOrder(
+    restaurantId: $restaurantId
+    tableId: $tableId
+    type: $type
+    items: $items
+  ) {
     id
     restaurantId
     tableId
     status
+    type
     createdAt
   }
 }

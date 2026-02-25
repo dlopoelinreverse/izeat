@@ -2,7 +2,11 @@ import {
   Arg,
   Authorized,
   Ctx,
+  Field,
+  Float,
   ID,
+  InputType,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -12,6 +16,21 @@ import {
 import { Order } from "../entities/order.entity";
 import pubsub from "../pubsub";
 import { ContextType } from "../types";
+
+@InputType()
+class OrderItemInput {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field(() => Float)
+  price: number;
+
+  @Field(() => Int)
+  qty: number;
+}
 
 export const ORDER_CREATED = "ORDER_CREATED";
 export const ORDER_UPDATED = "ORDER_UPDATED";
@@ -50,8 +69,17 @@ class OrderResolver {
   async createOrder(
     @Arg("restaurantId", () => ID) restaurantId: string,
     @Arg("tableId", () => ID) tableId: string,
+    @Arg("type", { nullable: true, defaultValue: "food" }) type: string,
+    @Arg("items", () => [OrderItemInput], { nullable: true })
+    items: OrderItemInput[] | null,
   ): Promise<Order> {
-    const order = Order.create({ restaurantId, tableId, status: "pending" });
+    const order = Order.create({
+      restaurantId,
+      tableId,
+      status: "pending",
+      type,
+      items: items ?? null,
+    });
     await order.save();
 
     pubsub.publish(ORDER_CREATED, {

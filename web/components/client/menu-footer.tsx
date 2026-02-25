@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { BellIcon, ShoppingCartIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useParams, useSearchParams } from "next/navigation";
+import { useMutation } from "@apollo/client/react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -12,15 +14,48 @@ import {
   DrawerFooter,
 } from "@/components/ui/drawer";
 import { useMenuOrder } from "@/contexts/menu-order-context";
+import { CreateOrderDocument } from "@/graphql/__generated__/graphql";
 
 export function MenuFooter() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const restaurantId = params.restaurantId as string;
+  const tableId = searchParams.get("table") ?? null;
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { cart, totalCount, totalPrice, addItem, removeItem, clearOrder } =
     useMenuOrder();
 
-  const handleCallWaiter = () => toast.info("Un serveur arrive !");
+  const [createFoodOrder, { loading: orderLoading }] = useMutation(
+    CreateOrderDocument,
+    { onError: () => toast.error("Erreur lors de l'envoi de la commande") },
+  );
 
-  const handlePlaceOrder = () => {
+  const [createWaiterCall, { loading: waiterLoading }] = useMutation(
+    CreateOrderDocument,
+    { onError: () => toast.error("Erreur lors de l'appel du serveur") },
+  );
+
+  const handleCallWaiter = async () => {
+    if (!tableId) return;
+    const { data } = await createWaiterCall({
+      variables: { restaurantId, tableId, type: "waiter_call" },
+    });
+    if (!data) return;
+    toast.info("Un serveur arrive !");
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!tableId) return;
+    const { data } = await createFoodOrder({
+      variables: {
+        restaurantId,
+        tableId,
+        type: "food",
+        items: cart.map(({ id, name, price, qty }) => ({ id, name, price, qty })),
+      },
+    });
+    if (!data) return;
     toast.success("Commande envoyée !");
     clearOrder();
     setDrawerOpen(false);
@@ -28,21 +63,19 @@ export function MenuFooter() {
 
   return (
     <>
-      {/* ─── Barre footer sticky ─── */}
       <footer className="sticky bottom-0 z-10 border-t bg-background/95 backdrop-blur">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
-          {/* Bouton appeler serveur — compact, toujours visible */}
           <Button
             variant="outline"
             size="sm"
             className="gap-1.5 shrink-0"
             onClick={handleCallWaiter}
+            disabled={!tableId || waiterLoading}
           >
             <BellIcon className="h-4 w-4" />
-            Appeler
+            {waiterLoading ? "Appel..." : "Appeler"}
           </Button>
 
-          {/* Pill commande — animée à l'apparition ET à chaque ajout */}
           {totalCount > 0 && (
             <button
               onClick={() => setDrawerOpen(true)}
@@ -52,7 +85,6 @@ export function MenuFooter() {
                          animate-in fade-in slide-in-from-right-4 duration-300"
             >
               <ShoppingCartIcon className="h-4 w-4" />
-              {/* key force re-mount → re-déclenche animate-in à chaque ajout */}
               <span
                 key={totalCount}
                 className="bg-primary-foreground/20 rounded-full px-1.5 py-0.5
@@ -72,7 +104,6 @@ export function MenuFooter() {
         </div>
       </footer>
 
-      {/* ─── Drawer détail commande ─── */}
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerContent className="max-h-[96vh]">
           <div className="mx-auto w-full max-w-md flex flex-col h-full overflow-hidden">
@@ -82,7 +113,6 @@ export function MenuFooter() {
               </DrawerTitle>
             </DrawerHeader>
 
-            {/* Zone scrollable */}
             <div className="flex-1 overflow-y-auto px-4 py-4">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
@@ -149,12 +179,17 @@ export function MenuFooter() {
                   </span>
                 </div>
               )}
+              {!tableId && cart.length > 0 && (
+                <p className="text-xs text-center text-muted-foreground px-1">
+                  Scannez le QR code de votre table pour passer commande.
+                </p>
+              )}
               <Button
                 className="w-full h-11 font-semibold"
                 onClick={handlePlaceOrder}
-                disabled={cart.length === 0}
+                disabled={cart.length === 0 || !tableId || orderLoading}
               >
-                Passer la commande
+                {orderLoading ? "Envoi en cours..." : "Passer la commande"}
               </Button>
             </DrawerFooter>
           </div>
