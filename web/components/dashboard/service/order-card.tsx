@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,11 +18,13 @@ import {
   STATUS_NEXT,
   STATUS_NEXT_LABEL,
 } from "../../../types/service-types";
+import { PayAction, type PayActionHandle } from "./pay-action";
 
 interface OrderCardProps {
   order: Order;
   table: Table | undefined;
   onAdvance: (orderId: string, status: Status) => void;
+  onPay: (orderId: string) => void;
   loading: boolean;
 }
 
@@ -30,15 +32,21 @@ export function OrderCard({
   order,
   table,
   onAdvance,
+  onPay,
   loading,
 }: OrderCardProps) {
   const [open, setOpen] = useState(false);
+  const payRef = useRef<PayActionHandle>(null);
 
   const status = order?.status as Status;
   const nextStatus = STATUS_NEXT[status];
   const nextLabel = STATUS_NEXT_LABEL[status];
   const items = order?.items ?? [];
   const itemCount = items.reduce((acc, i) => acc + (i?.qty ?? 0), 0);
+  const total = items.reduce(
+    (acc, i) => acc + (i?.price ?? 0) * (i?.qty ?? 0),
+    0,
+  );
   const time = new Date(order?.createdAt).toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -65,10 +73,21 @@ export function OrderCard({
             ? `${itemCount} plat${itemCount > 1 ? "s" : ""}`
             : "Aucun plat"}
         </p>
+        {status === "served" && total > 0 && (
+          <p className="text-xs font-semibold text-green-600">
+            {total.toFixed(2)} €
+          </p>
+        )}
       </div>
 
       {/* Detail dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          if (!v) payRef.current?.cancel();
+          setOpen(v);
+        }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
@@ -100,6 +119,13 @@ export function OrderCard({
             )}
           </div>
 
+          {items.length > 0 && (
+            <div className="flex items-center justify-between text-sm font-semibold border-t pt-2 mt-1">
+              <span>Total</span>
+              <span>{total.toFixed(2)} €</span>
+            </div>
+          )}
+
           {nextStatus && nextLabel && (
             <DialogFooter>
               <Button
@@ -113,6 +139,16 @@ export function OrderCard({
                 {nextLabel}
               </Button>
             </DialogFooter>
+          )}
+
+          {status === "served" && (
+            <PayAction
+              ref={payRef}
+              orderId={order.id}
+              onPay={onPay}
+              onClose={() => setOpen(false)}
+              loading={loading}
+            />
           )}
         </DialogContent>
       </Dialog>

@@ -14,6 +14,7 @@ interface OrderColumnProps {
   orders: Order[];
   tables: Table[];
   onAdvance: (orderId: string, status: Status) => void;
+  onPay: (orderId: string) => void;
   loading: boolean;
 }
 
@@ -22,6 +23,7 @@ export function OrderColumn({
   orders,
   tables,
   onAdvance,
+  onPay,
   loading,
 }: OrderColumnProps) {
   const filtered = orders.filter((o) => o.status === status);
@@ -48,6 +50,7 @@ export function OrderColumn({
             order={order}
             table={tables.find((t) => t.id === order.tableId)}
             onAdvance={onAdvance}
+            onPay={onPay}
             loading={loading}
           />
         ))

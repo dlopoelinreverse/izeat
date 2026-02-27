@@ -10,10 +10,11 @@ import {
 } from "@/graphql/__generated__/graphql";
 import DashboardPageLayout from "../dashboard-page-layout";
 import { Button } from "@/components/ui/button";
-import { BellRing, ChefHat, FlaskConical, Wifi } from "lucide-react";
+import { BellRing, ChefHat, FlaskConical, Receipt, Wifi } from "lucide-react";
 import { SimulatorPanel } from "./simulator-panel";
 import { OrderColumn } from "./order-column";
 import { WaiterCallSheet } from "./waiter-call-sheet";
+import { PayedOrdersSheet } from "./payed-orders-sheet";
 
 import { useOrders } from "@/hooks/use-orders";
 import { Order, Status, STATUS_LABELS, STATUSES } from "@/types/service-types";
@@ -27,6 +28,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
   const [activeTab, setActiveTab] = useState<Status>("pending");
   const [showSimulator, setShowSimulator] = useState(false);
   const [waiterSheetOpen, setWaiterSheetOpen] = useState(false);
+  const [payedSheetOpen, setPayedSheetOpen] = useState(false);
 
   const { data: tablesData } = useQuery(GetRestaurantTablesDocument, {
     variables: { restaurantId },
@@ -51,7 +53,12 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
   const waiterCallOrders = orders.filter(
     (o) => o?.type === "waiter_call" && o?.status !== "served",
   );
-  const foodOrders = orders.filter((o) => o?.type !== "waiter_call");
+  const payedOrders = orders.filter(
+    (o) => o?.type !== "waiter_call" && o?.status === "payed",
+  );
+  const foodOrders = orders.filter(
+    (o) => o?.type !== "waiter_call" && o?.status !== "payed",
+  );
 
   const [createOrder, { loading: creating }] = useMutation(
     CreateOrderDocument,
@@ -87,6 +94,10 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
     updateOrderStatus({ variables: { orderId, status: "served" } });
   };
 
+  const handlePay = (orderId: string) => {
+    updateOrderStatus({ variables: { orderId, status: "payed" } });
+  };
+
   const headerAction = (
     <div className="flex items-center gap-2">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-2">
@@ -118,6 +129,20 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           {waiterCallOrders.length}
         </Button>
       )}
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-1.5"
+        onClick={() => setPayedSheetOpen(true)}
+      >
+        <Receipt className="h-4 w-4" />
+        Réglés
+        {payedOrders.length > 0 && (
+          <span className="inline-flex items-center justify-center h-4 min-w-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold px-1">
+            {payedOrders.length}
+          </span>
+        )}
+      </Button>
       <Button
         variant={showSimulator ? "default" : "outline"}
         size="sm"
@@ -173,6 +198,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
               orders={foodOrders}
               tables={tables}
               onAdvance={handleAdvance}
+              onPay={handlePay}
               loading={updating}
             />
           </div>
@@ -187,6 +213,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
               orders={foodOrders}
               tables={tables}
               onAdvance={handleAdvance}
+              onPay={handlePay}
               loading={updating}
             />
           ))}
@@ -212,6 +239,13 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
         tables={tables}
         onResolve={handleResolveWaiterCall}
         loading={updating}
+      />
+
+      <PayedOrdersSheet
+        open={payedSheetOpen}
+        onClose={() => setPayedSheetOpen(false)}
+        orders={payedOrders}
+        tables={tables}
       />
     </DashboardPageLayout>
   );
