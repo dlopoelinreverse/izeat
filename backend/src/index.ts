@@ -9,6 +9,7 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/use/ws";
 import DataBase from "./data-base";
 import schema from "./schema";
+import { stripeWebhookRouter } from "./routes/stripe-webhook";
 
 const port = process.env.BACKEND_PORT || 4001;
 const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") ?? [];
@@ -46,6 +47,9 @@ schema.then(async (builtSchema) => {
   await server.start();
 
   const corsConfig = { origin: allowedOrigins, credentials: true };
+
+  // Stripe webhook must be mounted BEFORE express.json() to preserve raw body for signature verification
+  app.use(stripeWebhookRouter);
 
   app.use(cors(corsConfig));
 

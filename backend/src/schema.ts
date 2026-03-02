@@ -13,6 +13,7 @@ import MenuItemIngredientResolver from "./resolvers/menu-item-ingredient.resolve
 import IngredientResolver from "./resolvers/ingredient.resolver";
 import IngredientCategoryResolver from "./resolvers/ingredient-category.resolver";
 import OrderResolver from "./resolvers/order.resolver";
+import SubscriptionResolver from "./resolvers/subscription.resolver";
 
 export default buildSchema({
   resolvers: [
@@ -27,6 +28,7 @@ export default buildSchema({
     IngredientResolver,
     IngredientCategoryResolver,
     OrderResolver,
+    SubscriptionResolver,
   ],
   authChecker,
   pubSub: pubsub,

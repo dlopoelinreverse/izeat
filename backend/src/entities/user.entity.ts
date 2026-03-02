@@ -4,6 +4,7 @@ import {
   PrimaryColumn,
   Column,
   OneToMany,
+  OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -11,6 +12,7 @@ import { ObjectType, Field, ID } from "type-graphql";
 import Session from "./session.entity";
 import Account from "./account.entity";
 import Restaurant from "./restaurant.entity";
+import Subscription from "./subscription.entity";
 
 @ObjectType()
 @Entity()
@@ -54,6 +56,10 @@ class User extends BaseEntity {
   @Field(() => [Account])
   @OneToMany(() => Account, (account) => account.user)
   accounts!: Account[];
+
+  @Field(() => Subscription, { nullable: true })
+  @OneToOne(() => Subscription, (subscription) => subscription.user)
+  subscription?: Subscription;
 }
 
 export default User;

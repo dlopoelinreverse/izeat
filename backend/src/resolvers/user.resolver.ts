@@ -1,6 +1,7 @@
 import { Authorized, Ctx, Field, ObjectType, Query, Resolver } from "type-graphql";
 import { ID } from "type-graphql";
 import Restaurant from "../entities/restaurant.entity";
+import Subscription from "../entities/subscription.entity";
 import { ContextType } from "../types";
 
 @ObjectType()
@@ -19,6 +20,7 @@ export class Onboarding {
 class MeResult {
   @Field(() => ID) id: string;
   @Field(() => String) name: string;
+  @Field(() => Boolean) hasActiveSubscription: boolean;
   @Field(() => Onboarding, { nullable: true }) onboarding?: Onboarding;
 }
 
@@ -29,15 +31,22 @@ class UserResolver {
   async me(@Ctx() ctx: ContextType): Promise<MeResult> {
     if (!ctx.currentUser) throw new Error("Vous n'êtes pas connecté");
 
-    const restaurant = await Restaurant.findOne({
-      where: { owner: { id: ctx.currentUser.id } },
-      relations: ["menus", "menus.categories", "menus.items", "tables"],
-    });
+    const [restaurant, subscription] = await Promise.all([
+      Restaurant.findOne({
+        where: { owner: { id: ctx.currentUser.id } },
+        relations: ["menus", "menus.categories", "menus.items", "tables"],
+      }),
+      Subscription.findOne({ where: { userId: ctx.currentUser.id } }),
+    ]);
+
+    const hasActiveSubscription =
+      subscription?.status === "active" || subscription?.status === "trialing";
 
     if (!restaurant) {
       return {
         id: ctx.currentUser.id,
         name: ctx.currentUser.name,
+        hasActiveSubscription,
         onboarding: {
           hasRestaurant: false,
           hasMenu: false,
@@ -61,6 +70,7 @@ class UserResolver {
     return {
       id: ctx.currentUser.id,
       name: ctx.currentUser.name,
+      hasActiveSubscription,
       onboarding: {
         hasRestaurant: true,
         restaurantId: restaurant.id,

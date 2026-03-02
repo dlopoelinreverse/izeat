@@ -56,7 +56,7 @@ export default function SignUpPage() {
         password,
         name,
       });
-      router.push("/app/dashboard");
+      router.push("/app/onboarding");
     } catch (err) {
       setError("Une erreur est survenue. Veuillez réessayer.");
       console.error(err);

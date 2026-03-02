@@ -1,0 +1,6 @@
+mutation VerifyCheckoutSession($sessionId: String!) {
+  verifyCheckoutSession(sessionId: $sessionId) {
+    id
+    status
+  }
+}
