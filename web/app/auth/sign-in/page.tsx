@@ -36,10 +36,16 @@ export default function SignInPage() {
     setError("");
 
     try {
-      await signIn.email({
+      const { error } = await signIn.email({
         email,
         password,
       });
+
+      if (error) {
+        setError("Identifiants incorrects. Veuillez réessayer.");
+        return;
+      }
+
       router.push("/app/dashboard");
     } catch (err) {
       setError("Identifiants incorrects. Veuillez réessayer.");

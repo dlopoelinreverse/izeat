@@ -5,13 +5,9 @@ import { MeDocument } from "@/graphql/__generated__/graphql";
 export default async function DashboardPage() {
   const client = await getServerApolloClient();
 
-  // .catch() évite le try/catch — redirect() ne doit pas être appelé dans un try/catch
-  // car Next.js l'implémente en lançant une erreur interne (NEXT_REDIRECT)
-  const result = await client
-    .query({ query: MeDocument })
-    .catch(() => null);
+  const { data, error } = await client.query({ query: MeDocument });
 
-  const me = result?.data?.me ?? null;
+  const me = data?.me;
 
   if (!me) {
     redirect("/auth/sign-in");

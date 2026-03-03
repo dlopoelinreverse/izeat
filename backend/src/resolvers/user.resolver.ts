@@ -1,4 +1,11 @@
-import { Authorized, Ctx, Field, ObjectType, Query, Resolver } from "type-graphql";
+import {
+  Authorized,
+  Ctx,
+  Field,
+  ObjectType,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { ID } from "type-graphql";
 import Restaurant from "../entities/restaurant.entity";
 import Subscription from "../entities/subscription.entity";
@@ -62,9 +69,7 @@ class UserResolver {
     const hasCategory = restaurant.menus.some(
       (m) => m.categories && m.categories.length > 0,
     );
-    const hasDish = restaurant.menus.some(
-      (m) => m.items && m.items.length > 0,
-    );
+    const hasDish = restaurant.menus.some((m) => m.items && m.items.length > 0);
     const hasTable = restaurant.tables.length > 0;
 
     return {
