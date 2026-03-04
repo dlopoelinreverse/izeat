@@ -47,6 +47,17 @@ interface OrderUpdatedPayload {
 
 @Resolver()
 class OrderResolver {
+  @Query(() => [Order])
+  async getTableOrders(
+    @Arg("restaurantId", () => ID) restaurantId: string,
+    @Arg("tableId", () => ID) tableId: string,
+  ): Promise<Order[]> {
+    return Order.find({
+      where: { restaurantId, tableId },
+      order: { createdAt: "ASC" },
+    });
+  }
+
   @Authorized()
   @Query(() => [Order])
   async getRestaurantOrders(
@@ -87,6 +98,22 @@ class OrderResolver {
       restaurantId,
     });
 
+    return order;
+  }
+
+  @Mutation(() => Order)
+  async cancelWaiterCall(
+    @Arg("orderId", () => ID) orderId: string,
+  ): Promise<Order> {
+    const order = await Order.findOneOrFail({
+      where: { id: orderId, type: "waiter_call" },
+    });
+    order.status = "served";
+    await order.save();
+    pubsub.publish(ORDER_UPDATED, {
+      orderUpdated: order,
+      restaurantId: order.restaurantId,
+    });
     return order;
   }
 

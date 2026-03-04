@@ -1,0 +1,16 @@
+query GetTableOrders($restaurantId: ID!, $tableId: ID!) {
+  getTableOrders(restaurantId: $restaurantId, tableId: $tableId) {
+    id
+    restaurantId
+    tableId
+    status
+    type
+    createdAt
+    items {
+      id
+      name
+      price
+      qty
+    }
+  }
+}

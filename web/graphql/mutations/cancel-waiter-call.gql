@@ -1,0 +1,7 @@
+mutation CancelWaiterCall($orderId: ID!) {
+  cancelWaiterCall(orderId: $orderId) {
+    id
+    status
+    type
+  }
+}
