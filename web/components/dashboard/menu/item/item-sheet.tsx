@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/contexts/onboarding-context";
 import {
@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { DeleteItemButton } from "./delete-item-button";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
 
 interface ItemSheetProps {
   categoryId?: string;
@@ -51,11 +53,68 @@ export const ItemSheet = ({
     );
   });
 
+  const form = useForm({
+    defaultValues: { name: "", price: "", description: "" },
+    onSubmit: async ({ value }) => {
+      if (variant === "EDIT" && itemId) {
+        const itemData = data?.getMenuItem;
+        await updateMenuItem({
+          variables: {
+            id: itemId,
+            menuItemInput: {
+              name: value.name,
+              description: value.description,
+              price: parseFloat(value.price),
+              ingredientsId: selectedIngredients.map((i) => i.id),
+              categoryId: categoryId || itemData?.categoryId || "",
+              menuId: menuId || "",
+              restaurantId: restaurantId || "",
+            },
+          },
+        });
+      } else {
+        if (!categoryId || !menuId || !restaurantId) return;
+        await createMenuItem({
+          variables: {
+            menuItemInput: {
+              name: value.name,
+              description: value.description,
+              price: parseFloat(value.price),
+              ingredientsId: selectedIngredients.map((i) => i.id),
+              categoryId,
+              menuId,
+              restaurantId,
+            },
+          },
+        });
+      }
+    },
+  });
+
+  // Populate form when editing and data loads
+  useEffect(() => {
+    if (data?.getMenuItem) {
+      form.reset({
+        name: data.getMenuItem.name,
+        price: String(data.getMenuItem.price),
+        description: data.getMenuItem.description ?? "",
+      });
+      setSelectedIngredients(
+        data.getMenuItem.ingredients.map((i) => i.ingredient),
+      );
+    }
+  }, [data]);
+
   const [createMenuItem] = useMutation(CreateMenuItemDocument, {
     onCompleted: () => {
+      toast.success("Plat ajouté avec succès");
       setOpen(false);
       setSelectedIngredients([]);
+      form.reset();
       refetchOnboarding();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erreur lors de la création du plat");
     },
     update: (cache, { data }) => {
       if (!data?.createMenuItem || !menuId || !categoryId) return;
@@ -89,7 +148,11 @@ export const ItemSheet = ({
 
   const [updateMenuItem] = useMutation(UpdateMenuItemDocument, {
     onCompleted: () => {
+      toast.success("Plat mis à jour avec succès");
       setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erreur lors de la mise à jour du plat");
     },
     update: (cache, { data }) => {
       if (!data?.updateMenuItem || !menuId) return;
@@ -130,50 +193,7 @@ export const ItemSheet = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
-    const price = formData.get("price") as string;
-
-    if (variant === "EDIT" && itemId) {
-      const itemData = data?.getMenuItem;
-      updateMenuItem({
-        variables: {
-          id: itemId,
-          menuItemInput: {
-            name,
-            description,
-            price: parseFloat(price),
-            ingredientsId: selectedIngredients.map((i) => i.id),
-            categoryId: categoryId || itemData?.categoryId || "",
-            menuId: menuId || "",
-            restaurantId: restaurantId || "",
-          },
-        },
-      });
-    } else {
-      if (!categoryId || !menuId || !restaurantId) return;
-      createMenuItem({
-        variables: {
-          menuItemInput: {
-            name,
-            description,
-            price: parseFloat(price),
-            ingredientsId: selectedIngredients.map((i) => i.id),
-            categoryId,
-            menuId,
-            restaurantId,
-          },
-        },
-      });
-    }
-  };
-
   const isEdit = variant === "EDIT";
-
   const itemData = data?.getMenuItem;
 
   return (
@@ -202,19 +222,42 @@ export const ItemSheet = ({
           </SheetHeader>
 
           <form
-            onSubmit={handleSubmit}
+            id="item-sheet-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
             className="flex flex-col flex-1 overflow-hidden"
           >
             <div className="flex-1 overflow-y-auto px-6 py-2 flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="item-name">Nom du plat</Label>
-                <Input
-                  id="item-name"
-                  name="name"
-                  placeholder="Ex: Pizza Margherita"
-                  defaultValue={data?.getMenuItem?.name || ""}
-                />
-              </div>
+              <form.Field
+                name="name"
+                validators={{
+                  onBlur: ({ value }) =>
+                    !value.trim() ? "Le nom du plat est requis." : undefined,
+                  onSubmit: ({ value }) =>
+                    !value.trim() ? "Le nom du plat est requis." : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="item-name">Nom du plat</Label>
+                    <Input
+                      id="item-name"
+                      placeholder="Ex: Pizza Margherita"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+
               <div className="flex flex-col gap-2">
                 <Label>Ingrédients</Label>
                 <IngredientsList
@@ -223,32 +266,65 @@ export const ItemSheet = ({
                   onIngredientsChange={setSelectedIngredients}
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="item-price">Prix</Label>
-                <Input
-                  id="item-price"
-                  name="price"
-                  placeholder="Ex: 10.00"
-                  type="number"
-                  step="0.05"
-                  defaultValue={data?.getMenuItem?.price || ""}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="item-description">Description</Label>
-                <Textarea
-                  id="item-description"
-                  name="description"
-                  placeholder="Ex: Une délicieuse pizza..."
-                  className="min-h-[100px]"
-                  defaultValue={data?.getMenuItem?.description || ""}
-                />
-              </div>
+
+              <form.Field
+                name="price"
+                validators={{
+                  onBlur: ({ value }) => {
+                    if (!value) return "Le prix est requis.";
+                    const n = parseFloat(value);
+                    if (isNaN(n) || n <= 0) return "Le prix doit être un nombre positif.";
+                    return undefined;
+                  },
+                  onSubmit: ({ value }) => {
+                    if (!value) return "Le prix est requis.";
+                    const n = parseFloat(value);
+                    if (isNaN(n) || n <= 0) return "Le prix doit être un nombre positif.";
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="item-price">Prix</Label>
+                    <Input
+                      id="item-price"
+                      placeholder="Ex: 10.00"
+                      type="number"
+                      step="0.05"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+
+              <form.Field name="description">
+                {(field) => (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="item-description">Description</Label>
+                    <Textarea
+                      id="item-description"
+                      placeholder="Ex: Une délicieuse pizza..."
+                      className="min-h-[100px]"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </div>
+                )}
+              </form.Field>
             </div>
 
             <SheetFooter className="p-6">
               <div className="flex flex-col gap-2 w-full">
-                <Button type="submit" className="w-full">
+                <Button type="submit" form="item-sheet-form" className="w-full">
                   {isEdit ? "Modifier" : "Ajouter le plat"}
                 </Button>
                 {isEdit && itemId && menuId && (

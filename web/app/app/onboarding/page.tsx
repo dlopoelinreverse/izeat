@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Store } from "lucide-react";
 import { useMutation } from "@apollo/client/react";
@@ -18,6 +17,8 @@ import {
   CreateRestaurantDocument,
   CreateCheckoutSessionDocument,
 } from "@/graphql/__generated__/graphql";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
 
 const FEATURES = [
   "Gestion complète des menus et catégories",
@@ -28,36 +29,23 @@ const FEATURES = [
 ];
 
 export default function OnboardingPage() {
-  const [restaurantName, setRestaurantName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const [createCheckoutSession] = useMutation(CreateCheckoutSessionDocument);
   const [createRestaurant] = useMutation(CreateRestaurantDocument);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const name = restaurantName.trim();
-    if (!name) {
-      setError("Le nom du restaurant est requis.");
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-
-    try {
-      await createRestaurant({ variables: { name } });
-
-      const { data } = await createCheckoutSession();
-      if (data?.createCheckoutSession.url) {
-        window.location.href = data.createCheckoutSession.url;
+  const form = useForm({
+    defaultValues: { restaurantName: "" },
+    onSubmit: async ({ value }) => {
+      try {
+        await createRestaurant({ variables: { name: value.restaurantName.trim() } });
+        const { data } = await createCheckoutSession();
+        if (data?.createCheckoutSession.url) {
+          window.location.href = data.createCheckoutSession.url;
+        }
+      } catch {
+        toast.error("Une erreur est survenue. Veuillez réessayer.");
       }
-    } catch {
-      setError("Une erreur est survenue. Veuillez réessayer.");
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-orange-50 to-amber-50 dark:from-slate-950 dark:via-slate-900 dark:to-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 relative">
@@ -93,25 +81,47 @@ export default function OnboardingPage() {
           </CardHeader>
 
           <CardContent className="space-y-6 pt-4">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Restaurant name */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="restaurantName"
-                  className="text-slate-700 dark:text-slate-300 font-semibold"
-                >
-                  Nom du restaurant
-                </Label>
-                <Input
-                  id="restaurantName"
-                  type="text"
-                  placeholder="Le Bistrot Parisien"
-                  value={restaurantName}
-                  onChange={(e) => setRestaurantName(e.target.value)}
-                  required
-                  className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
-                />
-              </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="space-y-6"
+            >
+              <form.Field
+                name="restaurantName"
+                validators={{
+                  onBlur: ({ value }) =>
+                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                  onSubmit: ({ value }) =>
+                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="restaurantName"
+                      className="text-slate-700 dark:text-slate-300 font-semibold"
+                    >
+                      Nom du restaurant
+                    </Label>
+                    <Input
+                      id="restaurantName"
+                      type="text"
+                      placeholder="Le Bistrot Parisien"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
 
               {/* Subscription summary */}
               <div className="rounded-xl border border-orange-100 dark:border-orange-900/30 bg-linear-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 p-4 space-y-3">
@@ -157,41 +167,39 @@ export default function OnboardingPage() {
                 </p>
               </div>
 
-              {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold text-base shadow-lg hover:shadow-xl hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Création en cours...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    S&apos;abonner maintenant
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </div>
+              <form.Subscribe selector={(state) => state.isSubmitting}>
+                {(isSubmitting) => (
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full h-12 bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold text-base shadow-lg hover:shadow-xl hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Création en cours...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        S&apos;abonner maintenant
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </Button>
                 )}
-              </Button>
+              </form.Subscribe>
             </form>
           </CardContent>
         </Card>

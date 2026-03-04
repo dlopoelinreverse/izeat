@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useOnboarding } from "@/contexts/onboarding-context";
+import { useForm } from "@tanstack/react-form";
 
 interface CreateMenuProps {
   restaurantId: string;
@@ -29,15 +30,21 @@ interface CreateMenuProps {
 
 export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
   const router = useRouter();
   const { refetchOnboarding } = useOnboarding();
+
+  const form = useForm({
+    defaultValues: { name: "" },
+    onSubmit: async ({ value }) => {
+      await createMenu({ variables: { restaurantId, name: value.name } });
+    },
+  });
 
   const [createMenu, { loading }] = useMutation(CreateMenuDocument, {
     onCompleted: () => {
       toast.success("Menu créé avec succès");
       setOpen(false);
-      setName("");
+      form.reset();
       refetchOnboarding();
       router.refresh();
     },
@@ -64,21 +71,6 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
       }
     },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name) {
-      toast.error("Veuillez donner un nom au menu");
-      return;
-    }
-
-    createMenu({
-      variables: {
-        restaurantId,
-        name,
-      },
-    });
-  };
 
   return (
     <>
@@ -111,25 +103,50 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
               </div>
             </DrawerHeader>
 
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 p-6">
+            <form
+              id="create-menu-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="flex flex-col flex-1 p-6"
+            >
               <div className="space-y-6 flex-1">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="name"
-                    className="text-sm font-medium flex items-center gap-2"
-                  >
-                    <Type className="h-4 w-4 text-primary" />
-                    Nom du menu
-                  </Label>
-                  <Input
-                    id="name"
-                    placeholder="Ex: Menu du Midi, Carte du soir..."
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
-                    autoFocus
-                  />
-                </div>
+                <form.Field
+                  name="name"
+                  validators={{
+                    onBlur: ({ value }) =>
+                      !value.trim() ? "Le nom du menu est requis." : undefined,
+                    onSubmit: ({ value }) =>
+                      !value.trim() ? "Le nom du menu est requis." : undefined,
+                  }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="menu-name"
+                        className="text-sm font-medium flex items-center gap-2"
+                      >
+                        <Type className="h-4 w-4 text-primary" />
+                        Nom du menu
+                      </Label>
+                      <Input
+                        id="menu-name"
+                        placeholder="Ex: Menu du Midi, Carte du soir..."
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
+                        autoFocus
+                      />
+                      {field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500">
+                          {String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </form.Field>
               </div>
 
               <DrawerFooter className="px-0 pt-6 gap-3 flex-row sm:flex-row border-t mt-4">
@@ -144,6 +161,7 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
                 </Button>
                 <Button
                   type="submit"
+                  form="create-menu-form"
                   className="flex-1 h-11 font-semibold"
                   disabled={loading}
                 >

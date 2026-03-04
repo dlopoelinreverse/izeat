@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOnboarding } from "@/contexts/onboarding-context";
+import { useForm } from "@tanstack/react-form";
 
 interface CreateTableProps {
   restaurantId: string;
@@ -30,21 +31,30 @@ interface CreateTableProps {
 export const CreateTable = ({ restaurantId, existingNumbers }: CreateTableProps) => {
   const { refetchOnboarding } = useOnboarding();
   const [open, setOpen] = useState(false);
-  const [tableNumber, setTableNumber] = useState("");
-  const [capacity, setCapacity] = useState("");
 
-  const isDuplicate =
-    tableNumber !== "" && existingNumbers.includes(parseInt(tableNumber));
+  const form = useForm({
+    defaultValues: { tableNumber: "", capacity: "" },
+    onSubmit: async ({ value }) => {
+      await createTable({
+        variables: {
+          tableInput: {
+            restaurantId,
+            number: parseInt(value.tableNumber),
+            capacity: parseInt(value.capacity),
+          },
+        },
+      });
+    },
+  });
 
   const [createTable, { loading }] = useMutation(CreateTableDocument, {
     onCompleted: () => {
       toast.success("Table ajoutée avec succès");
       setOpen(false);
-      setTableNumber("");
-      setCapacity("");
+      form.reset();
       refetchOnboarding();
     },
-    onError: (error) => {
+    onError: () => {
       toast.error(
         "Erreur lors de l'ajout de la table, vérifiez que le numéro de la table n'est pas déjà utilisé"
       );
@@ -69,28 +79,6 @@ export const CreateTable = ({ restaurantId, existingNumbers }: CreateTableProps)
       }
     },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tableNumber || !capacity) {
-      toast.error("Veuillez remplir tous les champs");
-      return;
-    }
-    if (isDuplicate) {
-      toast.error(`La table n°${tableNumber} existe déjà`);
-      return;
-    }
-
-    createTable({
-      variables: {
-        tableInput: {
-          restaurantId,
-          number: parseInt(tableNumber),
-          capacity: parseInt(capacity),
-        },
-      },
-    });
-  };
 
   return (
     <>
@@ -126,49 +114,109 @@ export const CreateTable = ({ restaurantId, existingNumbers }: CreateTableProps)
               </div>
             </DrawerHeader>
 
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 p-6">
+            <form
+              id="create-table-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="flex flex-col flex-1 p-6"
+            >
               <div className="space-y-6 flex-1">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="number"
-                    className="text-sm font-medium flex items-center gap-2"
-                  >
-                    <Hash className="h-4 w-4 text-primary" />
-                    Numéro de la table
-                  </Label>
-                  <Input
-                    id="number"
-                    type="number"
-                    placeholder="Ex: 1, 10, 42..."
-                    value={tableNumber}
-                    onChange={(e) => setTableNumber(e.target.value)}
-                    className={`h-11 transition-all focus:ring-2 ${isDuplicate ? "border-destructive focus:ring-destructive/20" : "focus:ring-primary/20"}`}
-                    autoFocus
-                  />
-                  {isDuplicate && (
-                    <p className="text-xs text-destructive">
-                      La table n°{tableNumber} existe déjà
-                    </p>
+                <form.Field
+                  name="tableNumber"
+                  validators={{
+                    onBlur: ({ value }) => {
+                      if (!value) return "Le numéro de table est requis.";
+                      const n = parseInt(value);
+                      if (isNaN(n) || n <= 0) return "Le numéro doit être supérieur à 0.";
+                      if (existingNumbers.includes(n)) return `La table n°${n} existe déjà.`;
+                      return undefined;
+                    },
+                    onSubmit: ({ value }) => {
+                      if (!value) return "Le numéro de table est requis.";
+                      const n = parseInt(value);
+                      if (isNaN(n) || n <= 0) return "Le numéro doit être supérieur à 0.";
+                      if (existingNumbers.includes(n)) return `La table n°${n} existe déjà.`;
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="tableNumber"
+                        className="text-sm font-medium flex items-center gap-2"
+                      >
+                        <Hash className="h-4 w-4 text-primary" />
+                        Numéro de la table
+                      </Label>
+                      <Input
+                        id="tableNumber"
+                        type="number"
+                        placeholder="Ex: 1, 10, 42..."
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className={`h-11 transition-all focus:ring-2 ${
+                          field.state.meta.errors.length > 0
+                            ? "border-destructive focus:ring-destructive/20"
+                            : "focus:ring-primary/20"
+                        }`}
+                        autoFocus
+                      />
+                      {field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500">
+                          {String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </div>
                   )}
-                </div>
+                </form.Field>
 
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="capacity"
-                    className="text-sm font-medium flex items-center gap-2"
-                  >
-                    <Users className="h-4 w-4 text-primary" />
-                    Capacité (personnes)
-                  </Label>
-                  <Input
-                    id="capacity"
-                    type="number"
-                    placeholder="Ex: 2, 4, 8..."
-                    value={capacity}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
+                <form.Field
+                  name="capacity"
+                  validators={{
+                    onBlur: ({ value }) => {
+                      if (!value) return "La capacité est requise.";
+                      const n = parseInt(value);
+                      if (isNaN(n) || n <= 0) return "La capacité doit être supérieure à 0.";
+                      return undefined;
+                    },
+                    onSubmit: ({ value }) => {
+                      if (!value) return "La capacité est requise.";
+                      const n = parseInt(value);
+                      if (isNaN(n) || n <= 0) return "La capacité doit être supérieure à 0.";
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="capacity"
+                        className="text-sm font-medium flex items-center gap-2"
+                      >
+                        <Users className="h-4 w-4 text-primary" />
+                        Capacité (personnes)
+                      </Label>
+                      <Input
+                        id="capacity"
+                        type="number"
+                        placeholder="Ex: 2, 4, 8..."
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="h-11 transition-all focus:ring-2 focus:ring-primary/20"
+                      />
+                      {field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500">
+                          {String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </form.Field>
               </div>
 
               <DrawerFooter className="px-0 pt-6 gap-3 flex-row sm:flex-row border-t mt-4">
@@ -183,8 +231,9 @@ export const CreateTable = ({ restaurantId, existingNumbers }: CreateTableProps)
                 </Button>
                 <Button
                   type="submit"
+                  form="create-table-form"
                   className="flex-1 h-11 font-semibold"
-                  disabled={loading || isDuplicate}
+                  disabled={loading}
                 >
                   {loading ? "Ajout..." : "Créer la table"}
                 </Button>

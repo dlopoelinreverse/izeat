@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,38 +15,28 @@ import {
 import { CreateRestaurantDocument } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { useRouter } from "next/navigation";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
 
 export const CreateRestaurantForm = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const [createRestaurant] = useMutation(CreateRestaurantDocument, {
+  const [createRestaurant, { loading }] = useMutation(CreateRestaurantDocument, {
     onCompleted: () => {
       router.push("/app/subscription");
     },
     onError: (err) => {
       console.error("Error creating restaurant:", err);
-      setError("Une erreur est survenue. Veuillez réessayer.");
-      setIsLoading(false);
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-
-    const formData = new FormData(e.currentTarget);
-    const name = (formData.get("restaurantName") as string).trim();
-
-    if (!name) {
-      setError("Le nom du restaurant est requis.");
-      return;
-    }
-
-    setIsLoading(true);
-    createRestaurant({ variables: { name } });
-  };
+  const form = useForm({
+    defaultValues: { restaurantName: "" },
+    onSubmit: async ({ value }) => {
+      await createRestaurant({ variables: { name: value.restaurantName.trim() } });
+    },
+  });
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-orange-50 to-amber-50 dark:from-slate-950 dark:via-slate-900 dark:to-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 relative">
@@ -103,36 +92,54 @@ export const CreateRestaurantForm = () => {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="restaurantName"
-                  className="text-slate-700 dark:text-slate-300 font-semibold"
-                >
-                  Nom du restaurant
-                </Label>
-                <Input
-                  id="restaurantName"
-                  type="text"
-                  name="restaurantName"
-                  placeholder="Le Bistrot Parisien"
-                  required
-                  className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
-                />
-              </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="space-y-5"
+            >
+              <form.Field
+                name="restaurantName"
+                validators={{
+                  onBlur: ({ value }) =>
+                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                  onSubmit: ({ value }) =>
+                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="restaurantName"
+                      className="text-slate-700 dark:text-slate-300 font-semibold"
+                    >
+                      Nom du restaurant
+                    </Label>
+                    <Input
+                      id="restaurantName"
+                      type="text"
+                      placeholder="Le Bistrot Parisien"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
 
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="w-full h-12 bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold text-base shadow-lg hover:shadow-xl hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isLoading ? (
+                {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     Création en cours...

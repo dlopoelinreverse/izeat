@@ -19,7 +19,10 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useOnboarding } from "@/contexts/onboarding-context";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
 
 interface CreateMenuCategoryProps {
   menu: GetMenuQuery["getMenu"];
@@ -32,10 +35,22 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
 
   const { id: menuId } = menu;
 
+  const form = useForm({
+    defaultValues: { name: "" },
+    onSubmit: async ({ value }) => {
+      await createMenuCategory({ variables: { name: value.name, menuId } });
+    },
+  });
+
   const [createMenuCategory] = useMutation(CreateMenuCategoryDocument, {
     onCompleted: () => {
+      toast.success("Catégorie créée avec succès");
       setOpen(false);
+      form.reset();
       refetchOnboarding();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erreur lors de la création de la catégorie");
     },
     update(cache, { data }) {
       if (!data?.createMenuCategory) return;
@@ -83,21 +98,6 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    if (!name) {
-      return;
-    }
-    createMenuCategory({
-      variables: {
-        name,
-        menuId,
-      },
-    });
-  };
-
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
@@ -107,7 +107,7 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
 
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent className="max-h-[96vh] p-4">
-          <div className="mx-auto w-full max-w-md flex flex-col h-full ">
+          <div className="mx-auto w-full max-w-md flex flex-col h-full">
             <DrawerHeader>
               <DrawerTitle>Ajouter une catégorie</DrawerTitle>
               <DrawerDescription>
@@ -115,10 +115,40 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
               </DrawerDescription>
             </DrawerHeader>
             <form
+              id="create-category-form"
               className="flex flex-col gap-4 w-full"
-              onSubmit={handleSubmit}
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
             >
-              <Input placeholder="Nom de la categorie" name="name" />
+              <form.Field
+                name="name"
+                validators={{
+                  onBlur: ({ value }) =>
+                    !value.trim() ? "Le nom de la catégorie est requis." : undefined,
+                  onSubmit: ({ value }) =>
+                    !value.trim() ? "Le nom de la catégorie est requis." : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="space-y-1">
+                    <Label htmlFor="category-name">Nom de la catégorie</Label>
+                    <Input
+                      id="category-name"
+                      placeholder="Nom de la catégorie"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
               <DrawerFooter className="flex-1 p-0">
                 <Button
                   variant="outline"
@@ -127,7 +157,7 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
                 >
                   Annuler
                 </Button>
-                <Button type="submit">Ajouter</Button>
+                <Button type="submit" form="create-category-form">Ajouter</Button>
               </DrawerFooter>
             </form>
           </div>

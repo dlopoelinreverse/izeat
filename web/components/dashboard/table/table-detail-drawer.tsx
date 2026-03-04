@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
 import {
@@ -27,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Hash, Users, Download, QrCode, ExternalLink } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
 
 type Table = GetRestaurantTablesQuery["getRestaurantTables"][number];
 
@@ -68,9 +68,26 @@ const TableDetailForm = ({
   restaurantId,
   onClose,
 }: TableDetailFormProps) => {
-  const [number, setNumber] = useState(String(table.number));
-  const [capacity, setCapacity] = useState(String(table.capacity));
-  const [status, setStatus] = useState(table.status);
+  const form = useForm({
+    defaultValues: {
+      number: String(table.number),
+      capacity: String(table.capacity),
+      status: table.status,
+    },
+    onSubmit: async ({ value }) => {
+      await updateTable({
+        variables: {
+          input: {
+            id: table.id,
+            number: parseInt(value.number),
+            capacity: parseInt(value.capacity),
+            status: value.status,
+          },
+        },
+        onCompleted: () => toast.success("Table mise à jour"),
+      });
+    },
+  });
 
   const [updateTable, { loading }] = useMutation(UpdateTableDocument, {
     onError: (error) => {
@@ -95,21 +112,6 @@ const TableDetailForm = ({
     },
   });
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateTable({
-      variables: {
-        input: {
-          id: table.id,
-          number: parseInt(number),
-          capacity: parseInt(capacity),
-          status,
-        },
-      },
-      onCompleted: () => toast.success("Table mise à jour"),
-    });
-  };
-
   const handleDownloadQr = () => {
     if (!table.qrCode) return;
     const a = document.createElement("a");
@@ -132,53 +134,116 @@ const TableDetailForm = ({
       </SheetHeader>
 
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-        <form onSubmit={handleSave} className="space-y-4" id="table-form">
-          <div className="space-y-2">
-            <Label
-              htmlFor="table-number"
-              className="text-sm font-medium flex items-center gap-2"
-            >
-              <Hash className="h-4 w-4 text-primary" />
-              Numéro de la table
-            </Label>
-            <Input
-              id="table-number"
-              type="number"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              className="h-11"
-            />
-          </div>
+        <form
+          id="table-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="space-y-4"
+        >
+          <form.Field
+            name="number"
+            validators={{
+              onBlur: ({ value }) => {
+                if (!value) return "Le numéro est requis.";
+                const n = parseInt(value);
+                if (isNaN(n) || n <= 0) return "Doit être supérieur à 0.";
+                return undefined;
+              },
+              onSubmit: ({ value }) => {
+                if (!value) return "Le numéro est requis.";
+                const n = parseInt(value);
+                if (isNaN(n) || n <= 0) return "Doit être supérieur à 0.";
+                return undefined;
+              },
+            }}
+          >
+            {(field) => (
+              <div className="space-y-2">
+                <Label
+                  htmlFor="table-number"
+                  className="text-sm font-medium flex items-center gap-2"
+                >
+                  <Hash className="h-4 w-4 text-primary" />
+                  Numéro de la table
+                </Label>
+                <Input
+                  id="table-number"
+                  type="number"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="h-11"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500">
+                    {String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="table-capacity"
-              className="text-sm font-medium flex items-center gap-2"
-            >
-              <Users className="h-4 w-4 text-primary" />
-              Capacité (personnes)
-            </Label>
-            <Input
-              id="table-capacity"
-              type="number"
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-              className="h-11"
-            />
-          </div>
+          <form.Field
+            name="capacity"
+            validators={{
+              onBlur: ({ value }) => {
+                if (!value) return "La capacité est requise.";
+                const n = parseInt(value);
+                if (isNaN(n) || n <= 0) return "Doit être supérieure à 0.";
+                return undefined;
+              },
+              onSubmit: ({ value }) => {
+                if (!value) return "La capacité est requise.";
+                const n = parseInt(value);
+                if (isNaN(n) || n <= 0) return "Doit être supérieure à 0.";
+                return undefined;
+              },
+            }}
+          >
+            {(field) => (
+              <div className="space-y-2">
+                <Label
+                  htmlFor="table-capacity"
+                  className="text-sm font-medium flex items-center gap-2"
+                >
+                  <Users className="h-4 w-4 text-primary" />
+                  Capacité (personnes)
+                </Label>
+                <Input
+                  id="table-capacity"
+                  type="number"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="h-11"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500">
+                    {String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Statut</Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="h-11">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="available">Libre</SelectItem>
-                <SelectItem value="occupied">Occupée</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <form.Field name="status">
+            {(field) => (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Statut</Label>
+                <Select value={field.state.value} onValueChange={field.handleChange}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="available">Libre</SelectItem>
+                    <SelectItem value="occupied">Occupée</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </form.Field>
         </form>
 
         <div className="border-t pt-6 space-y-4">
