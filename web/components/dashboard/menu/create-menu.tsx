@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
 import { useOnboarding } from "@/contexts/onboarding-context";
 import { useForm } from "@tanstack/react-form";
 
@@ -30,7 +29,6 @@ interface CreateMenuProps {
 
 export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const { refetchOnboarding } = useOnboarding();
 
   const form = useForm({
@@ -46,7 +44,6 @@ export const CreateMenu = ({ restaurantId }: CreateMenuProps) => {
       setOpen(false);
       form.reset();
       refetchOnboarding();
-      router.refresh();
     },
     onError: (error) => {
       toast.error(error.message || "Erreur lors de la création du menu");

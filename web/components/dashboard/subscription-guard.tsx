@@ -14,7 +14,7 @@ export function SubscriptionGuard({ children }: { children: React.ReactNode }) {
     }
   }, [loading, hasActiveSubscription, router]);
 
-  if (loading || !hasActiveSubscription) {
+  if (!hasActiveSubscription) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
