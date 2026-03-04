@@ -98,7 +98,7 @@ const MenuCard = ({
             Actif
           </Badge>
         )}
-        <DeleteMenuButton menuId={menu.id} />
+        <DeleteMenuButton menuId={menu.id} restaurantId={restaurantId} />
       </div>
 
       <Link

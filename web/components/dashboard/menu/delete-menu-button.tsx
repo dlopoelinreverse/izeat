@@ -2,25 +2,50 @@
 
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DeleteMenuDocument } from "@/graphql/__generated__/graphql";
+import {
+  DeleteMenuDocument,
+  GetMenusDocument,
+  GetMenusQuery,
+} from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useOnboarding } from "@/contexts/onboarding-context";
 
-export const DeleteMenuButton = ({ menuId }: { menuId: string }) => {
-  const router = useRouter();
+export const DeleteMenuButton = ({
+  menuId,
+  restaurantId,
+}: {
+  menuId: string;
+  restaurantId: string;
+}) => {
+  const { refetchOnboarding } = useOnboarding();
   const [deleteMenu, { loading }] = useMutation(DeleteMenuDocument, {
     variables: {
       deleteMenuId: menuId,
     },
     onCompleted: () => {
       toast.success("Menu supprimé avec succès");
-      router.refresh();
+      refetchOnboarding();
     },
     onError: (error) => {
       console.error(error);
       toast.error(error.message || "Erreur lors de la suppression du menu");
-      router.refresh();
+    },
+    update: (cache) => {
+      const existingData = cache.readQuery<GetMenusQuery>({
+        query: GetMenusDocument,
+        variables: { restaurantId },
+      });
+
+      if (existingData) {
+        cache.writeQuery({
+          query: GetMenusDocument,
+          variables: { restaurantId },
+          data: {
+            getMenus: existingData.getMenus.filter((m) => m.id !== menuId),
+          },
+        });
+      }
     },
   });
 
