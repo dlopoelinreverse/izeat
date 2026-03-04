@@ -15,68 +15,53 @@ import {
 } from "@/components/ui/card";
 import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
-
   const router = useRouter();
 
-  // Animation on mount
-  useState(() => {
-    setTimeout(() => setIsVisible(true), 50);
+  const form = useForm({
+    defaultValues: { email: "", password: "" },
+    onSubmit: async ({ value }) => {
+      setIsLoading(true);
+      try {
+        const { error } = await signIn.email({
+          email: value.email,
+          password: value.password,
+        });
+        if (error) {
+          toast.error("Identifiants incorrects. Veuillez réessayer.");
+        } else {
+          router.push("/app/dashboard");
+        }
+      } catch {
+        toast.error("Identifiants incorrects. Veuillez réessayer.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const { error } = await signIn.email({
-        email,
-        password,
-      });
-
-      if (error) {
-        setError("Identifiants incorrects. Veuillez réessayer.");
-        return;
-      }
-
-      router.push("/app/dashboard");
-    } catch (err) {
-      setError("Identifiants incorrects. Veuillez réessayer.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 dark:from-slate-950 dark:via-slate-900 dark:to-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-orange-50 to-amber-50 dark:from-slate-950 dark:via-slate-900 dark:to-amber-950 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-orange-400/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      <div
-        className={`w-full max-w-md relative z-10 transition-all duration-1000 ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
+      <div className="w-full max-w-md relative z-10">
         {/* Logo and Brand */}
         <Link
           href="/"
           className="flex items-center justify-center gap-2 mb-8 group"
         >
-          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+          <div className="w-12 h-12 bg-linear-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
             <span className="text-white font-bold text-2xl">iE</span>
           </div>
-          <span className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+          <span className="text-3xl font-bold bg-linear-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
             izEat
           </span>
         </Link>
@@ -84,7 +69,7 @@ export default function SignInPage() {
         {/* Main Card */}
         <Card className="backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-orange-100 dark:border-orange-900/30 shadow-2xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+            <CardTitle className="text-3xl font-extrabold bg-linear-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               Connexion
             </CardTitle>
             <CardDescription className="text-base text-slate-600 dark:text-slate-400">
@@ -93,61 +78,103 @@ export default function SignInPage() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm animate-shake">
-                  {error}
-                </div>
-              )}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="space-y-5"
+            >
+              <form.Field
+                name="email"
+                validators={{
+                  onBlur: ({ value }) =>
+                    !value
+                      ? "L'adresse email est requise."
+                      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                        ? "Adresse email invalide."
+                        : undefined,
+                  onSubmit: ({ value }) =>
+                    !value
+                      ? "L'adresse email est requise."
+                      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                        ? "Adresse email invalide."
+                        : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email"
+                      className="text-slate-700 dark:text-slate-300 font-semibold"
+                    >
+                      Adresse email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="votre@email.com"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="email"
-                  className="text-slate-700 dark:text-slate-300 font-semibold"
-                >
-                  Adresse email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="password"
-                    className="text-slate-700 dark:text-slate-300 font-semibold"
-                  >
-                    Mot de passe
-                  </Label>
-                  <Link
-                    href="/auth/forgot-password"
-                    className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium transition-colors"
-                  >
-                    Mot de passe oublié ?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
-                />
-              </div>
+              <form.Field
+                name="password"
+                validators={{
+                  onBlur: ({ value }) =>
+                    !value ? "Le mot de passe est requis." : undefined,
+                  onSubmit: ({ value }) =>
+                    !value ? "Le mot de passe est requis." : undefined,
+                }}
+              >
+                {(field) => (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label
+                        htmlFor="password"
+                        className="text-slate-700 dark:text-slate-300 font-semibold"
+                      >
+                        Mot de passe
+                      </Label>
+                      <Link
+                        href="/auth/forgot-password"
+                        className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium transition-colors"
+                      >
+                        Mot de passe oublié ?
+                      </Link>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="h-12 border-orange-200 dark:border-orange-900/30 focus:border-orange-500 focus:ring-orange-500/20 bg-white dark:bg-slate-800 transition-all duration-300"
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500">
+                        {String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold text-base shadow-lg hover:shadow-xl hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full h-12 bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold text-base shadow-lg hover:shadow-xl hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
