@@ -1,5 +1,14 @@
 import Stripe from "stripe";
-import { Arg, Authorized, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from "type-graphql";
 import Subscription from "../entities/subscription.entity";
 import { ContextType } from "../types";
 
@@ -22,6 +31,14 @@ class SubscriptionResolver {
     if (!user) {
       throw new Error("Vous n'êtes pas connecté");
     }
+
+    console.log(
+      "_________________________________________________________Creating checkout session for user:",
+      {
+        id: user.id,
+        email: user.email,
+      },
+    );
 
     const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
 
@@ -105,7 +122,9 @@ class SubscriptionResolver {
     });
 
     if (session.payment_status !== "paid" || session.mode !== "subscription") {
-      return (await Subscription.findOne({ where: { userId: user.id } })) ?? null;
+      return (
+        (await Subscription.findOne({ where: { userId: user.id } })) ?? null
+      );
     }
 
     const subscription = await Subscription.findOne({

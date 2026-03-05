@@ -18,28 +18,36 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import client from "@/lib/apollo-client";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
     onSubmit: async ({ value }) => {
       setIsLoading(true);
       try {
-        try { await authClient.signOut(); } catch {}
+        try {
+          await authClient.signOut();
+        } catch {}
         client.clearStore();
 
-        const { error } = await authClient.signUp.email({
+        const { data, error } = await authClient.signUp.email({
           email: value.email,
           password: value.password,
           name: value.name,
         });
+
+        console.log("Sign-up response:", { data, error });
         if (error) {
-          toast.error(error.message ?? "Une erreur est survenue. Veuillez réessayer.");
+          toast.error(
+            error.message ?? "Une erreur est survenue. Veuillez réessayer.",
+          );
           return;
         }
-        window.location.href = "/app/onboarding";
+        router.push("/app/onboarding");
       } catch {
         toast.error("Une erreur est survenue. Veuillez réessayer.");
       } finally {
