@@ -7,14 +7,14 @@ services:
     restart: unless-stopped
     env_file: .env
     ports:
-      - "4001:4001"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "require('http').get('http://localhost:4001/graphql', r => process.exit(r.statusCode >= 400 && r.statusCode !== 400 ? 1 : 0)).on('error', () => process.exit(1))",
+          "require('http').get('http://localhost:' + (process.env.BACKEND_PORT || 4001) + '/graphql', r => process.exit(r.statusCode >= 400 && r.statusCode !== 400 ? 1 : 0)).on('error', () => process.exit(1))",
         ]
       interval: 30s
       timeout: 10s
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     env_file: .env
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:3000"
     depends_on:
       backend:
         condition: service_healthy
