@@ -5,11 +5,17 @@ services:
       dockerfile: Dockerfile.production
     container_name: saas_backend_prod
     restart: unless-stopped
-    env_file: .env.production
+    env_file: .env
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + (process.env.BACKEND_PORT || 4001) + '/graphql', r => process.exit(r.statusCode >= 400 && r.statusCode !== 400 ? 1 : 0)).on('error', () => process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:' + (process.env.BACKEND_PORT || 4001) + '/graphql', r => process.exit(r.statusCode >= 400 && r.statusCode !== 400 ? 1 : 0)).on('error', () => process.exit(1))",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -27,7 +33,7 @@ services:
         - NEXT_PUBLIC_BETTER_AUTH_BASE_URL=${NEXT_PUBLIC_BETTER_AUTH_BASE_URL}
     container_name: saas_web_prod
     restart: unless-stopped
-    env_file: .env.production
+    env_file: .env
     ports:
       - "${FRONTEND_PORT}:3000"
     depends_on:
