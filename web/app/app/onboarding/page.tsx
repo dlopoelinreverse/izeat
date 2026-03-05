@@ -35,8 +35,15 @@ export default function OnboardingPage() {
   const form = useForm({
     defaultValues: { restaurantName: "" },
     onSubmit: async ({ value }) => {
+      console.log("Submitting form with value:", value);
       try {
-        await createRestaurant({ variables: { name: value.restaurantName.trim() } });
+        await createRestaurant({
+          variables: { name: value.restaurantName.trim() },
+        });
+
+        console.log(
+          "Restaurant created successfully, creating checkout session...",
+        );
         const { data } = await createCheckoutSession();
         if (data?.createCheckoutSession.url) {
           window.location.href = data.createCheckoutSession.url;
@@ -92,9 +99,13 @@ export default function OnboardingPage() {
                 name="restaurantName"
                 validators={{
                   onBlur: ({ value }) =>
-                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                    !value.trim()
+                      ? "Le nom du restaurant est requis."
+                      : undefined,
                   onSubmit: ({ value }) =>
-                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                    !value.trim()
+                      ? "Le nom du restaurant est requis."
+                      : undefined,
                 }}
               >
                 {(field) => (
