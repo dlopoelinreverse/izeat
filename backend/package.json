@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node-dev --exit-child --watch src --poll src/index.ts",
+    "build": "tsc",
+    "start:prod": "node dist/index.js",
     "resetDB": "ts-node-dev --exit-child src/reset-db.ts",
     "typeorm": "ts-node -r dotenv/config ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- migration:generate -d src/data-base.ts",

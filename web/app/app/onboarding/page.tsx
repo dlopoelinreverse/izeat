@@ -36,7 +36,10 @@ export default function OnboardingPage() {
     defaultValues: { restaurantName: "" },
     onSubmit: async ({ value }) => {
       try {
-        await createRestaurant({ variables: { name: value.restaurantName.trim() } });
+        await createRestaurant({
+          variables: { name: value.restaurantName.trim() },
+        });
+
         const { data } = await createCheckoutSession();
         if (data?.createCheckoutSession.url) {
           window.location.href = data.createCheckoutSession.url;
@@ -92,9 +95,13 @@ export default function OnboardingPage() {
                 name="restaurantName"
                 validators={{
                   onBlur: ({ value }) =>
-                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                    !value.trim()
+                      ? "Le nom du restaurant est requis."
+                      : undefined,
                   onSubmit: ({ value }) =>
-                    !value.trim() ? "Le nom du restaurant est requis." : undefined,
+                    !value.trim()
+                      ? "Le nom du restaurant est requis."
+                      : undefined,
                 }}
               >
                 {(field) => (

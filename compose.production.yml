@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.production
+    container_name: saas_backend_prod
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    networks:
+      - saas-network
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.production
+      args:
+        - NEXT_PUBLIC_APOLLO_URI_SERVER=${NEXT_PUBLIC_APOLLO_URI_SERVER}
+        - NEXT_PUBLIC_APOLLO_WS_URI=${NEXT_PUBLIC_APOLLO_WS_URI}
+        - NEXT_PUBLIC_BETTER_AUTH_BASE_URL=${NEXT_PUBLIC_BETTER_AUTH_BASE_URL}
+    container_name: saas_web_prod
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    networks:
+      - saas-network
+
+networks:
+  saas-network:
+    driver: bridge
