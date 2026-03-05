@@ -35,7 +35,10 @@ export default function OnboardingPage() {
   const form = useForm({
     defaultValues: { restaurantName: "" },
     onSubmit: async ({ value }) => {
-      console.log("Submitting form with value:", value);
+      console.log(
+        "NEXT_PUBLIC_APOLLO_URI_SERVER  :",
+        process.env.NEXT_PUBLIC_APOLLO_URI_SERVER,
+      );
       try {
         await createRestaurant({
           variables: { name: value.restaurantName.trim() },
