@@ -12,7 +12,6 @@ interface MenuNameProps {
 }
 
 export const MenuName = ({
-  restaurantId,
   menuName,
   isEditing,
   setIsEditing,

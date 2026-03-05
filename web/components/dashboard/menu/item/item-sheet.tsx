@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/contexts/onboarding-context";
 import {
@@ -10,7 +10,7 @@ import {
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IngredientsList } from "../../ingredient/ingredients-list";
+import { IngredientsList, IngredientType } from "../../ingredient/ingredients-list";
 import {
   Sheet,
   SheetContent,
@@ -46,12 +46,7 @@ export const ItemSheet = ({
     skip: !itemId,
   });
 
-  const [selectedIngredients, setSelectedIngredients] = useState(() => {
-    if (!data?.getMenuItem) return [];
-    return data.getMenuItem.ingredients.map(
-      (ingredient) => ingredient.ingredient,
-    );
-  });
+  const [selectedIngredients, setSelectedIngredients] = useState<IngredientType[]>([]);
 
   const form = useForm({
     defaultValues: { name: "", price: "", description: "" },
@@ -99,9 +94,11 @@ export const ItemSheet = ({
         price: String(data.getMenuItem.price),
         description: data.getMenuItem.description ?? "",
       });
-      setSelectedIngredients(
-        data.getMenuItem.ingredients.map((i) => i.ingredient),
-      );
+      startTransition(() => {
+        setSelectedIngredients(
+          data.getMenuItem!.ingredients.map((i) => i.ingredient),
+        );
+      });
     }
   }, [data]);
 
