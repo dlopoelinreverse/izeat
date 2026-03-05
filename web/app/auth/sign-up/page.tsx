@@ -27,6 +27,7 @@ export default function SignUpPage() {
     onSubmit: async ({ value }) => {
       setIsLoading(true);
       try {
+        await authClient.signOut();
         await authClient.signUp.email({
           email: value.email,
           password: value.password,
