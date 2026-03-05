@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client/react";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@/graphql/__generated__/graphql";
 import { useOnboarding } from "@/contexts/onboarding-context";
 
-export default function SubscriptionSuccessPage() {
+function SubscriptionSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -97,5 +97,13 @@ export default function SubscriptionSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SubscriptionSuccessPage() {
+  return (
+    <Suspense>
+      <SubscriptionSuccessContent />
+    </Suspense>
   );
 }
