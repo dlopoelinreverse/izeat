@@ -16,5 +16,11 @@ mutation CreateOrder(
     status
     type
     createdAt
+    items {
+      id
+      name
+      price
+      qty
+    }
   }
 }
