@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, authClient } from "@/lib/auth-client";
+import client from "@/lib/apollo-client";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -36,6 +37,7 @@ export default function LandingPage() {
                 </Link>
                 <button
                   onClick={async () => {
+                    client.clearStore();
                     await authClient.signOut();
                     window.location.reload();
                   }}

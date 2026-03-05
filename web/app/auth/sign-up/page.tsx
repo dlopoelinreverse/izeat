@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,26 +15,31 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import client from "@/lib/apollo-client";
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const form = useForm({
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
     onSubmit: async ({ value }) => {
       setIsLoading(true);
       try {
-        await authClient.signOut();
-        await authClient.signUp.email({
+        try { await authClient.signOut(); } catch {}
+        client.clearStore();
+
+        const { error } = await authClient.signUp.email({
           email: value.email,
           password: value.password,
           name: value.name,
         });
-        router.push("/app/onboarding");
+        if (error) {
+          toast.error(error.message ?? "Une erreur est survenue. Veuillez réessayer.");
+          return;
+        }
+        window.location.href = "/app/onboarding";
       } catch {
         toast.error("Une erreur est survenue. Veuillez réessayer.");
       } finally {

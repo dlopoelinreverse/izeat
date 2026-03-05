@@ -33,6 +33,10 @@ class SubscriptionResolver {
 
     if (subscription?.stripeCustomerId) {
       customerId = subscription.stripeCustomerId;
+      await this.stripe.customers.update(customerId, {
+        email: user.email,
+        name: user.name,
+      });
     } else {
       const customer = await this.stripe.customers.create({
         email: user.email,

@@ -18,6 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import client from "@/lib/apollo-client";
 
 interface SidebarFooterComponentProps {
   user?: {
@@ -42,6 +43,7 @@ export function SidebarFooterComponent({
     .slice(0, 2);
 
   const handleLogout = async () => {
+    client.clearStore();
     await signOut({
       fetchOptions: {
         onSuccess: () => {
