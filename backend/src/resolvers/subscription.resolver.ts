@@ -32,8 +32,6 @@ class SubscriptionResolver {
       throw new Error("Vous n'êtes pas connecté");
     }
 
-    console.log("Creating checkout session for user:", user);
-
     const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
 
     let subscription = await Subscription.findOne({
