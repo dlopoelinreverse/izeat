@@ -3,12 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false);
   const { data: session, isPending } = useSession();
-  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 50);
@@ -39,7 +37,7 @@ export default function LandingPage() {
                 <button
                   onClick={async () => {
                     await authClient.signOut();
-                    router.refresh();
+                    window.location.reload();
                   }}
                   className="px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 font-medium"
                 >
