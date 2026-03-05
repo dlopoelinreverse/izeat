@@ -1,0 +1,41 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.production
+    container_name: saas_backend_prod
+    restart: unless-stopped
+    env_file: .env.production
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + (process.env.BACKEND_PORT || 4001) + '/graphql', r => process.exit(r.statusCode >= 400 && r.statusCode !== 400 ? 1 : 0)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - saas-network
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.production
+      args:
+        - NEXT_PUBLIC_APOLLO_URI_SERVER=${NEXT_PUBLIC_APOLLO_URI_SERVER}
+        - NEXT_PUBLIC_APOLLO_WS_URI=${NEXT_PUBLIC_APOLLO_WS_URI}
+        - NEXT_PUBLIC_BETTER_AUTH_BASE_URL=${NEXT_PUBLIC_BETTER_AUTH_BASE_URL}
+    container_name: saas_web_prod
+    restart: unless-stopped
+    env_file: .env.production
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - saas-network
+
+networks:
+  saas-network:
+    driver: bridge
