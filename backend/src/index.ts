@@ -18,6 +18,10 @@ schema.then(async (builtSchema) => {
   await DataBase.initialize();
 
   const app = express();
+
+  const corsConfig = { origin: allowedOrigins, credentials: true };
+  app.use(cors(corsConfig));
+
   const httpServer = http.createServer(app);
 
   // WebSocket server pour les subscriptions GraphQL
@@ -46,12 +50,8 @@ schema.then(async (builtSchema) => {
 
   await server.start();
 
-  const corsConfig = { origin: allowedOrigins, credentials: true };
-
   // Stripe webhook must be mounted BEFORE express.json() to preserve raw body for signature verification
   app.use(stripeWebhookRouter);
-
-  app.use(cors(corsConfig));
 
   const context = async ({
     req,
@@ -65,5 +65,7 @@ schema.then(async (builtSchema) => {
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
   console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
-  console.log(`🔌 WebSocket subscriptions ready at ws://localhost:${port}/graphql`);
+  console.log(
+    `🔌 WebSocket subscriptions ready at ws://localhost:${port}/graphql`,
+  );
 });
