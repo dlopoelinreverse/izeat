@@ -24,9 +24,6 @@ services:
     env_file: .env
     ports:
       - "${FRONTEND_PORT}:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
     networks:
       - saas-network
 
