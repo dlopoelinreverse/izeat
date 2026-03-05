@@ -26,9 +26,9 @@ export function MenuCategorySearch({ category }: MenuCategorySearchProps) {
     <div>
       <MenuSearchInput value={query} onChange={setQuery} />
 
-      <div className="px-4 py-4">
+      <div className="px-4 py-3 pb-28">
         {filteredItems.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {filteredItems.map((item) => (
               <MenuOrderItemCard
                 key={item.id}
@@ -40,7 +40,7 @@ export function MenuCategorySearch({ category }: MenuCategorySearchProps) {
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground text-sm py-8">
+          <p className="text-center text-[#9A9690] text-sm py-8">
             {query.trim()
               ? `Aucun plat trouvé pour « ${query} ».`
               : "Aucun plat dans cette catégorie."}

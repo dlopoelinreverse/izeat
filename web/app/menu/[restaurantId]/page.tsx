@@ -1,5 +1,6 @@
 import { UtensilsCrossed } from "lucide-react";
 import { MenuHomeSearch } from "@/components/client/menu-home-search";
+import { MenuHomeHeader } from "@/components/client/menu-home-header";
 import { getMenuForRestaurant } from "@/lib/get-menu";
 
 export default async function MenuPage({
@@ -7,7 +8,7 @@ export default async function MenuPage({
   searchParams,
 }: {
   params: Promise<{ restaurantId: string }>;
-  searchParams: Promise<{ table?: string }>;
+  searchParams: Promise<{ table?: string; tableNum?: string }>;
 }) {
   const { restaurantId } = await params;
   const { table } = await searchParams;
@@ -15,36 +16,27 @@ export default async function MenuPage({
   const menu = await getMenuForRestaurant(restaurantId);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-5 w-5 text-primary" />
-            <span className="font-bold text-lg">{menu?.name ?? "Menu"}</span>
-          </div>
-          {table && (
-            <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
-              Table en cours
-            </span>
-          )}
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#F7F4EF]">
+      <MenuHomeHeader
+        restaurantName={menu?.name ?? "Menu"}
+        restaurantId={restaurantId}
+      />
 
       {!menu ? (
         <main className="px-4 py-6 flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <UtensilsCrossed className="h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold">Menu non disponible</h2>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <UtensilsCrossed className="h-12 w-12 text-[#9A9690] mb-4" />
+          <h2
+            className="text-xl text-[#1A1714]"
+            style={{ fontFamily: "var(--font-playfair)" }}
+          >
+            Menu non disponible
+          </h2>
+          <p className="text-[#9A9690] mt-2 text-sm">
             Le menu de ce restaurant n&apos;est pas disponible pour le moment.
           </p>
         </main>
       ) : (
         <main className="pb-6">
-          <div className="px-4 pt-4 pb-2">
-            <p className="text-muted-foreground text-sm">
-              Bienvenue&nbsp;! Découvrez notre menu.
-            </p>
-          </div>
           <MenuHomeSearch
             menu={menu}
             restaurantId={restaurantId}

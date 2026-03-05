@@ -1,7 +1,6 @@
 "use client";
 
 import { PlusIcon, MinusIcon } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useMenuOrder } from "@/contexts/menu-order-context";
 
 interface MenuOrderItemCardProps {
@@ -23,70 +22,64 @@ export function MenuOrderItemCard({
   const qty = getItemQty(id);
 
   return (
-    <div className="flex items-start gap-4 p-4 rounded-lg border bg-card">
+    <div
+      className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-white border border-[rgba(26,23,20,0.06)]"
+      style={{ boxShadow: "0 1px 4px rgba(26,23,20,0.06)" }}
+    >
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm leading-snug">{name}</p>
         {categoryName && (
-          <p className="text-xs text-primary/70 mt-0.5">{categoryName}</p>
+          <p className="text-[11px] text-[#C8963E] font-medium mb-0.5">{categoryName}</p>
         )}
+        <p className="font-medium text-sm text-[#1A1714] leading-snug">{name}</p>
         {description && (
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+          <p className="text-xs text-[#9A9690] mt-0.5 leading-relaxed line-clamp-2">
             {description}
           </p>
         )}
-        <p className="text-sm font-bold text-primary mt-1">
+        <p className="text-sm font-semibold text-[#C8963E] mt-1">
           {price.toFixed(2)} €
         </p>
       </div>
 
-      {qty === 0 ? (
+      <div className="shrink-0 flex items-center gap-2">
+        {qty > 0 && (
+          <>
+            <button
+              onClick={() => removeItem(id)}
+              className="w-[30px] h-[30px] flex items-center justify-center rounded-full
+                         bg-[#F7F4EF] border border-[rgba(26,23,20,0.1)]
+                         hover:border-[rgba(26,23,20,0.2)] transition-colors duration-100 active:scale-90"
+              aria-label="Retirer un"
+            >
+              <MinusIcon className="h-3.5 w-3.5 text-[#1A1714]" />
+            </button>
+            <span className="text-sm font-semibold min-w-4 text-center tabular-nums text-[#1A1714]">
+              {qty}
+            </span>
+          </>
+        )}
         <button
           onClick={() => addItem(id)}
-          className="shrink-0 size-8 flex items-center justify-center rounded-full
-                     bg-primary text-primary-foreground
-                     transition-transform duration-100 active:scale-90 hover:bg-primary/90"
+          className="w-[30px] h-[30px] flex items-center justify-center rounded-full
+                     bg-[#1A1714] hover:bg-[#2d2a27] transition-colors duration-100 active:scale-90"
           aria-label={`Ajouter ${name}`}
         >
-          <PlusIcon className="h-4 w-4" />
+          <PlusIcon className="h-3.5 w-3.5 text-white" />
         </button>
-      ) : (
-        <div className="shrink-0 flex items-center gap-1.5 animate-in fade-in duration-200">
-          <button
-            onClick={() => removeItem(id)}
-            className="size-8 flex items-center justify-center rounded-full border
-                       transition-colors hover:bg-accent active:scale-90 duration-100"
-            aria-label="Retirer un"
-          >
-            <MinusIcon className="h-4 w-4" />
-          </button>
-          <span className="text-sm font-bold min-w-[1.25rem] text-center tabular-nums">
-            {qty}
-          </span>
-          <button
-            onClick={() => addItem(id)}
-            className="size-8 flex items-center justify-center rounded-full
-                       bg-primary text-primary-foreground
-                       transition-transform duration-100 active:scale-90 hover:bg-primary/90"
-            aria-label="Ajouter un"
-          >
-            <PlusIcon className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
 
 export function MenuOrderItemCardSkeleton() {
   return (
-    <div className="flex items-start gap-4 p-4 rounded-lg border bg-card">
+    <div className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-white border border-[rgba(26,23,20,0.06)] animate-pulse">
       <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-3 w-1/3" />
-        <Skeleton className="h-3 w-1/2" />
-        <Skeleton className="h-4 w-16 mt-1" />
+        <div className="h-3 w-2/3 bg-[#F7F4EF] rounded" />
+        <div className="h-3 w-1/2 bg-[#F7F4EF] rounded" />
+        <div className="h-3.5 w-16 bg-[#F7F4EF] rounded mt-1" />
       </div>
-      <Skeleton className="size-8 rounded-full shrink-0" />
+      <div className="w-[30px] h-[30px] rounded-full bg-[#F7F4EF] shrink-0" />
     </div>
   );
 }

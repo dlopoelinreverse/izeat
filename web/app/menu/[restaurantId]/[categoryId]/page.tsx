@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { MenuCategorySearch } from "@/components/client/menu-category-search";
-import { MenuBackButton } from "@/components/client/menu-back-button";
+import { MenuCategoryHeader } from "@/components/client/menu-category-header";
 import { getMenuForRestaurant } from "@/lib/get-menu";
 
 export default async function MenuCategoryPage({
@@ -17,13 +17,11 @@ export default async function MenuCategoryPage({
   if (!menu || !category) notFound();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <MenuBackButton restaurantId={restaurantId} />
-          <span className="font-bold text-lg">{category.name}</span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#F7F4EF]">
+      <MenuCategoryHeader
+        restaurantId={restaurantId}
+        categoryName={category.name}
+      />
 
       <MenuCategorySearch category={category} />
     </div>

@@ -1,4 +1,4 @@
-import { MenuFooter } from "@/components/client/menu-footer"
+import { MenuFloatingCart } from "@/components/client/menu-floating-cart"
 import { MenuOrderProvider } from "@/contexts/menu-order-context"
 import { getMenuForRestaurant } from "@/lib/get-menu"
 
@@ -22,11 +22,11 @@ export default async function MenuLayout({
     ) ?? []
 
   return (
-    <div className="min-h-screen bg-muted/30 flex justify-center">
+    <div className="min-h-screen bg-[#F7F4EF] flex justify-center">
       <MenuOrderProvider menuItems={menuItems}>
-        <div className="w-full max-w-sm bg-background min-h-screen shadow-xl flex flex-col">
-          <main className="flex-1 pb-20">{children}</main>
-          <MenuFooter />
+        <div className="w-full max-w-sm bg-[#F7F4EF] min-h-screen shadow-xl flex flex-col">
+          <main className="flex-1">{children}</main>
+          <MenuFloatingCart />
         </div>
       </MenuOrderProvider>
     </div>

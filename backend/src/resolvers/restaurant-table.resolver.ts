@@ -58,7 +58,7 @@ class RestaurantTableResolver {
     }).save();
 
     const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
-    const menuUrl = `${frontendUrl}/menu/${restaurantId}?table=${table.id}`;
+    const menuUrl = `${frontendUrl}/menu/${restaurantId}?table=${table.id}&tableNum=${table.number}`;
     table.qrCode = await QRCode.toDataURL(menuUrl, { width: 256, margin: 2 });
     await table.save();
 
