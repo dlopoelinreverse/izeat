@@ -21,5 +21,13 @@ export const auth = betterAuth({
       domain: process.env.AUTH_COOKIE_DOMAIN,
     },
     useSecureCookies: process.env.NODE_ENV === "production",
+    cookies: {
+      session_token: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+        },
+      },
+    },
   },
 });
