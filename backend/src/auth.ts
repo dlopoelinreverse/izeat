@@ -42,7 +42,7 @@ export async function authChecker({ context }: { context: ContextType }) {
   const currentUser = await User.findOne({
     where: { id: session.userId },
   });
-
+  console.log("✅ Session valide pour l'utilisateur:", currentUser?.email);
   if (!currentUser) {
     console.log("❌ Utilisateur non trouvé !");
     return false;
