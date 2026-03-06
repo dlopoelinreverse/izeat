@@ -106,7 +106,7 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="max-h-[96vh] p-4">
+        <DrawerContent className="max-h-[96svh] p-4">
           <div className="mx-auto w-full max-w-md flex flex-col h-full">
             <DrawerHeader>
               <DrawerTitle>Ajouter une catégorie</DrawerTitle>

@@ -91,7 +91,7 @@ export const CreateTable = ({ restaurantId, existingNumbers }: CreateTableProps)
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="max-h-[96vh]">
+        <DrawerContent className="max-h-[96svh]">
           <div className="mx-auto w-full max-w-md flex flex-col h-full overflow-hidden">
             <DrawerHeader className="relative border-b pb-4">
               <div className="flex items-center justify-between">

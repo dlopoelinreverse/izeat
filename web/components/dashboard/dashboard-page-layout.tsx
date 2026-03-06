@@ -15,7 +15,7 @@ export default function DashboardPageLayout({
   hasBackButton?: boolean;
 }) {
   return (
-    <div className="flex flex-col h-screen overflow-hidden relative">
+    <div className="flex flex-col h-svh overflow-hidden relative">
       {hasBackButton && (
         <div className="top-16 left-2 right-0 h-14 absolute z-20">
           <BackButton />
