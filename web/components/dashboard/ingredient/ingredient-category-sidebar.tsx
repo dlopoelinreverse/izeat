@@ -1,10 +1,19 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   CreateIngredientCategoryDocument,
   UpdateIngredientCategoryDocument,
@@ -25,8 +34,9 @@ export const IngredientCategorySidebar = ({
   selectedCategoryId,
   onSelect,
 }: IngredientCategorySidebarProps) => {
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [editName, setEditName] = useState("");
   const newNameRef = useRef("");
 
@@ -39,7 +49,6 @@ export const IngredientCategorySidebar = ({
     {
       onCompleted: (data) => {
         toast.success("Catégorie créée");
-        setIsCreating(false);
         newNameRef.current = "";
         if (data.createIngredientCategory) {
           onSelect(data.createIngredientCategory.id);
@@ -71,7 +80,6 @@ export const IngredientCategorySidebar = ({
     {
       onCompleted: () => {
         toast.success("Catégorie renommée");
-        setEditingId(null);
       },
       update(cache, { data }) {
         if (!data?.updateIngredientCategory) return;
@@ -130,155 +138,221 @@ export const IngredientCategorySidebar = ({
     createCategory({ variables: { name, restaurantId } });
   };
 
-  const handleStartEdit = (id: string, currentName: string) => {
-    setEditingId(id);
-    setEditName(currentName);
-  };
-
   const handleUpdate = (id: string) => {
     if (!editName.trim()) return;
     updateCategory({ variables: { id, name: editName.trim() } });
   };
 
-  const handleDelete = (id: string, name: string) => {
-    if (
-      confirm(
-        `Supprimer la catégorie "${name}" ? Tous ses ingrédients seront également supprimés.`
-      )
-    ) {
-      deleteCategory({ variables: { id } });
-    }
+  const handleDelete = (id: string) => {
+    deleteCategory({ variables: { id } });
   };
 
   const categories = data?.getRestaurantIngredientCategories ?? [];
 
   return (
-    <div className="flex flex-col gap-1">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 px-1">
-        Catégories
-      </p>
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-3 border-b shrink-0">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          Catégories
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          onClick={() => setCreateOpen(true)}
+          title="Nouvelle catégorie"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+      </div>
 
-      {loading ? (
-        <div className="text-sm text-muted-foreground px-2 py-2">Chargement...</div>
-      ) : (
-        categories.map((category) => (
-          <div
-            key={category.id}
-            className={cn(
-              "flex items-center gap-1 rounded-md px-2 py-1.5",
-              selectedCategoryId === category.id
-                ? "bg-accent text-accent-foreground"
-                : "hover:bg-muted/60"
-            )}
-          >
-            {editingId === category.id ? (
-              <div className="flex flex-1 gap-1 items-center animate-in fade-in zoom-in duration-200">
-                <Input
-                  autoFocus
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="h-6 text-sm px-1.5"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleUpdate(category.id);
-                    if (e.key === "Escape") setEditingId(null);
-                  }}
-                />
+      {/* Liste */}
+      <div className="flex-1 overflow-y-auto py-2 px-2 flex flex-col gap-0.5">
+        {loading ? (
+          <p className="text-xs text-muted-foreground px-2 py-2">Chargement...</p>
+        ) : (
+          categories.map((category) => (
+            <div
+              key={category.id}
+              className={cn(
+                "group flex items-center gap-1 rounded-lg px-2 py-2 cursor-pointer transition-colors",
+                selectedCategoryId === category.id
+                  ? "bg-accent border border-border"
+                  : "hover:bg-secondary border border-transparent"
+              )}
+            >
+              <button
+                className="flex-1 text-left text-sm truncate font-medium"
+                style={{
+                  color:
+                    selectedCategoryId === category.id
+                      ? "var(--foreground)"
+                      : "var(--muted-foreground)",
+                }}
+                onClick={() => onSelect(category.id)}
+              >
+                {category.name}
+              </button>
+              <div className="flex gap-0.5 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <Button
+                  variant="ghost"
                   size="icon"
-                  className="h-6 w-6 shrink-0"
-                  disabled={updating || !editName.trim()}
-                  onClick={() => handleUpdate(category.id)}
+                  className="h-6 w-6"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditTarget({ id: category.id, name: category.name });
+                    setEditName(category.name);
+                  }}
                 >
-                  <Check className="h-3 w-3" />
+                  <Pencil className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={() => setEditingId(null)}
+                  className="h-6 w-6 hover:text-destructive hover:bg-destructive/10"
+                  disabled={deleting}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteTarget({ id: category.id, name: category.name });
+                  }}
                 >
-                  <X className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
-            ) : (
-              <>
-                <button
-                  className="flex-1 text-left text-sm truncate cursor-pointer"
-                  onClick={() => onSelect(category.id)}
-                >
-                  {category.name}
-                </button>
-                <div className="flex gap-0.5 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleStartEdit(category.id, category.name);
-                    }}
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-destructive hover:text-destructive"
-                    disabled={deleting}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(category.id, category.name);
-                    }}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        ))
-      )}
+            </div>
+          ))
+        )}
 
-      {isCreating ? (
-        <div className="flex gap-1 items-center mt-1 animate-in fade-in zoom-in duration-200">
-          <Input
-            autoFocus
-            placeholder="Nom de la catégorie"
-            className="h-7 text-sm"
-            onChange={(e) => (newNameRef.current = e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleCreate();
-              if (e.key === "Escape") setIsCreating(false);
-            }}
-          />
-          <Button
-            size="icon"
-            className="h-7 w-7 shrink-0"
-            disabled={creating}
-            onClick={handleCreate}
-          >
-            <Check className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 shrink-0"
-            onClick={() => setIsCreating(false)}
-          >
-            <X className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mt-1 justify-start text-muted-foreground hover:text-foreground"
-          onClick={() => setIsCreating(true)}
-        >
-          <Plus className="h-3.5 w-3.5 mr-1" />
-          Nouvelle catégorie
-        </Button>
-      )}
+        {!loading && categories.length === 0 && (
+          <p className="text-xs text-muted-foreground px-2 py-4 text-center">
+            Aucune catégorie
+          </p>
+        )}
+      </div>
+
+      {/* Dialog — Créer une catégorie */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-[380px]">
+          <DialogHeader>
+            <DialogTitle>Nouvelle catégorie</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 pt-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="cat-name">Nom de la catégorie</Label>
+              <Input
+                id="cat-name"
+                autoFocus
+                placeholder="Ex: Viandes, Poissons, Épices…"
+                onChange={(e) => (newNameRef.current = e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleCreate();
+                    setCreateOpen(false);
+                  }
+                  if (e.key === "Escape") setCreateOpen(false);
+                }}
+              />
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setCreateOpen(false)}>
+                Annuler
+              </Button>
+              <Button
+                disabled={creating}
+                onClick={() => {
+                  handleCreate();
+                  setCreateOpen(false);
+                }}
+              >
+                {creating ? "Création..." : "Créer"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog — Renommer une catégorie */}
+      <Dialog
+        open={!!editTarget}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[380px]">
+          <DialogHeader>
+            <DialogTitle>Renommer la catégorie</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 pt-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="cat-edit-name">Nom de la catégorie</Label>
+              <Input
+                id="cat-edit-name"
+                autoFocus
+                defaultValue={editTarget?.name}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && editTarget) {
+                    handleUpdate(editTarget.id);
+                    setEditTarget(null);
+                  }
+                  if (e.key === "Escape") setEditTarget(null);
+                }}
+              />
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setEditTarget(null)}>
+                Annuler
+              </Button>
+              <Button
+                disabled={updating || !editName.trim()}
+                onClick={() => {
+                  if (editTarget) {
+                    handleUpdate(editTarget.id);
+                    setEditTarget(null);
+                  }
+                }}
+              >
+                {updating ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog — Confirmer la suppression d'une catégorie */}
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[380px]">
+          <DialogHeader>
+            <DialogTitle>Supprimer la catégorie</DialogTitle>
+            <DialogDescription>
+              Voulez-vous supprimer <span className="font-semibold text-foreground">«&nbsp;{deleteTarget?.name}&nbsp;»</span> ? Tous ses ingrédients seront également supprimés. Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 pt-2">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleting}
+              onClick={() => {
+                if (deleteTarget) {
+                  handleDelete(deleteTarget.id);
+                  setDeleteTarget(null);
+                }
+              }}
+            >
+              {deleting ? "Suppression..." : "Supprimer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
