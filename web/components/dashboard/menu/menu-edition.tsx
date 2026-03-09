@@ -8,11 +8,8 @@ interface MenuEditionProps {
 
 export const MenuEdition = ({ menu, restaurantId }: MenuEditionProps) => {
   return (
-    <div className="min-h-full w-full px-4">
-      <p>Les categories de {menu?.name} :</p>
-      <div className="flex flex-wrap gap-4 justify-start">
-        <CategoriesList menuId={menu.id} restaurantId={restaurantId} />
-      </div>
+    <div className="flex flex-col gap-2 p-4 md:p-6">
+      <CategoriesList menuId={menu.id} restaurantId={restaurantId} />
     </div>
   );
 };

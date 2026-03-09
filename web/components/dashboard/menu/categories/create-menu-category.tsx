@@ -11,13 +11,12 @@ import { useMutation } from "@apollo/client/react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOnboarding } from "@/contexts/onboarding-context";
@@ -66,7 +65,11 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
           data: {
             getMenuCategories: [
               ...existingMenuCategories.getMenuCategories,
-              data.createMenuCategory,
+              {
+                ...data.createMenuCategory,
+                order: existingMenuCategories.getMenuCategories.length,
+                items: null,
+              },
             ],
           },
         });
@@ -101,68 +104,60 @@ export const CreateMenuCategory = ({ menu, restaurantId }: CreateMenuCategoryPro
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
-        <Plus />{" "}
+        <Plus />
         <span className="text-xs sm:text-sm">Ajouter une catégorie</span>
       </Button>
 
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="max-h-[96svh] p-4">
-          <div className="mx-auto w-full max-w-md flex flex-col h-full">
-            <DrawerHeader>
-              <DrawerTitle>Ajouter une catégorie</DrawerTitle>
-              <DrawerDescription>
-                Ajoutez une catégorie à votre menu
-              </DrawerDescription>
-            </DrawerHeader>
-            <form
-              id="create-category-form"
-              className="flex flex-col gap-4 w-full"
-              onSubmit={(e) => {
-                e.preventDefault();
-                form.handleSubmit();
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Nouvelle catégorie</DialogTitle>
+          </DialogHeader>
+          <form
+            id="create-category-form"
+            className="flex flex-col gap-4 pt-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+          >
+            <form.Field
+              name="name"
+              validators={{
+                onBlur: ({ value }) =>
+                  !value.trim() ? "Le nom de la catégorie est requis." : undefined,
+                onSubmit: ({ value }) =>
+                  !value.trim() ? "Le nom de la catégorie est requis." : undefined,
               }}
             >
-              <form.Field
-                name="name"
-                validators={{
-                  onBlur: ({ value }) =>
-                    !value.trim() ? "Le nom de la catégorie est requis." : undefined,
-                  onSubmit: ({ value }) =>
-                    !value.trim() ? "Le nom de la catégorie est requis." : undefined,
-                }}
-              >
-                {(field) => (
-                  <div className="space-y-1">
-                    <Label htmlFor="category-name">Nom de la catégorie</Label>
-                    <Input
-                      id="category-name"
-                      placeholder="Nom de la catégorie"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500">
-                        {String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-              <DrawerFooter className="flex-1 p-0">
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                >
-                  Annuler
-                </Button>
-                <Button type="submit" form="create-category-form">Ajouter</Button>
-              </DrawerFooter>
-            </form>
-          </div>
-        </DrawerContent>
-      </Drawer>
+              {(field) => (
+                <div className="space-y-1">
+                  <Label htmlFor="category-name">Nom de la catégorie</Label>
+                  <Input
+                    id="category-name"
+                    placeholder="Nom de la catégorie"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    autoFocus
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500">
+                      {String(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Annuler
+              </Button>
+              <Button type="submit" form="create-category-form">Créer</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

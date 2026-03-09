@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, startTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/contexts/onboarding-context";
@@ -22,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DeleteItemButton } from "./delete-item-button";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 interface ItemSheetProps {
   categoryId?: string;
@@ -195,24 +198,42 @@ export const ItemSheet = ({
 
   return (
     <>
-      {itemData ? (
+      {isEdit ? (
         <div
           onClick={() => setOpen(true)}
-          className="rounded-md border px-4 py-2 text-sm flex justify-between items-center hover:bg-accent cursor-pointer"
+          className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:shadow-sm transition-shadow flex flex-col gap-2 group"
         >
-          <p className="font-medium">{itemData.name}</p>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-foreground leading-tight">
+              {itemData?.name}
+            </p>
+            <span className="text-sm font-semibold tabular-nums text-foreground shrink-0">
+              {itemData?.price?.toFixed(2)} €
+            </span>
+          </div>
+          {itemData?.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              {itemData.description}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
+            Cliquer pour modifier
+          </p>
         </div>
       ) : (
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          <span className="hidden sm:inline">
-            {isEdit ? "Modifier" : "Ajouter un plat"}
-          </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
+          onClick={() => setOpen(true)}
+        >
+          <Plus className="size-3.5" />
         </Button>
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="w-full sm:max-w-[600px] p-0 gap-0">
-          <SheetHeader className="p-6">
+        <SheetContent className="w-full sm:max-w-[480px] p-0 gap-0">
+          <SheetHeader className="px-6 pt-6 pb-0">
             <SheetTitle>
               {isEdit ? "Modifier le plat" : "Ajouter un plat"}
             </SheetTitle>
@@ -226,7 +247,7 @@ export const ItemSheet = ({
             }}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            <div className="flex-1 overflow-y-auto px-6 py-2 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
               <form.Field
                 name="name"
                 validators={{
@@ -255,15 +276,6 @@ export const ItemSheet = ({
                 )}
               </form.Field>
 
-              <div className="flex flex-col gap-2">
-                <Label>Ingrédients</Label>
-                <IngredientsList
-                  restaurantId={restaurantId || ""}
-                  selectedIngredients={selectedIngredients}
-                  onIngredientsChange={setSelectedIngredients}
-                />
-              </div>
-
               <form.Field
                 name="price"
                 validators={{
@@ -284,15 +296,19 @@ export const ItemSheet = ({
                 {(field) => (
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="item-price">Prix</Label>
-                    <Input
-                      id="item-price"
-                      placeholder="Ex: 10.00"
-                      type="number"
-                      step="0.05"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                      <Input
+                        id="item-price"
+                        placeholder="10.00"
+                        type="number"
+                        step="0.05"
+                        className="pl-7"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </div>
                     {field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500">
                         {String(field.state.meta.errors[0])}
@@ -317,29 +333,36 @@ export const ItemSheet = ({
                   </div>
                 )}
               </form.Field>
+
+              <div className="flex flex-col gap-2">
+                <Label>Ingrédients</Label>
+                <IngredientsList
+                  restaurantId={restaurantId || ""}
+                  selectedIngredients={selectedIngredients}
+                  onIngredientsChange={setSelectedIngredients}
+                />
+              </div>
             </div>
 
-            <SheetFooter className="p-6">
-              <div className="flex flex-col gap-2 w-full">
-                <Button type="submit" form="item-sheet-form" className="w-full">
-                  {isEdit ? "Modifier" : "Ajouter le plat"}
-                </Button>
-                {isEdit && itemId && menuId && (
-                  <DeleteItemButton
-                    itemId={itemId}
-                    menuId={menuId}
-                    setOpen={setOpen}
-                  />
-                )}
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="w-full"
-                >
-                  Annuler
-                </Button>
-              </div>
+            <SheetFooter className="px-6 pb-6 pt-4 border-t flex-col gap-2">
+              <Button type="submit" form="item-sheet-form" className="w-full">
+                {isEdit ? "Modifier" : "Ajouter le plat"}
+              </Button>
+              {isEdit && itemId && menuId && (
+                <DeleteItemButton
+                  itemId={itemId}
+                  menuId={menuId}
+                  setOpen={setOpen}
+                />
+              )}
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen(false)}
+                className="w-full"
+              >
+                Annuler
+              </Button>
             </SheetFooter>
           </form>
         </SheetContent>

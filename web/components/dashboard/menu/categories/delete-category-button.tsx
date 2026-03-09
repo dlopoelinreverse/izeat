@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@apollo/client/react";
 import { DeleteMenuCategoryDocument } from "@/graphql/__generated__/graphql";
+import { Trash2 } from "lucide-react";
 
 interface DeleteCategoryButtonProps {
   categoryId: string;
@@ -21,11 +22,13 @@ export const DeleteCategoryButton = ({
   );
   return (
     <Button
+      variant="ghost"
+      size="icon"
+      className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
       disabled={disabled || loading}
-      variant="destructive"
       onClick={() => deleteMenuCategory({ variables: { categoryId } })}
     >
-      Supprimer
+      <Trash2 className="size-3.5" />
     </Button>
   );
 };

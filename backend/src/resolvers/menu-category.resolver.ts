@@ -19,13 +19,16 @@ class MenuCategoryResolver {
 
     const menu = await Menu.findOne({
       where: { id: menuId, restaurant: { owner: user } },
+      relations: ["categories"],
     });
 
     if (!menu) {
       throw new Error("Le menu n'a pas été trouvé");
     }
 
-    const menuCategory = MenuCategory.create({ name, menu });
+    const order = menu.categories ? menu.categories.length : 0;
+
+    const menuCategory = MenuCategory.create({ name, menu, order });
 
     await menuCategory.save();
 
@@ -57,6 +60,33 @@ class MenuCategoryResolver {
   }
 
   @Authorized()
+  @Mutation(() => Boolean)
+  async reorderMenuCategories(
+    @Arg("menuId", () => String) menuId: string,
+    @Arg("orderedIds", () => [String]) orderedIds: string[],
+    @Ctx() ctx: ContextType,
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const menu = await Menu.findOne({
+      where: { id: menuId, restaurant: { owner: user } },
+    });
+
+    if (!menu) {
+      throw new Error("Le menu n'a pas été trouvé");
+    }
+
+    await Promise.all(
+      orderedIds.map((id, index) => MenuCategory.update(id, { order: index })),
+    );
+
+    return true;
+  }
+
+  @Authorized()
   @Query(() => [MenuCategory])
   async getMenuCategories(
     @Arg("menuId", () => String) menuId: string,
@@ -70,15 +100,14 @@ class MenuCategoryResolver {
     const menu = await Menu.findOne({
       where: { id: menuId, restaurant: { owner: user } },
       relations: ["categories", "categories.items"],
+      order: { categories: { order: "ASC" } },
     });
 
     if (!menu) {
       throw new Error("Le menu n'a pas été trouvé");
     }
 
-    const menuCategory = menu.categories;
-
-    return menuCategory;
+    return menu.categories;
   }
 }
 

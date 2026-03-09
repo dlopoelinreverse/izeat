@@ -58,11 +58,11 @@ export const DeleteMenuButton = ({
     <Button
       variant="ghost"
       size="icon"
-      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors h-8 w-8"
+      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors h-7 w-7"
       onClick={handleDeleteMenu}
       disabled={loading}
     >
-      <Trash2 className="h-4 w-4" />
+      <Trash2 className="size-3.5" />
     </Button>
   );
 };

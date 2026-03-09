@@ -54,9 +54,9 @@ export const DeleteItemButton = ({
 
   return (
     <Button
-      variant="destructive"
+      variant="ghost"
       type="button"
-      className="w-full"
+      className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
       disabled={loading}
       onClick={() => {
         if (confirm("Êtes-vous sûr de vouloir supprimer ce plat ?")) {

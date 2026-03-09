@@ -1,12 +1,13 @@
 query GetMenuCategories($menuId: String!) {
   getMenuCategories(menuId: $menuId) {
     id
+    name
+    order
     items {
       categoryId
       id
       menuId
       name
     }
-    name
   }
 }

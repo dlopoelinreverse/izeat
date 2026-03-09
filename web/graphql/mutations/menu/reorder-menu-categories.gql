@@ -1,0 +1,3 @@
+mutation ReorderMenuCategories($menuId: String!, $orderedIds: [String!]!) {
+  reorderMenuCategories(menuId: $menuId, orderedIds: $orderedIds)
+}

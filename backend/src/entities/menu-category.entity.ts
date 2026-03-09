@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -20,6 +20,10 @@ class MenuCategory extends BaseEntity {
   @Field(() => String)
   @Column({ type: "text" })
   name: string;
+
+  @Field(() => Int)
+  @Column({ type: "int", default: 0 })
+  order: number;
 
   @Field(() => [MenuItem], { nullable: true })
   @OneToMany(() => MenuItem, (menuItem) => menuItem.category)
