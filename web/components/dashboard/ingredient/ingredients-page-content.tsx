@@ -9,7 +9,6 @@ import { IngredientCategorySidebar } from "./ingredient-category-sidebar";
 import { IngredientListPanel } from "./ingredient-list-panel";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import DashboardPageLayout from "@/components/dashboard/dashboard-page-layout";
-import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -41,9 +40,9 @@ export const IngredientsPageContent = ({
 
   return (
     <DashboardPageLayout title="Ingrédients">
-      <div className="flex h-full">
+      <div className="flex h-full overflow-hidden">
         {/* Sidebar desktop */}
-        <aside className="hidden md:flex w-56 shrink-0 border-r flex-col overflow-y-auto p-3">
+        <aside className="hidden md:flex w-52 shrink-0 border-r flex-col overflow-hidden">
           <IngredientCategorySidebar
             restaurantId={restaurantId}
             selectedCategoryId={selectedCategoryId}
@@ -52,20 +51,21 @@ export const IngredientsPageContent = ({
         </aside>
 
         {/* Contenu principal */}
-        <section className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-          {/* Bouton catégorie mobile */}
-          <div className="md:hidden">
-            <Button
-              variant="outline"
-              className="w-full justify-between"
+        <section className="flex-1 overflow-y-auto flex flex-col min-w-0">
+          {/* Bouton pill catégorie mobile */}
+          <div className="md:hidden px-4 pt-4 pb-2">
+            <button
               onClick={() => setDrawerOpen(true)}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-border bg-card hover:bg-secondary transition-colors"
             >
               <span className="flex items-center gap-2">
                 <Carrot className="h-4 w-4 text-muted-foreground" />
-                {selectedCategory ? selectedCategory.name : "Choisir une catégorie"}
+                <span className="text-sm font-semibold text-foreground">
+                  {selectedCategory ? selectedCategory.name : "Choisir une catégorie"}
+                </span>
               </span>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </Button>
+            </button>
           </div>
 
           {selectedCategoryId ? (
@@ -87,10 +87,14 @@ export const IngredientsPageContent = ({
       {/* Drawer catégories mobile */}
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction="bottom">
         <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Catégories</DrawerTitle>
+          {/* Handle visuel */}
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-9 h-1 rounded-full bg-border" />
+          </div>
+          <DrawerHeader className="pb-3 border-b">
+            <DrawerTitle className="text-base font-bold">Catégories</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 overflow-y-auto max-h-[60vh]">
+          <div className="p-4 overflow-y-auto max-h-[65vh] pb-8">
             <IngredientCategorySidebar
               restaurantId={restaurantId}
               selectedCategoryId={selectedCategoryId}

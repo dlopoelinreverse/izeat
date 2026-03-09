@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, XCircle, Pencil, Trash2, X, Check } from "lucide-react";
+import { Pencil, Trash2, X, Check } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   ToggleIngredientAvailableDocument,
   UpdateIngredientDocument,
@@ -12,6 +20,7 @@ import {
 } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface IngredientRowProps {
   ingredient: {
@@ -26,6 +35,7 @@ interface IngredientRowProps {
 export const IngredientRow = ({ ingredient, restaurantId }: IngredientRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(ingredient.name);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const [toggleAvailable, { loading: toggling }] = useMutation(
     ToggleIngredientAvailableDocument,
@@ -109,89 +119,120 @@ export const IngredientRow = ({ ingredient, restaurantId }: IngredientRowProps) 
   };
 
   const handleDelete = () => {
-    if (confirm(`Supprimer l'ingrédient "${ingredient.name}" ?`)) {
-      deleteIngredient({ variables: { id: ingredient.id } });
-    }
+    deleteIngredient({ variables: { id: ingredient.id } });
   };
 
-  return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted/50">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7 shrink-0"
-        disabled={toggling}
-        onClick={handleToggle}
-        title={ingredient.available ? "Disponible — cliquer pour désactiver" : "Indisponible — cliquer pour activer"}
-      >
-        {ingredient.available ? (
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
-        ) : (
-          <XCircle className="h-4 w-4 text-muted-foreground" />
-        )}
-      </Button>
-
-      {isEditing ? (
-        <div className="flex flex-1 gap-2 items-center animate-in fade-in zoom-in duration-200">
-          <Input
-            autoFocus
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            className="h-7 text-sm"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleUpdate();
-              if (e.key === "Escape") {
-                setIsEditing(false);
-                setEditName(ingredient.name);
-              }
-            }}
-          />
-          <Button
-            size="icon"
-            className="h-7 w-7"
-            disabled={updating || !editName.trim()}
-            onClick={handleUpdate}
-          >
-            <Check className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => {
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-2">
+        <Input
+          autoFocus
+          value={editName}
+          onChange={(e) => setEditName(e.target.value)}
+          className="h-8 text-sm flex-1"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleUpdate();
+            if (e.key === "Escape") {
               setIsEditing(false);
               setEditName(ingredient.name);
-            }}
-          >
-            <X className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      ) : (
-        <>
-          <span className={`flex-1 text-sm ${!ingredient.available ? "text-muted-foreground line-through" : ""}`}>
-            {ingredient.name}
-          </span>
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => setIsEditing(true)}
-            >
-              <Pencil className="h-3.5 w-3.5" />
+            }
+          }}
+        />
+        <Button
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          disabled={updating || !editName.trim()}
+          onClick={handleUpdate}
+        >
+          <Check className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          onClick={() => {
+            setIsEditing(false);
+            setEditName(ingredient.name);
+          }}
+        >
+          <X className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors">
+      {/* Badge disponibilité cliquable */}
+      <button
+        onClick={handleToggle}
+        disabled={toggling}
+        title={ingredient.available ? "Cliquer pour mettre en rupture" : "Cliquer pour remettre disponible"}
+        className={cn(
+          "shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full border cursor-pointer transition-colors",
+          ingredient.available
+            ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+            : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+        )}
+      >
+        {ingredient.available ? "● Dispo" : "○ Rupture"}
+      </button>
+
+      {/* Nom */}
+      <span className={cn(
+        "flex-1 text-sm",
+        !ingredient.available && "text-muted-foreground line-through"
+      )}>
+        {ingredient.name}
+      </span>
+
+      {/* Actions — visibles au hover uniquement */}
+      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => setIsEditing(true)}
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 hover:text-destructive hover:bg-destructive/10"
+          disabled={deleting}
+          onClick={() => setDeleteOpen(true)}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      {/* Modal de confirmation de suppression */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent className="sm:max-w-[380px]">
+          <DialogHeader>
+            <DialogTitle>Supprimer l&apos;ingrédient</DialogTitle>
+            <DialogDescription>
+              Voulez-vous supprimer <span className="font-semibold text-foreground">«&nbsp;{ingredient.name}&nbsp;»</span> ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 pt-2">
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Annuler
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-destructive hover:text-destructive"
+              variant="destructive"
               disabled={deleting}
-              onClick={handleDelete}
+              onClick={() => {
+                handleDelete();
+                setDeleteOpen(false);
+              }}
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              {deleting ? "Suppression..." : "Supprimer"}
             </Button>
-          </div>
-        </>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
