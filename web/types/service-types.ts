@@ -30,9 +30,15 @@ export const STATUS_NEXT_LABEL: Record<Status, string | null> = {
 };
 
 export const STATUS_COLORS: Record<Status, string> = {
-  pending: "bg-orange-500/10 border-orange-500/20",
-  preparing: "bg-blue-500/10 border-blue-500/20",
-  served: "bg-green-500/10 border-green-500/20",
+  pending: "bg-amber-50 border-amber-200",
+  preparing: "bg-blue-50 border-blue-200",
+  served: "bg-green-50 border-green-200",
+};
+
+export const STATUS_DOT_COLORS: Record<Status, string> = {
+  pending: "bg-amber-500",
+  preparing: "bg-blue-500",
+  served: "bg-green-500",
 };
 
 export const STATUS_BADGE_VARIANT: Record<

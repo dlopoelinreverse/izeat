@@ -1,11 +1,11 @@
 import { ClipboardList } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { OrderCard } from "./order-card";
 import {
   type Order,
   type Status,
   type Table,
   STATUS_COLORS,
+  STATUS_DOT_COLORS,
   STATUS_LABELS,
 } from "../../../types/service-types";
 
@@ -32,11 +32,12 @@ export function OrderColumn({
     <div
       className={`flex flex-col rounded-xl border p-3 gap-3 ${STATUS_COLORS[status]}`}
     >
-      <div className="flex items-center gap-2 px-1">
-        <h3 className="font-semibold text-sm">{STATUS_LABELS[status]}</h3>
-        <Badge variant="secondary" className="text-xs h-5 px-1.5">
+      <div className="flex items-center gap-2 px-1 mb-1">
+        <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT_COLORS[status]}`} />
+        <h3 className="text-sm font-semibold text-foreground">{STATUS_LABELS[status]}</h3>
+        <span className="ml-auto text-xs font-medium text-muted-foreground bg-background/70 px-1.5 py-0.5 rounded-md border">
           {filtered.length}
-        </Badge>
+        </span>
       </div>
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">

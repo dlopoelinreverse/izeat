@@ -10,7 +10,7 @@ import {
 } from "@/graphql/__generated__/graphql";
 import DashboardPageLayout from "../dashboard-page-layout";
 import { Button } from "@/components/ui/button";
-import { BellRing, ChefHat, FlaskConical, Receipt, Wifi } from "lucide-react";
+import { BellRing, ChefHat, FlaskConical, Receipt } from "lucide-react";
 import { SimulatorPanel } from "./simulator-panel";
 import { OrderColumn } from "./order-column";
 import { WaiterCallSheet } from "./waiter-call-sheet";
@@ -100,35 +100,34 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
 
   const headerAction = (
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-2">
-        <Wifi
-          className={`h-3.5 w-3.5 ${subError ? "text-destructive" : "text-green-500"}`}
-        />
+      <span
+        className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${
+          subError
+            ? "bg-red-50 border-red-200 text-red-700"
+            : "bg-green-50 border-green-200 text-green-700"
+        }`}
+      >
         <span
-          className={
-            subError ? "text-destructive" : "text-green-600 font-medium"
-          }
-        >
-          {subError ? "Déconnecté" : "En direct"}
-        </span>
-        {!subError && (
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+          className={`w-1.5 h-1.5 rounded-full ${
+            subError ? "bg-red-500" : "bg-green-500 animate-pulse"
+          }`}
+        />
+        {subError ? "Déconnecté" : "En direct"}
+      </span>
+      <Button
+        variant="outline"
+        size="sm"
+        className={`gap-1.5 ${waiterCallOrders.length > 0 ? "animate-pulse" : ""}`}
+        onClick={() => setWaiterSheetOpen(true)}
+      >
+        <BellRing className="h-4 w-4" />
+        Appels
+        {waiterCallOrders.length > 0 && (
+          <span className="inline-flex items-center justify-center h-4 min-w-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold px-1">
+            {waiterCallOrders.length}
           </span>
         )}
-      </div>
-      {waiterCallOrders.length > 0 && (
-        <Button
-          variant="destructive"
-          size="sm"
-          className="gap-1.5 animate-pulse"
-          onClick={() => setWaiterSheetOpen(true)}
-        >
-          <BellRing className="h-4 w-4" />
-          {waiterCallOrders.length}
-        </Button>
-      )}
+      </Button>
       <Button
         variant="outline"
         size="sm"
@@ -144,7 +143,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
         )}
       </Button>
       <Button
-        variant={showSimulator ? "default" : "outline"}
+        variant="ghost"
         size="sm"
         onClick={() => setShowSimulator((v) => !v)}
         className="gap-1.5"

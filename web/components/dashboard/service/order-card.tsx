@@ -42,7 +42,6 @@ export function OrderCard({
   const nextStatus = STATUS_NEXT[status];
   const nextLabel = STATUS_NEXT_LABEL[status];
   const items = order?.items ?? [];
-  const itemCount = items.reduce((acc, i) => acc + (i?.qty ?? 0), 0);
   const total = items.reduce(
     (acc, i) => acc + (i?.price ?? 0) * (i?.qty ?? 0),
     0,
@@ -61,23 +60,63 @@ export function OrderCard({
         tabIndex={0}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => e.key === "Enter" && setOpen(true)}
-        className="cursor-pointer flex flex-col gap-1 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors select-none"
+        className="bg-card rounded-xl border border-border shadow-sm p-3 cursor-pointer hover:shadow-md transition-shadow select-none flex flex-col gap-2"
       >
-        <p className="font-semibold text-sm">
-          Table{" "}
-          <span className="text-primary">{table?.number ?? order?.tableId}</span>
-        </p>
-        <p className="text-xs text-muted-foreground">{time}</p>
-        <p className="text-xs text-muted-foreground">
-          {itemCount > 0
-            ? `${itemCount} plat${itemCount > 1 ? "s" : ""}`
-            : "Aucun plat"}
-        </p>
-        {status === "served" && total > 0 && (
-          <p className="text-xs font-semibold text-green-600">
-            {total.toFixed(2)} €
-          </p>
+        {/* Row 1: table + time */}
+        <div className="flex items-center">
+          <span className="text-sm font-bold text-foreground">
+            Table {table?.number ?? order?.tableId}
+          </span>
+          <span className="text-xs text-muted-foreground ml-auto">{time}</span>
+        </div>
+
+        {/* Row 2: item badges */}
+        {items.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {items.slice(0, 2).map((item) => (
+              <span
+                key={item?.id}
+                className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md"
+              >
+                {item?.qty && item.qty > 1 ? `${item.qty}× ` : ""}{item?.name}
+              </span>
+            ))}
+            {items.length > 2 && (
+              <span className="text-xs text-muted-foreground px-2 py-0.5">
+                +{items.length - 2}
+              </span>
+            )}
+          </div>
         )}
+
+        {/* Row 3: action button */}
+        {status === "served" ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            disabled={loading}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPay(order.id);
+            }}
+          >
+            Encaisser
+          </Button>
+        ) : nextStatus && nextLabel ? (
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full"
+            disabled={loading}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdvance(order.id, nextStatus);
+            }}
+          >
+            {status === "pending" ? "Accepter" : "Prêt à servir"}
+          </Button>
+        ) : null}
       </div>
 
       {/* Detail dialog */}

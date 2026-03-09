@@ -1,4 +1,3 @@
-import Stripe from "stripe";
 import {
   Arg,
   Authorized,
@@ -11,6 +10,7 @@ import {
 } from "type-graphql";
 import Subscription from "../entities/subscription.entity";
 import { ContextType } from "../types";
+import Stripe from "stripe";
 
 @ObjectType()
 class CheckoutSessionResult {
