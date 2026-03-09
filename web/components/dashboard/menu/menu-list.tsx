@@ -142,7 +142,7 @@ const MenuCard = ({
         >
           Gérer les catégories <ChevronRight className="size-3" />
         </Link>
-        <DeleteMenuButton menuId={menu.id} restaurantId={restaurantId} />
+        <DeleteMenuButton menuId={menu.id} menuName={menu.name} restaurantId={restaurantId} />
       </div>
     </div>
   );

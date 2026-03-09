@@ -232,8 +232,8 @@ export const ItemSheet = ({
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="w-full sm:max-w-[480px] p-0 gap-0">
-          <SheetHeader className="px-6 pt-6 pb-0">
+        <SheetContent className="w-full sm:max-w-[520px] p-0 gap-0 flex flex-col">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0">
             <SheetTitle>
               {isEdit ? "Modifier le plat" : "Ajouter un plat"}
             </SheetTitle>
@@ -247,7 +247,7 @@ export const ItemSheet = ({
             }}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5">
               <form.Field
                 name="name"
                 validators={{
@@ -344,14 +344,16 @@ export const ItemSheet = ({
               </div>
             </div>
 
-            <SheetFooter className="px-6 pb-6 pt-4 border-t flex-col gap-2">
+            <SheetFooter className="px-6 py-4 border-t shrink-0">
+              <div className="flex flex-col gap-2 w-full">
               <Button type="submit" form="item-sheet-form" className="w-full">
-                {isEdit ? "Modifier" : "Ajouter le plat"}
+                {isEdit ? "Enregistrer les modifications" : "Ajouter le plat"}
               </Button>
               {isEdit && itemId && menuId && (
                 <DeleteItemButton
                   itemId={itemId}
                   menuId={menuId}
+                  itemName={itemData?.name}
                   setOpen={setOpen}
                 />
               )}
@@ -363,6 +365,7 @@ export const ItemSheet = ({
               >
                 Annuler
               </Button>
+              </div>
             </SheetFooter>
           </form>
         </SheetContent>

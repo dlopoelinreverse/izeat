@@ -65,7 +65,7 @@ export const Category = ({
 
       {/* Delete button — outside the Link to avoid navigation */}
       <div onClick={(e) => e.stopPropagation()}>
-        <DeleteCategoryButton categoryId={category.id} />
+        <DeleteCategoryButton categoryId={category.id} categoryName={category.name} />
       </div>
     </div>
   );
