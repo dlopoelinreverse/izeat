@@ -10,7 +10,7 @@ export default async function DashboardPage() {
     me = data?.me;
   } catch (error) {
     console.error("[dashboard/page] SSR query failed:", error);
-    redirect("/sign-in");
+    // redirect("/sign-in");
   }
 
   if (!me) {
