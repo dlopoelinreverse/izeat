@@ -86,8 +86,8 @@ class SubscriptionResolver {
           quantity: 1,
         },
       ],
-      success_url: `${frontendUrl}/app/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${frontendUrl}/app/subscription`,
+      success_url: `${frontendUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontendUrl}/subscription`,
       metadata: { userId: user.id },
       locale: "fr",
     });
