@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import client from "@/lib/apollo-client";
+import { AUTH_URL } from "@/lib/domains";
 
 interface SidebarFooterComponentProps {
   user?: {
@@ -34,7 +34,6 @@ export function SidebarFooterComponent({
     email: "user@example.com",
   },
 }: SidebarFooterComponentProps) {
-  const router = useRouter();
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -43,11 +42,11 @@ export function SidebarFooterComponent({
     .slice(0, 2);
 
   const handleLogout = async () => {
-    client.clearStore();
+    await client.clearStore();
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/");
+          window.location.href = `${AUTH_URL}/sign-in`;
         },
       },
     });
