@@ -4,7 +4,11 @@ import { Pool } from "pg";
 export const auth = betterAuth({
   experimental: { joins: true },
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL,
-  trustedOrigins: [process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL!],
+  trustedOrigins: [
+    process.env.NEXT_PUBLIC_BETTER_AUTH_BASE_URL!,
+    process.env.NEXT_PUBLIC_APP_URL!,
+    process.env.NEXT_PUBLIC_LANDING_URL!,
+  ],
   database: new Pool({
     connectionString: process.env.DATABASE_URL,
   }),

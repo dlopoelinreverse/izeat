@@ -3,11 +3,14 @@ import { getServerApolloClient } from "@/lib/apollo-client-server";
 import { MeDocument } from "@/graphql/__generated__/graphql";
 
 export default async function DashboardPage() {
-  const client = await getServerApolloClient();
-
-  const { data, error } = await client.query({ query: MeDocument });
-
-  const me = data?.me;
+  let me;
+  try {
+    const client = await getServerApolloClient();
+    const { data } = await client.query({ query: MeDocument });
+    me = data?.me;
+  } catch {
+    redirect("/sign-in");
+  }
 
   if (!me) {
     redirect("/sign-in");
