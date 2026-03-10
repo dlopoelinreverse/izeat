@@ -27,6 +27,7 @@ export async function proxy(request: NextRequest) {
   // --- izeat.app.leopoldev.com → dashboard (guard existant) ---
   if (pathname.startsWith("/dashboard")) {
     const session = await auth.api.getSession({ headers: request.headers });
+    console.log("[proxy]", pathname, "→ session:", session ? "✅" : "❌ null");
     if (!session) {
       const authBase = process.env.NEXT_PUBLIC_AUTH_URL ?? "/sign-in";
       return NextResponse.redirect(new URL("/sign-in", authBase));
