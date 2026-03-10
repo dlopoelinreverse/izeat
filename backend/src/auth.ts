@@ -11,9 +11,14 @@ export async function authChecker({ context }: { context: ContextType }) {
   if (!rawCookies) {
     console.log("⚠️ No cookies received in request");
   } else {
-    const match = rawCookies.match(
-      /(?:__Secure-)?better-auth\.session_token=([^;]+)/,
+    // Prefer __Secure- cookie (production HTTPS) over plain cookie
+    const secureMatch = rawCookies.match(
+      /__Secure-better-auth\.session_token=([^;]+)/,
     );
+    const plainMatch = rawCookies.match(
+      /(?<![_\w])better-auth\.session_token=([^;]+)/,
+    );
+    const match = secureMatch || plainMatch;
     if (match) {
       sessionToken = decodeURIComponent(match[1]).split(".")[0];
     } else {
