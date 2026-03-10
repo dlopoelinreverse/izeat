@@ -13,8 +13,6 @@ export async function getServerApolloClient() {
     .map((cookie) => `${cookie.name}=${cookie.value}`)
     .join("; ");
 
-  console.log("[SSR Apollo] cookies forwarded:", parsedCookie ? parsedCookie.substring(0, 150) : "(empty)");
-
   return new ApolloClient({
     ssrMode: true,
     link: new HttpLink({

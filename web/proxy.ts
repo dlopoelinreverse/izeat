@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "./lib/auth";
 
 const LANDING_DOMAIN =
   process.env.NEXT_PUBLIC_LANDING_URL?.replace(/^https?:\/\//, "") ?? "";
 const AUTH_DOMAIN =
   process.env.NEXT_PUBLIC_AUTH_URL?.replace(/^https?:\/\//, "") ?? "";
-
-function hasSessionCookie(request: NextRequest): boolean {
-  return (
-    request.cookies.has("__Secure-better-auth.session_token") ||
-    request.cookies.has("better-auth.session_token")
-  );
-}
 
 export async function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") ?? "";
@@ -32,7 +26,11 @@ export async function proxy(request: NextRequest) {
 
   // --- izeat.app.leopoldev.com → dashboard (guard) ---
   if (pathname.startsWith("/dashboard")) {
-    if (!hasSessionCookie(request)) {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    if (!session) {
       const authBase = process.env.NEXT_PUBLIC_AUTH_URL ?? "";
       return NextResponse.redirect(new URL("/sign-in", authBase || request.url));
     }

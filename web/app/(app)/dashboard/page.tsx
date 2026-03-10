@@ -8,9 +8,8 @@ export default async function DashboardPage() {
     const client = await getServerApolloClient();
     const { data } = await client.query({ query: MeDocument });
     me = data?.me;
-  } catch (error) {
-    console.error("[dashboard/page] SSR query failed:", error);
-    // redirect("/sign-in");
+  } catch {
+    redirect("/sign-in");
   }
 
   if (!me) {
