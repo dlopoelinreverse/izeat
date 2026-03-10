@@ -14,25 +14,25 @@ export function SidebarNavigation() {
     {
       title: "Menus",
       icon: BookOpenText,
-      href: `/app/dashboard/${rid}/menus`,
+      href: `/dashboard/${rid}/menus`,
       disabled: off || !onboarding?.hasRestaurant,
     },
     {
       title: "Ingrédients",
       icon: Carrot,
-      href: `/app/dashboard/${rid}/ingredients`,
+      href: `/dashboard/${rid}/ingredients`,
       disabled: off || !onboarding?.hasRestaurant,
     },
     {
       title: "Tables",
       icon: ForkKnife,
-      href: `/app/dashboard/${rid}/tables`,
+      href: `/dashboard/${rid}/tables`,
       disabled: off || !onboarding?.hasDish,
     },
     {
       title: "Service",
       icon: HandPlatterIcon,
-      href: `/app/dashboard/${rid}/service`,
+      href: `/dashboard/${rid}/service`,
       disabled: off || !onboarding?.isReady,
     },
   ];

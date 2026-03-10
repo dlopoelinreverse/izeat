@@ -23,7 +23,7 @@ export const CreateRestaurantForm = () => {
 
   const [createRestaurant, { loading }] = useMutation(CreateRestaurantDocument, {
     onCompleted: () => {
-      router.push("/app/subscription");
+      router.push("/subscription");
     },
     onError: (err) => {
       console.error("Error creating restaurant:", err);

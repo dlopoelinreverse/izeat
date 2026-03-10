@@ -47,7 +47,7 @@ export const Category = ({
 
       {/* Category row — navigates to category detail page on click */}
       <Link
-        href={`/app/dashboard/${restaurantId}/menus/${menuId}/${category.id}`}
+        href={`/dashboard/${restaurantId}/menus/${menuId}/${category.id}`}
         className="flex-1 flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-xl hover:bg-secondary/50 transition-colors group"
       >
         <span className="text-xs text-muted-foreground w-5 text-center font-medium shrink-0">

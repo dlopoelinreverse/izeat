@@ -137,7 +137,7 @@ const MenuCard = ({
 
       <div className="flex items-center justify-between pt-3 border-t border-border">
         <Link
-          href={`/app/dashboard/${restaurantId}/menus/${menu.id}`}
+          href={`/dashboard/${restaurantId}/menus/${menu.id}`}
           className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
         >
           Gérer les catégories <ChevronRight className="size-3" />

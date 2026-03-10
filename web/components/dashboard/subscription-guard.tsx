@@ -10,7 +10,7 @@ export function SubscriptionGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !hasActiveSubscription) {
-      router.push("/app/subscription");
+      router.push("/subscription");
     }
   }, [loading, hasActiveSubscription, router]);
 
