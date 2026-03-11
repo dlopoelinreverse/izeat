@@ -32,7 +32,7 @@ class MenuItem extends BaseEntity {
   description: string;
 
   @Field()
-  @Column()
+  @Column({ type: "float", default: 0 })
   price: number;
 
   @ManyToOne(() => Menu, (menu) => menu.items, { onDelete: "CASCADE" })

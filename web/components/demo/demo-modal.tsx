@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { CreateDemoAccountDocument } from "@/graphql/__generated__/graphql";
 import { APP_URL } from "@/lib/domains";
+import { signUp } from "@/lib/auth-client";
 
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
@@ -73,9 +74,21 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
   const form = useForm({
     defaultValues: { email: "", restaurantName: "" },
     onSubmit: async ({ value }) => {
-      await createDemo({
-        variables: { email: value.email, restaurantName: value.restaurantName },
+      const password =
+        Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+
+      const { error } = await signUp.email({
+        email: value.email,
+        password,
+        name: value.email.split("@")[0],
       });
+
+      if (error) {
+        toast.error(error.message ?? "Impossible de créer le compte démo");
+        return;
+      }
+
+      await createDemo({ variables: { restaurantName: value.restaurantName } });
     },
   });
 

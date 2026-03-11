@@ -12,7 +12,6 @@ import { ID } from "type-graphql";
 import Restaurant from "../entities/restaurant.entity";
 import Subscription from "../entities/subscription.entity";
 import { ContextType } from "../types";
-import { auth } from "../lib/auth";
 import { createDemoData } from "../demo-factory";
 
 @ObjectType()
@@ -101,9 +100,9 @@ class UserResolver {
     };
   }
 
+  @Authorized()
   @Mutation(() => DemoAccountResult)
   async createDemoAccount(
-    @Arg("email") email: string,
     @Arg("restaurantName") restaurantName: string,
     @Ctx() ctx: ContextType,
   ): Promise<DemoAccountResult> {
@@ -111,37 +110,7 @@ class UserResolver {
       throw new Error("Mode démo non disponible");
     }
 
-    // Random password — the visitor won't need it
-    const password =
-      Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-
-    // Create user + session via Better Auth (creates user, account, session in DB)
-    const response = await auth.api.signUpEmail({
-      body: { email, password, name: email.split("@")[0] },
-      asResponse: true,
-    });
-
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new Error(
-        (body as { message?: string }).message ??
-          "Impossible de créer le compte démo",
-      );
-    }
-
-    // Get userId from Better Auth response
-    const responseBody = (await response.clone().json()) as {
-      user?: { id: string };
-    };
-    const userId = responseBody?.user?.id;
-    if (!userId) throw new Error("User ID manquant dans la réponse Better Auth");
-
-    // Transfer Set-Cookie headers from Better Auth to the client
-    const setCookies = response.headers.getSetCookie?.() ?? [];
-    setCookies.forEach((cookie: string) => ctx.res.append("Set-Cookie", cookie));
-
-    // Generate all demo data
-    const { restaurantId } = await createDemoData(userId, restaurantName);
+    const { restaurantId } = await createDemoData(ctx.currentUser!.id, restaurantName);
 
     return { restaurantId };
   }

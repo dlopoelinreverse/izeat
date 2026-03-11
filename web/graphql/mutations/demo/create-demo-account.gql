@@ -1,5 +1,5 @@
-mutation CreateDemoAccount($email: String!, $restaurantName: String!) {
-  createDemoAccount(email: $email, restaurantName: $restaurantName) {
+mutation CreateDemoAccount($restaurantName: String!) {
+  createDemoAccount(restaurantName: $restaurantName) {
     restaurantId
   }
 }
