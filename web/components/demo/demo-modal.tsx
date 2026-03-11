@@ -1,0 +1,214 @@
+"use client";
+
+import { useMutation } from "@apollo/client/react";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { Zap, FlaskConical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { CreateDemoAccountDocument } from "@/graphql/__generated__/graphql";
+import { APP_URL } from "@/lib/domains";
+
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+// ─── Demo trigger button ─────────────────────────────────────────────────────
+
+interface DemoButtonProps {
+  variant?: "hero" | "subtle";
+  onClick: () => void;
+}
+
+export function DemoButton({ variant = "subtle", onClick }: DemoButtonProps) {
+  if (!isDemoMode) return null;
+
+  if (variant === "hero") {
+    return (
+      <button
+        onClick={onClick}
+        className="inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-lg font-semibold rounded-full border-2 border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 transition-all duration-300 transform hover:scale-105"
+      >
+        <FlaskConical className="h-5 w-5" />
+        Tester l&apos;app
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className="text-sm text-muted-foreground hover:text-orange-600 transition-colors underline-offset-4 hover:underline"
+    >
+      Accéder à la démo sans créer de compte
+    </button>
+  );
+}
+
+// ─── Demo modal ──────────────────────────────────────────────────────────────
+
+interface DemoModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function DemoModal({ open, onClose }: DemoModalProps) {
+  if (!isDemoMode) return null;
+
+  const [createDemo, { loading }] = useMutation(CreateDemoAccountDocument, {
+    onCompleted: (data) => {
+      window.location.href = `${APP_URL}/dashboard/${data.createDemoAccount.restaurantId}/service`;
+    },
+    onError: (err) => {
+      toast.error(err.message ?? "Erreur lors de la création de la démo");
+    },
+  });
+
+  const form = useForm({
+    defaultValues: { email: "", restaurantName: "" },
+    onSubmit: async ({ value }) => {
+      await createDemo({
+        variables: { email: value.email, restaurantName: value.restaurantName },
+      });
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-[440px]">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+              <FlaskConical className="h-5 w-5 text-orange-600" />
+            </div>
+            <DialogTitle className="text-xl font-bold">Mode démo</DialogTitle>
+          </div>
+          <DialogDescription>
+            Saisissez un email fictif et un nom de restaurant. Un environnement
+            complet sera généré en quelques secondes.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="space-y-5 pt-2"
+        >
+          <form.Field
+            name="email"
+            validators={{
+              onBlur: ({ value }) => {
+                if (!value) return "L'email est requis.";
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+                  return "Email invalide (ex: test@demo.com)";
+                return undefined;
+              },
+              onSubmit: ({ value }) => {
+                if (!value) return "L'email est requis.";
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+                  return "Email invalide (ex: test@demo.com)";
+                return undefined;
+              },
+            }}
+          >
+            {(field) => (
+              <div className="space-y-2">
+                <Label htmlFor="demo-email" className="text-sm font-medium">
+                  Email fictif
+                </Label>
+                <Input
+                  id="demo-email"
+                  type="email"
+                  placeholder="ex: jean.dupont@demo.com"
+                  autoFocus
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="h-11"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-destructive">
+                    {String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field
+            name="restaurantName"
+            validators={{
+              onBlur: ({ value }) =>
+                !value?.trim() ? "Le nom du restaurant est requis." : undefined,
+              onSubmit: ({ value }) =>
+                !value?.trim() ? "Le nom du restaurant est requis." : undefined,
+            }}
+          >
+            {(field) => (
+              <div className="space-y-2">
+                <Label htmlFor="demo-restaurant" className="text-sm font-medium">
+                  Nom du restaurant
+                </Label>
+                <Input
+                  id="demo-restaurant"
+                  type="text"
+                  placeholder="ex: Le Bistrot Parisien"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="h-11"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-destructive">
+                    {String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
+
+          <div className="flex gap-3 pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 h-11"
+              disabled={loading}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 h-11 font-semibold gap-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Génération...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  Lancer la démo
+                </>
+              )}
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center pb-1">
+            Aucun vrai compte créé · Données fictives · Environnement isolé
+          </p>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

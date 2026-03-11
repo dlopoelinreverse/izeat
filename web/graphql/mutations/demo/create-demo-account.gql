@@ -1,0 +1,5 @@
+mutation CreateDemoAccount($email: String!, $restaurantName: String!) {
+  createDemoAccount(email: $email, restaurantName: $restaurantName) {
+    restaurantId
+  }
+}

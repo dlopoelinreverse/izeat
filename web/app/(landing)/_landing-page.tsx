@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useSession, authClient } from "@/lib/auth-client";
 import client from "@/lib/apollo-client";
 import { AUTH_URL, APP_URL } from "@/lib/domains";
+import { DemoButton, DemoModal } from "@/components/demo/demo-modal";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
   const { data: session, isPending } = useSession();
 
   useEffect(() => {
@@ -107,10 +109,9 @@ export default function LandingPage() {
                   </svg>
                 </button>
               </Link>
-              <button className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-lg font-semibold rounded-full border-2 border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 transition-all duration-300 transform hover:scale-105">
-                Voir la Démo
-              </button>
+              <DemoButton variant="hero" onClick={() => setDemoOpen(true)} />
             </div>
+            <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
           </div>
 
           {/* Animated Feature Cards */}

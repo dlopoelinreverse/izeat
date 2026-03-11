@@ -7,6 +7,7 @@ import { MeDocument, Onboarding } from "@/graphql/__generated__/graphql";
 type OnboardingContextType = {
   onboarding: Onboarding | null;
   hasActiveSubscription: boolean;
+  isDemo: boolean;
   loading: boolean;
   refetchOnboarding: () => void;
 };
@@ -14,6 +15,7 @@ type OnboardingContextType = {
 const OnboardingContext = createContext<OnboardingContextType>({
   onboarding: null,
   hasActiveSubscription: false,
+  isDemo: false,
   loading: true,
   refetchOnboarding: () => {},
 });
@@ -32,6 +34,7 @@ export function OnboardingProvider({
       value={{
         onboarding: data?.me?.onboarding ?? null,
         hasActiveSubscription: data?.me?.hasActiveSubscription ?? false,
+        isDemo: data?.me?.isDemo ?? false,
         loading,
         refetchOnboarding: refetch,
       }}

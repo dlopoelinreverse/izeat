@@ -3,6 +3,7 @@ query Me {
     id
     name
     hasActiveSubscription
+    isDemo
     onboarding {
       hasRestaurant
       restaurantId

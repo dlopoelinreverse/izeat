@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DemoButton, DemoModal } from "@/components/demo/demo-modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,6 +21,7 @@ import { APP_URL, AUTH_URL, LANDING_URL } from "@/lib/domains";
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
@@ -267,6 +269,10 @@ export default function SignInPage() {
               >
                 Créer un compte gratuitement
               </Link>
+            </div>
+            <div className="pt-2 border-t border-border w-full flex justify-center">
+              <DemoButton variant="subtle" onClick={() => setDemoOpen(true)} />
+              <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
             </div>
           </CardFooter>
         </Card>

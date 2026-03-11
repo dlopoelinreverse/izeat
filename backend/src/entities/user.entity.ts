@@ -41,6 +41,10 @@ class User extends BaseEntity {
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;
 
+  @Field(() => Boolean)
+  @Column({ type: "boolean", default: false })
+  isDemo!: boolean;
+
   @Field(() => Date)
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt!: Date;
