@@ -72,15 +72,22 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
   });
 
   const form = useForm({
-    defaultValues: { email: "", restaurantName: "" },
+    defaultValues: { restaurantName: "" },
     onSubmit: async ({ value }) => {
+      const slug = value.restaurantName
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      const email = `${slug}@demo-izeat.com`;
       const password =
         Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 
       const { error } = await signUp.email({
-        email: value.email,
+        email,
         password,
-        name: value.email.split("@")[0],
+        name: value.restaurantName,
       });
 
       if (error) {
@@ -103,8 +110,8 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
             <DialogTitle className="text-xl font-bold">Mode démo</DialogTitle>
           </div>
           <DialogDescription>
-            Saisissez un email fictif et un nom de restaurant. Un environnement
-            complet sera généré en quelques secondes.
+            Accédez à un environnement de test préconfiguré et entièrement
+            modifiable. Aucun compte réel ne sera créé.
           </DialogDescription>
         </DialogHeader>
 
@@ -115,47 +122,6 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
           }}
           className="space-y-5 pt-2"
         >
-          <form.Field
-            name="email"
-            validators={{
-              onBlur: ({ value }) => {
-                if (!value) return "L'email est requis.";
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-                  return "Email invalide (ex: test@demo.com)";
-                return undefined;
-              },
-              onSubmit: ({ value }) => {
-                if (!value) return "L'email est requis.";
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-                  return "Email invalide (ex: test@demo.com)";
-                return undefined;
-              },
-            }}
-          >
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor="demo-email" className="text-sm font-medium">
-                  Email fictif
-                </Label>
-                <Input
-                  id="demo-email"
-                  type="email"
-                  placeholder="ex: jean.dupont@demo.com"
-                  autoFocus
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className="h-11"
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-destructive">
-                    {String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
-
           <form.Field
             name="restaurantName"
             validators={{
@@ -174,6 +140,7 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
                   id="demo-restaurant"
                   type="text"
                   placeholder="ex: Le Bistrot Parisien"
+                  autoFocus
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
