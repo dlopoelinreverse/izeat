@@ -96,6 +96,32 @@ class SubscriptionResolver {
   }
 
   @Authorized()
+  @Mutation(() => CheckoutSessionResult)
+  async createCustomerPortalSession(@Ctx() ctx: ContextType) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const subscription = await Subscription.findOne({
+      where: { userId: user.id },
+    });
+
+    if (!subscription?.stripeCustomerId) {
+      throw new Error("Aucun abonnement trouvé");
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+
+    const session = await this.stripe.billingPortal.sessions.create({
+      customer: subscription.stripeCustomerId,
+      return_url: `${frontendUrl}/dashboard`,
+    });
+
+    return { url: session.url };
+  }
+
+  @Authorized()
   @Query(() => Subscription, { nullable: true })
   async mySubscription(@Ctx() ctx: ContextType) {
     const user = ctx.currentUser;

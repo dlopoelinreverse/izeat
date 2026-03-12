@@ -1,6 +1,8 @@
 "use client";
 
-import { LogOut, Settings, User, ChevronsUpDown } from "lucide-react";
+import { LogOut, User, ChevronsUpDown, CreditCard } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@apollo/client/react";
 import {
   SidebarFooter,
   SidebarMenu,
@@ -16,25 +18,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { signOut } from "@/lib/auth-client";
 import client from "@/lib/apollo-client";
 import { AUTH_URL } from "@/lib/domains";
+import { useOnboarding } from "@/contexts/onboarding-context";
+import { CreateCustomerPortalSessionDocument } from "@/graphql/__generated__/graphql";
 
-interface SidebarFooterComponentProps {
-  user?: {
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-}
+export function SidebarFooterComponent() {
+  const router = useRouter();
+  const { user, hasActiveSubscription } = useOnboarding();
+  const [createPortalSession] = useMutation(
+    CreateCustomerPortalSessionDocument,
+  );
 
-export function SidebarFooterComponent({
-  user = {
-    name: "Utilisateur",
-    email: "user@example.com",
-  },
-}: SidebarFooterComponentProps) {
-  const initials = user.name
+  const displayName = user?.name || "Utilisateur";
+  const displayEmail = user?.email || "";
+  const avatarImage = user?.image || undefined;
+
+  const initials = displayName
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -52,14 +54,23 @@ export function SidebarFooterComponent({
     });
   };
 
-  const handleSettings = () => {
-    // TODO: Naviguer vers les paramètres
-    console.log("Paramètres");
+  const handleProfile = () => {
+    router.push("/dashboard/profile");
   };
 
-  const handleProfile = () => {
-    // TODO: Naviguer vers le profil
-    console.log("Profil");
+  const handleSubscription = async () => {
+    if (hasActiveSubscription) {
+      try {
+        const { data } = await createPortalSession();
+        if (data?.createCustomerPortalSession.url) {
+          window.location.href = data.createCustomerPortalSession.url;
+        }
+      } catch {
+        router.push("/subscription");
+      }
+    } else {
+      router.push("/subscription");
+    }
   };
 
   return (
@@ -73,15 +84,15 @@ export function SidebarFooterComponent({
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="size-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={avatarImage} alt={displayName} />
                   <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate font-semibold">{displayName}</span>
                   <span className="truncate text-xs text-sidebar-foreground/70">
-                    {user.email}
+                    {displayEmail}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
@@ -96,15 +107,17 @@ export function SidebarFooterComponent({
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="size-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={avatarImage} alt={displayName} />
                     <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{user.name}</span>
+                    <span className="truncate font-semibold">
+                      {displayName}
+                    </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {user.email}
+                      {displayEmail}
                     </span>
                   </div>
                 </div>
@@ -118,11 +131,17 @@ export function SidebarFooterComponent({
                 Mon profil
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={handleSettings}
+                onClick={handleSubscription}
                 className="cursor-pointer"
               >
-                <Settings className="mr-2 size-4" />
-                Paramètres
+                <CreditCard className="mr-2 size-4" />
+                Mon abonnement
+                <Badge
+                  variant={hasActiveSubscription ? "default" : "secondary"}
+                  className="ml-auto text-[10px] px-1.5 py-0"
+                >
+                  {hasActiveSubscription ? "Actif" : "Gratuit"}
+                </Badge>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

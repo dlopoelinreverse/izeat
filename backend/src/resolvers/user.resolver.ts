@@ -3,12 +3,14 @@ import {
   Authorized,
   Ctx,
   Field,
+  InputType,
   Mutation,
   ObjectType,
   Query,
   Resolver,
 } from "type-graphql";
 import { ID } from "type-graphql";
+import User from "../entities/user.entity";
 import Restaurant from "../entities/restaurant.entity";
 import Subscription from "../entities/subscription.entity";
 import { ContextType } from "../types";
@@ -30,9 +32,17 @@ export class Onboarding {
 class MeResult {
   @Field(() => ID) id: string;
   @Field(() => String) name: string;
+  @Field(() => String) email: string;
+  @Field(() => String, { nullable: true }) image?: string;
   @Field(() => Boolean) hasActiveSubscription: boolean;
   @Field(() => Boolean) isDemo: boolean;
   @Field(() => Onboarding, { nullable: true }) onboarding?: Onboarding;
+}
+
+@InputType()
+class UpdateProfileInput {
+  @Field(() => String, { nullable: true }) name?: string;
+  @Field(() => String, { nullable: true }) image?: string;
 }
 
 @ObjectType()
@@ -62,6 +72,8 @@ class UserResolver {
       return {
         id: ctx.currentUser.id,
         name: ctx.currentUser.name,
+        email: ctx.currentUser.email,
+        image: ctx.currentUser.image ?? undefined,
         hasActiveSubscription,
         isDemo: ctx.currentUser.isDemo ?? false,
         onboarding: {
@@ -85,6 +97,8 @@ class UserResolver {
     return {
       id: ctx.currentUser.id,
       name: ctx.currentUser.name,
+      email: ctx.currentUser.email,
+      image: ctx.currentUser.image ?? undefined,
       hasActiveSubscription,
       isDemo: ctx.currentUser.isDemo ?? false,
       onboarding: {
@@ -98,6 +112,24 @@ class UserResolver {
         isReady: hasMenu && hasCategory && hasDish && hasTable,
       },
     };
+  }
+
+  @Authorized()
+  @Mutation(() => MeResult)
+  async updateProfile(
+    @Arg("input") input: UpdateProfileInput,
+    @Ctx() ctx: ContextType,
+  ): Promise<MeResult> {
+    if (!ctx.currentUser) throw new Error("Vous n'êtes pas connecté");
+
+    const user = await User.findOneByOrFail({ id: ctx.currentUser.id });
+    if (input.name !== undefined) user.name = input.name;
+    if (input.image !== undefined) user.image = input.image;
+    await user.save();
+
+    // Update context so me() returns fresh data
+    ctx.currentUser = user;
+    return this.me(ctx);
   }
 
   @Authorized()

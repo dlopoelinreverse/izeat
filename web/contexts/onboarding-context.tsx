@@ -4,12 +4,20 @@ import { createContext, useContext } from "react";
 import { useQuery } from "@apollo/client/react";
 import { MeDocument, Onboarding } from "@/graphql/__generated__/graphql";
 
+type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+};
+
 type OnboardingContextType = {
   onboarding: Onboarding | null;
   hasActiveSubscription: boolean;
   isDemo: boolean;
   loading: boolean;
   refetchOnboarding: () => void;
+  user: UserProfile | null;
 };
 
 const OnboardingContext = createContext<OnboardingContextType>({
@@ -18,6 +26,7 @@ const OnboardingContext = createContext<OnboardingContextType>({
   isDemo: false,
   loading: true,
   refetchOnboarding: () => {},
+  user: null,
 });
 
 export function OnboardingProvider({
@@ -37,6 +46,14 @@ export function OnboardingProvider({
         isDemo: data?.me?.isDemo ?? false,
         loading,
         refetchOnboarding: refetch,
+        user: data?.me
+          ? {
+              id: data.me.id,
+              name: data.me.name,
+              email: data.me.email,
+              image: data.me.image,
+            }
+          : null,
       }}
     >
       {children}

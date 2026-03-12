@@ -2,6 +2,8 @@ query Me {
   me {
     id
     name
+    email
+    image
     hasActiveSubscription
     isDemo
     onboarding {
