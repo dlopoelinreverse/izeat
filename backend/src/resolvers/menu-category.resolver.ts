@@ -99,7 +99,7 @@ class MenuCategoryResolver {
 
     const menu = await Menu.findOne({
       where: { id: menuId, restaurant: { owner: { id: user.id } } },
-      relations: ["categories", "categories.items"],
+      relations: ["categories", "categories.items", "categories.items.dish"],
       order: { categories: { order: "ASC" } },
     });
 

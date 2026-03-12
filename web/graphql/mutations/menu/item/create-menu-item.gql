@@ -1,10 +1,15 @@
-mutation CreateMenuItem($menuItemInput: MenuItemInput!) {
-  createMenuItem(menuItemInput: $menuItemInput) {
-    categoryId
+mutation CreateDishAndMenuItem($input: CreateDishAndMenuItemInput!) {
+  createDishAndMenuItem(input: $input) {
     id
+    categoryId
     menuId
-    name
-    description
-    price
+    dishId
+    priceOverride
+    dish {
+      id
+      name
+      description
+      price
+    }
   }
 }

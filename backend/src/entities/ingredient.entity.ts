@@ -10,7 +10,7 @@ import {
   Unique,
 } from "typeorm";
 import Restaurant from "./restaurant.entity";
-import MenuItemIngredient from "./menu-item-ingredient";
+import DishIngredient from "./dish-ingredient.entity";
 import IngredientCategory from "./ingredient-category";
 
 @ObjectType()
@@ -50,8 +50,8 @@ class Ingredient extends BaseEntity {
   @JoinColumn({ name: "restaurantId" })
   restaurant: Restaurant;
 
-  @OneToMany(() => MenuItemIngredient, (link) => link.ingredient)
-  menuItemLinks: MenuItemIngredient[];
+  @OneToMany(() => DishIngredient, (link) => link.ingredient)
+  dishLinks: DishIngredient[];
 }
 export default Ingredient;
 

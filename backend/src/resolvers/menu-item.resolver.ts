@@ -1,17 +1,20 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import MenuItem, {
+  CreateDishAndMenuItemInput,
   DeleteMenuItemResponse,
   MenuItemInput,
 } from "../entities/menu-item.entity";
-import MenuItemIngredient from "../entities/menu-item-ingredient";
+import Dish from "../entities/dish.entity";
+import DishIngredient from "../entities/dish-ingredient.entity";
 import MenuCategory from "../entities/menu-category.entity";
 import { getMenuById } from "./menu.resolver";
+import { ContextType } from "../types";
 
 @Resolver()
 class MenuItemResolver {
   @Query(() => [MenuItem])
   async menuItems() {
-    return MenuItem.find();
+    return MenuItem.find({ relations: ["dish"] });
   }
 
   @Authorized()
@@ -19,13 +22,90 @@ class MenuItemResolver {
   async getMenuItem(@Arg("id") id: string) {
     return MenuItem.findOne({
       where: { id },
-      relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
+      relations: [
+        "dish",
+        "dish.ingredients",
+        "dish.ingredients.ingredient",
+        "dish.ingredients.ingredient.ingredientCategory",
+      ],
     });
   }
 
   @Authorized()
   @Mutation(() => MenuItem)
-  async createMenuItem(@Arg("menuItemInput") input: MenuItemInput) {
+  async createMenuItem(
+    @Arg("menuItemInput") input: MenuItemInput,
+    @Ctx() ctx: ContextType,
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const { dishId, menuId, categoryId, priceOverride } = input;
+
+    // Validate dish exists and belongs to user's restaurant
+    const dish = await Dish.findOne({
+      where: { id: dishId, restaurant: { owner: { id: user.id } } },
+    });
+
+    if (!dish) {
+      throw new Error("Le plat n'a pas été trouvé");
+    }
+
+    // Validate menu and category
+    const menu = await getMenuById(menuId, { restaurantId: dish.restaurantId }, [
+      "restaurant",
+      "categories",
+    ]);
+
+    if (!menu) {
+      throw new Error("Le menu n'a pas été trouvé");
+    }
+
+    const category = menu.categories.find((c) => c.id === categoryId);
+    if (!category) {
+      throw new Error("La catégorie n'a pas été trouvée");
+    }
+
+    // Check if dish is already linked to this category
+    const existing = await MenuItem.findOne({
+      where: { dishId, categoryId },
+    });
+
+    if (existing) {
+      throw new Error("Ce plat est déjà lié à cette catégorie");
+    }
+
+    const menuItem = await MenuItem.create({
+      dish,
+      menu,
+      category,
+      priceOverride: priceOverride ?? null,
+    }).save();
+
+    return MenuItem.findOneOrFail({
+      where: { id: menuItem.id },
+      relations: [
+        "dish",
+        "dish.ingredients",
+        "dish.ingredients.ingredient",
+        "dish.ingredients.ingredient.ingredientCategory",
+      ],
+    });
+  }
+
+  @Authorized()
+  @Mutation(() => MenuItem)
+  async createDishAndMenuItem(
+    @Arg("input") input: CreateDishAndMenuItemInput,
+    @Ctx() ctx: ContextType,
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
     const {
       name,
       description,
@@ -42,39 +122,45 @@ class MenuItemResolver {
     ]);
 
     if (!menu) {
-      throw new Error("Menu not found");
+      throw new Error("Le menu n'a pas été trouvé");
     }
 
-    const category = menu.categories.find(
-      (category) => category.id === categoryId,
-    );
-
+    const category = menu.categories.find((c) => c.id === categoryId);
     if (!category) {
-      throw new Error("Category not found");
+      throw new Error("La catégorie n'a pas été trouvée");
     }
 
-    const menuItem = await MenuItem.create({
+    // Create the Dish
+    const dish = await Dish.create({
       name,
-      menu,
       description,
       price,
+      restaurantId,
+    }).save();
+
+    // Create ingredient links
+    if (ingredientsId && ingredientsId.length > 0) {
+      const links = ingredientsId.map((id) =>
+        DishIngredient.create({ dish, ingredient: { id } }),
+      );
+      await DishIngredient.save(links);
+    }
+
+    // Create the MenuItem link
+    const menuItem = await MenuItem.create({
+      dish,
+      menu,
       category,
     }).save();
 
-    if (ingredientsId && ingredientsId.length > 0) {
-      const ingredientLinks = ingredientsId.map((id) =>
-        MenuItemIngredient.create({
-          item: menuItem,
-          ingredient: { id },
-        }),
-      );
-
-      await MenuItemIngredient.save(ingredientLinks);
-    }
-
     return MenuItem.findOneOrFail({
       where: { id: menuItem.id },
-      relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
+      relations: [
+        "dish",
+        "dish.ingredients",
+        "dish.ingredients.ingredient",
+        "dish.ingredients.ingredient.ingredientCategory",
+      ],
     });
   }
 
@@ -84,50 +170,40 @@ class MenuItemResolver {
     @Arg("id") id: string,
     @Arg("menuItemInput") input: MenuItemInput,
   ) {
-    const { name, description, price, ingredientsId, categoryId } = input;
+    const { categoryId, priceOverride } = input;
 
     const menuItem = await MenuItem.findOne({
       where: { id },
-      relations: ["ingredients"],
     });
 
     if (!menuItem) {
-      throw new Error("MenuItem not found");
+      throw new Error("L'élément de menu n'a pas été trouvé");
     }
-
-    menuItem.name = name;
-    menuItem.description = description;
-    menuItem.price = price;
 
     if (categoryId !== menuItem.categoryId) {
       const category = await MenuCategory.findOne({
         where: { id: categoryId },
       });
       if (!category) {
-        throw new Error("Category not found");
+        throw new Error("La catégorie n'a pas été trouvée");
       }
       menuItem.category = category;
     }
 
+    menuItem.priceOverride = priceOverride ?? null;
     await menuItem.save();
-
-    await MenuItemIngredient.delete({ item: { id: menuItem.id } });
-
-    if (ingredientsId && ingredientsId.length > 0) {
-      const ingredientLinks = ingredientsId.map((ingId) =>
-        MenuItemIngredient.create({
-          item: menuItem,
-          ingredient: { id: ingId },
-        }),
-      );
-      await MenuItemIngredient.save(ingredientLinks);
-    }
 
     return MenuItem.findOneOrFail({
       where: { id: menuItem.id },
-      relations: ["ingredients", "ingredients.ingredient.ingredientCategory"],
+      relations: [
+        "dish",
+        "dish.ingredients",
+        "dish.ingredients.ingredient",
+        "dish.ingredients.ingredient.ingredientCategory",
+      ],
     });
   }
+
   @Authorized()
   @Mutation(() => DeleteMenuItemResponse)
   async deleteMenuItem(@Arg("id") id: string) {
@@ -136,11 +212,10 @@ class MenuItemResolver {
     });
 
     if (!menuItem) {
-      throw new Error("MenuItem not found");
+      throw new Error("L'élément de menu n'a pas été trouvé");
     }
 
     const itemId = menuItem.id;
-
     await menuItem.remove();
 
     return { id: itemId };

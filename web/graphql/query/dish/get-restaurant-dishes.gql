@@ -1,0 +1,14 @@
+query GetRestaurantDishes($restaurantId: String!, $search: String) {
+  getRestaurantDishes(restaurantId: $restaurantId, search: $search) {
+    id
+    name
+    description
+    price
+    ingredients {
+      ingredient {
+        id
+        name
+      }
+    }
+  }
+}

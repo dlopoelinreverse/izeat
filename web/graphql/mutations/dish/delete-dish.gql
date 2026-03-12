@@ -1,0 +1,5 @@
+mutation DeleteDish($id: String!) {
+  deleteDish(id: $id) {
+    id
+  }
+}

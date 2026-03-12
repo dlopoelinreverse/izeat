@@ -4,10 +4,17 @@ query GetMenuCategories($menuId: String!) {
     name
     order
     items {
-      categoryId
       id
+      categoryId
       menuId
-      name
+      dishId
+      priceOverride
+      dish {
+        id
+        name
+        description
+        price
+      }
     }
   }
 }

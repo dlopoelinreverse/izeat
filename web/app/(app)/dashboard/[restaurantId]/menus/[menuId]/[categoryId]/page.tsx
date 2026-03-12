@@ -1,6 +1,7 @@
 import DashboardPageLayout from "@/components/dashboard/dashboard-page-layout";
 import { CategoryItems } from "@/components/dashboard/menu/categories/category-items";
 import { ItemSheet } from "@/components/dashboard/menu/item/item-sheet";
+import { LinkDishSheet } from "@/components/dashboard/menu/item/link-dish-sheet";
 
 export default async function CategoryPage({
   params,
@@ -13,12 +14,19 @@ export default async function CategoryPage({
     <DashboardPageLayout
       hasBackButton
       headerAction={
-        <ItemSheet
-          variant="CREATE"
-          categoryId={categoryId}
-          menuId={menuId}
-          restaurantId={restaurantId}
-        />
+        <div className="flex gap-1">
+          <LinkDishSheet
+            categoryId={categoryId}
+            menuId={menuId}
+            restaurantId={restaurantId}
+          />
+          <ItemSheet
+            variant="CREATE"
+            categoryId={categoryId}
+            menuId={menuId}
+            restaurantId={restaurantId}
+          />
+        </div>
       }
     >
       <CategoryItems

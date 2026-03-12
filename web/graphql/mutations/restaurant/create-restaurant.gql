@@ -15,9 +15,13 @@ mutation CreateRestaurant($name: String!) {
       }
       id
       items {
-        name
         menuId
         id
+        dishId
+        dish {
+          id
+          name
+        }
       }
       name
       restaurantId

@@ -34,7 +34,14 @@ export function MenuHomeSearch({
   const allItems = useMemo(
     () =>
       menu.categories?.flatMap((cat) =>
-        (cat.items ?? []).map((item) => ({ ...item, categoryName: cat.name })),
+        (cat.items ?? []).map((item) => ({
+          id: item.id,
+          name: item.dish.name,
+          price: item.priceOverride ?? item.dish.price,
+          description: item.dish.description,
+          ingredients: item.dish.ingredients,
+          categoryName: cat.name,
+        })),
       ) ?? [],
     [menu.categories],
   );

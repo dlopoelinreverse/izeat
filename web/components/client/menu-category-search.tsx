@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { GetActiveMenuQuery } from "@/graphql/__generated__/graphql";
 import {
   useMenuItemSearch,
@@ -20,7 +20,20 @@ interface MenuCategorySearchProps {
 
 export function MenuCategorySearch({ category }: MenuCategorySearchProps) {
   const [query, setQuery] = useState("");
-  const filteredItems = useMenuItemSearch(category.items ?? [], query);
+
+  const flatItems = useMemo(
+    () =>
+      (category.items ?? []).map((item) => ({
+        id: item.id,
+        name: item.dish.name,
+        price: item.priceOverride ?? item.dish.price,
+        description: item.dish.description,
+        ingredients: item.dish.ingredients,
+      })),
+    [category.items],
+  );
+
+  const filteredItems = useMenuItemSearch(flatItems, query);
 
   return (
     <div>

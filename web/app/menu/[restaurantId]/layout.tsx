@@ -16,8 +16,8 @@ export default async function MenuLayout({
     menu?.categories?.flatMap((cat) =>
       (cat.items ?? []).map((item) => ({
         id: item.id,
-        name: item.name,
-        price: item.price,
+        name: item.dish.name,
+        price: item.priceOverride ?? item.dish.price,
       }))
     ) ?? []
 

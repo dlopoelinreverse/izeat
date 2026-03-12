@@ -9,12 +9,16 @@ query GetActiveMenu($restaurantId: String!) {
       name
       items {
         id
-        name
-        description
-        price
-        ingredients {
-          ingredient {
-            name
+        priceOverride
+        dish {
+          id
+          name
+          description
+          price
+          ingredients {
+            ingredient {
+              name
+            }
           }
         }
       }
