@@ -1,0 +1,15 @@
+mutation LinkDishToCategory($menuItemInput: MenuItemInput!) {
+  createMenuItem(menuItemInput: $menuItemInput) {
+    id
+    categoryId
+    menuId
+    dishId
+    priceOverride
+    dish {
+      id
+      name
+      description
+      price
+    }
+  }
+}

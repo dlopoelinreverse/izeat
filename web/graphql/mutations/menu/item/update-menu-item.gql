@@ -1,11 +1,9 @@
-mutation UpdateMenuItem($id: String!, $menuItemInput: MenuItemInput!) {
-  updateMenuItem(id: $id, menuItemInput: $menuItemInput) {
+mutation UpdateDish($updateDishInput: UpdateDishInput!) {
+  updateDish(updateDishInput: $updateDishInput) {
     id
-    menuId
     name
     description
     price
-    categoryId
     ingredients {
       ingredient {
         id
@@ -13,6 +11,32 @@ mutation UpdateMenuItem($id: String!, $menuItemInput: MenuItemInput!) {
         ingredientCategory {
           id
           name
+        }
+      }
+    }
+  }
+}
+
+mutation UpdateMenuItem($id: String!, $menuItemInput: MenuItemInput!) {
+  updateMenuItem(id: $id, menuItemInput: $menuItemInput) {
+    id
+    menuId
+    dishId
+    categoryId
+    priceOverride
+    dish {
+      id
+      name
+      description
+      price
+      ingredients {
+        ingredient {
+          id
+          name
+          ingredientCategory {
+            id
+            name
+          }
         }
       }
     }

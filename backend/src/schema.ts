@@ -9,7 +9,7 @@ import MenuResolver from "./resolvers/menu.resolver";
 import MenuItemResolver from "./resolvers/menu-item.resolver";
 import MenuCategoryResolver from "./resolvers/menu-category.resolver";
 import RestaurantTableResolver from "./resolvers/restaurant-table.resolver";
-import MenuItemIngredientResolver from "./resolvers/menu-item-ingredient.resolver";
+import DishResolver from "./resolvers/dish.resolver";
 import IngredientResolver from "./resolvers/ingredient.resolver";
 import IngredientCategoryResolver from "./resolvers/ingredient-category.resolver";
 import OrderResolver from "./resolvers/order.resolver";
@@ -24,7 +24,7 @@ export default buildSchema({
     MenuItemResolver,
     MenuCategoryResolver,
     RestaurantTableResolver,
-    MenuItemIngredientResolver,
+    DishResolver,
     IngredientResolver,
     IngredientCategoryResolver,
     OrderResolver,

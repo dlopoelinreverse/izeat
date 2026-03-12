@@ -3,7 +3,8 @@ import Restaurant from "./entities/restaurant.entity";
 import Menu from "./entities/menu.entity";
 import MenuCategory from "./entities/menu-category.entity";
 import MenuItem from "./entities/menu-item.entity";
-import MenuItemIngredient from "./entities/menu-item-ingredient";
+import Dish from "./entities/dish.entity";
+import DishIngredient from "./entities/dish-ingredient.entity";
 import Ingredient from "./entities/ingredient.entity";
 import IngredientCategory from "./entities/ingredient-category";
 import RestaurantTable from "./entities/restaurant-table.entity";
@@ -73,7 +74,7 @@ export async function createDemoData(userId: string, restaurantName: string) {
   foieGras.available = false;
   await Promise.all([saumon.save(), champignon.save(), foieGras.save()]);
 
-  // Helper to create menu item + ingredients
+  // Helper to create a Dish + DishIngredient links + MenuItem in a category
   const createItem = async (
     menu: Menu,
     name: string,
@@ -82,19 +83,26 @@ export async function createDemoData(userId: string, restaurantName: string) {
     category: MenuCategory,
     ingredients: Ingredient[],
   ) => {
-    const item = await MenuItem.create({
+    const dish = await Dish.create({
       name,
       description,
       price,
+      restaurantId: restaurant.id,
+    }).save();
+
+    if (ingredients.length > 0) {
+      await DishIngredient.save(
+        ingredients.map((ing) => DishIngredient.create({ dish, ingredient: ing })),
+      );
+    }
+
+    const item = await MenuItem.create({
+      dishId: dish.id,
       menuId: menu.id,
       categoryId: category.id,
     }).save();
-    if (ingredients.length > 0) {
-      await MenuItemIngredient.save(
-        ingredients.map((ing) => MenuItemIngredient.create({ item, ingredient: ing })),
-      );
-    }
-    return item;
+
+    return { item, dish };
   };
 
   // ─── MENU MIDI (active) ──────────────────────────────────────────────────
@@ -125,7 +133,7 @@ export async function createDemoData(userId: string, restaurantName: string) {
     createItem(menuMidi, "Pasta Bolognaise", "Pâtes fraîches, sauce tomate, boeuf, basilic", 14.5, midiPlats, [boeuf, tomate, basilic, oignon]),
   ]);
 
-  const [cremeBrulee, eau] = await Promise.all([
+  const [cremeBrulee, , eau] = await Promise.all([
     createItem(menuMidi, "Crème Brûlée", "Crème vanille, sucre caramélisé", 7.5, midiDesserts, [creme]),
     createItem(menuMidi, "Fondant Chocolat", "Coeur coulant, boule de glace vanille", 8.0, midiDesserts, [beurre]),
     createItem(menuMidi, "Eau minérale", "50cl", 3.0, midiBoissons, []),
@@ -199,8 +207,8 @@ export async function createDemoData(userId: string, restaurantName: string) {
       status: "preparing",
       type: "food",
       items: [
-        { id: burger.id, name: burger.name, price: burger.price, qty: 1 },
-        { id: cesare.id, name: cesare.name, price: cesare.price, qty: 1 },
+        { id: burger.item.id, name: burger.dish.name, price: burger.dish.price, qty: 1 },
+        { id: cesare.item.id, name: cesare.dish.name, price: cesare.dish.price, qty: 1 },
       ],
     }).save(),
     Order.create({
@@ -209,7 +217,7 @@ export async function createDemoData(userId: string, restaurantName: string) {
       status: "pending",
       type: "food",
       items: [
-        { id: paveSaumon.id, name: paveSaumon.name, price: paveSaumon.price, qty: 2 },
+        { id: paveSaumon.item.id, name: paveSaumon.dish.name, price: paveSaumon.dish.price, qty: 2 },
       ],
     }).save(),
     Order.create({
@@ -218,8 +226,8 @@ export async function createDemoData(userId: string, restaurantName: string) {
       status: "pending",
       type: "food",
       items: [
-        { id: burger.id, name: burger.name, price: burger.price, qty: 3 },
-        { id: pouletRoti.id, name: pouletRoti.name, price: pouletRoti.price, qty: 2 },
+        { id: burger.item.id, name: burger.dish.name, price: burger.dish.price, qty: 3 },
+        { id: pouletRoti.item.id, name: pouletRoti.dish.name, price: pouletRoti.dish.price, qty: 2 },
       ],
     }).save(),
     Order.create({
@@ -228,8 +236,8 @@ export async function createDemoData(userId: string, restaurantName: string) {
       status: "preparing",
       type: "food",
       items: [
-        { id: pasta.id, name: pasta.name, price: pasta.price, qty: 1 },
-        { id: soupe.id, name: soupe.name, price: soupe.price, qty: 1 },
+        { id: pasta.item.id, name: pasta.dish.name, price: pasta.dish.price, qty: 1 },
+        { id: soupe.item.id, name: soupe.dish.name, price: soupe.dish.price, qty: 1 },
       ],
     }).save(),
     Order.create({
@@ -238,9 +246,9 @@ export async function createDemoData(userId: string, restaurantName: string) {
       status: "pending",
       type: "food",
       items: [
-        { id: pouletRoti.id, name: pouletRoti.name, price: pouletRoti.price, qty: 2 },
-        { id: cremeBrulee.id, name: cremeBrulee.name, price: cremeBrulee.price, qty: 2 },
-        { id: eau.id, name: eau.name, price: eau.price, qty: 2 },
+        { id: pouletRoti.item.id, name: pouletRoti.dish.name, price: pouletRoti.dish.price, qty: 2 },
+        { id: cremeBrulee.item.id, name: cremeBrulee.dish.name, price: cremeBrulee.dish.price, qty: 2 },
+        { id: eau.item.id, name: eau.dish.name, price: eau.dish.price, qty: 2 },
       ],
     }).save(),
   ]);

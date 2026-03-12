@@ -10,9 +10,13 @@ mutation CreateMenu($restaurantId: String!, $name: String!) {
     }
     items {
       id
-      name
       categoryId
       menuId
+      dishId
+      dish {
+        id
+        name
+      }
     }
   }
 }

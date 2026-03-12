@@ -4,15 +4,18 @@ import { useEffect, useState, startTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/contexts/onboarding-context";
 import {
-  CreateMenuItemDocument,
+  CreateDishAndMenuItemDocument,
   GetMenuCategoriesDocument,
-  UpdateMenuItemDocument,
+  UpdateDishDocument,
   GetMenuItemDocument,
 } from "@/graphql/__generated__/graphql";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IngredientsList, IngredientType } from "../../ingredient/ingredients-list";
+import {
+  IngredientsList,
+  IngredientType,
+} from "../../ingredient/ingredients-list";
 import {
   Sheet,
   SheetContent,
@@ -49,32 +52,33 @@ export const ItemSheet = ({
     skip: !itemId,
   });
 
-  const [selectedIngredients, setSelectedIngredients] = useState<IngredientType[]>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<
+    IngredientType[]
+  >([]);
 
   const form = useForm({
     defaultValues: { name: "", price: "", description: "" },
     onSubmit: async ({ value }) => {
       if (variant === "EDIT" && itemId) {
         const itemData = data?.getMenuItem;
-        await updateMenuItem({
+        const dishId = itemData?.dishId;
+        if (!dishId) return;
+        await updateDish({
           variables: {
-            id: itemId,
-            menuItemInput: {
+            updateDishInput: {
+              id: dishId,
               name: value.name,
               description: value.description,
               price: parseFloat(value.price),
               ingredientsId: selectedIngredients.map((i) => i.id),
-              categoryId: categoryId || itemData?.categoryId || "",
-              menuId: menuId || "",
-              restaurantId: restaurantId || "",
             },
           },
         });
       } else {
         if (!categoryId || !menuId || !restaurantId) return;
-        await createMenuItem({
+        await createDishAndMenuItem({
           variables: {
-            menuItemInput: {
+            input: {
               name: value.name,
               description: value.description,
               price: parseFloat(value.price),
@@ -91,21 +95,16 @@ export const ItemSheet = ({
 
   // Populate form when editing and data loads
   useEffect(() => {
-    if (data?.getMenuItem) {
-      form.reset({
-        name: data.getMenuItem.name,
-        price: String(data.getMenuItem.price),
-        description: data.getMenuItem.description ?? "",
-      });
+    if (data?.getMenuItem && open) {
       startTransition(() => {
         setSelectedIngredients(
-          data.getMenuItem!.ingredients.map((i) => i.ingredient),
+          (data.getMenuItem!.dish.ingredients ?? []).map((i) => i.ingredient),
         );
       });
     }
-  }, [data]);
+  }, [data, open]);
 
-  const [createMenuItem] = useMutation(CreateMenuItemDocument, {
+  const [createDishAndMenuItem] = useMutation(CreateDishAndMenuItemDocument, {
     onCompleted: () => {
       toast.success("Plat ajouté avec succès");
       setOpen(false);
@@ -117,7 +116,7 @@ export const ItemSheet = ({
       toast.error(error.message || "Erreur lors de la création du plat");
     },
     update: (cache, { data }) => {
-      if (!data?.createMenuItem || !menuId || !categoryId) return;
+      if (!data?.createDishAndMenuItem || !menuId || !categoryId) return;
 
       const existing = cache.readQuery({
         query: GetMenuCategoriesDocument,
@@ -132,7 +131,7 @@ export const ItemSheet = ({
         return {
           ...category,
           __typename: category.__typename,
-          items: [...(category.items ?? []), data.createMenuItem],
+          items: [...(category.items ?? []), data.createDishAndMenuItem],
         };
       });
 
@@ -146,7 +145,7 @@ export const ItemSheet = ({
     },
   });
 
-  const [updateMenuItem] = useMutation(UpdateMenuItemDocument, {
+  const [updateDish] = useMutation(UpdateDishDocument, {
     onCompleted: () => {
       toast.success("Plat mis à jour avec succès");
       setOpen(false);
@@ -154,43 +153,9 @@ export const ItemSheet = ({
     onError: (error) => {
       toast.error(error.message || "Erreur lors de la mise à jour du plat");
     },
-    update: (cache, { data }) => {
-      if (!data?.updateMenuItem || !menuId) return;
-
-      const existing = cache.readQuery({
-        query: GetMenuCategoriesDocument,
-        variables: { menuId },
-      });
-
-      if (!existing) return;
-
-      const updatedItem = data.updateMenuItem;
-
-      const categoriesWithoutItem = existing.getMenuCategories.map(
-        (category) => ({
-          ...category,
-          items: category.items?.filter((item) => item.id !== updatedItem.id),
-        }),
-      );
-
-      const newCategories = categoriesWithoutItem.map((category) => {
-        if (category.id === updatedItem.categoryId) {
-          return {
-            ...category,
-            items: [...(category.items || []), updatedItem],
-          };
-        }
-        return category;
-      });
-
-      cache.writeQuery({
-        query: GetMenuCategoriesDocument,
-        variables: { menuId },
-        data: {
-          getMenuCategories: newCategories,
-        },
-      });
-    },
+    refetchQueries: menuId
+      ? [{ query: GetMenuCategoriesDocument, variables: { menuId } }]
+      : [],
   });
 
   const isEdit = variant === "EDIT";
@@ -205,15 +170,15 @@ export const ItemSheet = ({
         >
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-semibold text-foreground leading-tight">
-              {itemData?.name}
+              {itemData?.dish?.name}
             </p>
             <span className="text-sm font-semibold tabular-nums text-foreground shrink-0">
-              {itemData?.price?.toFixed(2)} €
+              {(itemData?.priceOverride ?? itemData?.dish?.price)?.toFixed(2)} €
             </span>
           </div>
-          {itemData?.description && (
+          {itemData?.dish?.description && (
             <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-              {itemData.description}
+              {itemData.dish?.description}
             </p>
           )}
           <p className="text-xs text-muted-foreground mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
@@ -256,6 +221,7 @@ export const ItemSheet = ({
                   onSubmit: ({ value }) =>
                     !value.trim() ? "Le nom du plat est requis." : undefined,
                 }}
+                defaultValue={data?.getMenuItem?.dish.name || ""}
               >
                 {(field) => (
                   <div className="flex flex-col gap-2">
@@ -282,22 +248,27 @@ export const ItemSheet = ({
                   onBlur: ({ value }) => {
                     if (!value) return "Le prix est requis.";
                     const n = parseFloat(value);
-                    if (isNaN(n) || n <= 0) return "Le prix doit être un nombre positif.";
+                    if (isNaN(n) || n <= 0)
+                      return "Le prix doit être un nombre positif.";
                     return undefined;
                   },
                   onSubmit: ({ value }) => {
                     if (!value) return "Le prix est requis.";
                     const n = parseFloat(value);
-                    if (isNaN(n) || n <= 0) return "Le prix doit être un nombre positif.";
+                    if (isNaN(n) || n <= 0)
+                      return "Le prix doit être un nombre positif.";
                     return undefined;
                   },
                 }}
+                defaultValue={String(data?.getMenuItem?.dish.price || "")}
               >
                 {(field) => (
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="item-price">Prix</Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        €
+                      </span>
                       <Input
                         id="item-price"
                         placeholder="10.00"
@@ -318,7 +289,10 @@ export const ItemSheet = ({
                 )}
               </form.Field>
 
-              <form.Field name="description">
+              <form.Field
+                name="description"
+                defaultValue={data?.getMenuItem?.dish.description || ""}
+              >
                 {(field) => (
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="item-description">Description</Label>
@@ -346,25 +320,26 @@ export const ItemSheet = ({
 
             <SheetFooter className="px-6 py-4 border-t shrink-0">
               <div className="flex flex-col gap-2 w-full">
-              <Button type="submit" form="item-sheet-form" className="w-full">
-                {isEdit ? "Enregistrer les modifications" : "Ajouter le plat"}
-              </Button>
-              {isEdit && itemId && menuId && (
-                <DeleteItemButton
-                  itemId={itemId}
-                  menuId={menuId}
-                  itemName={itemData?.name}
-                  setOpen={setOpen}
-                />
-              )}
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setOpen(false)}
-                className="w-full"
-              >
-                Annuler
-              </Button>
+                <Button type="submit" form="item-sheet-form" className="w-full">
+                  {isEdit ? "Enregistrer les modifications" : "Ajouter le plat"}
+                </Button>
+                {isEdit && itemId && menuId && (
+                  <DeleteItemButton
+                    itemId={itemId}
+                    menuId={menuId}
+                    dishId={itemData?.dishId}
+                    itemName={itemData?.dish?.name}
+                    setOpen={setOpen}
+                  />
+                )}
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="w-full"
+                >
+                  Annuler
+                </Button>
               </div>
             </SheetFooter>
           </form>

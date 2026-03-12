@@ -77,7 +77,7 @@ class MenuResolver {
 
     const menus = await Menu.find({
       where: { restaurantId, restaurant: { owner: { id: user.id } } },
-      relations: ["items", "categories"],
+      relations: ["items", "items.dish", "categories"],
     });
 
     if (!menus) {
@@ -100,7 +100,9 @@ class MenuResolver {
       relations: [
         "categories",
         "categories.items",
-        "categories.items.ingredients",
+        "categories.items.dish",
+        "categories.items.dish.ingredients",
+        "categories.items.dish.ingredients.ingredient",
       ],
     });
 
@@ -150,7 +152,13 @@ class MenuResolver {
   async getActiveMenu(@Arg("restaurantId", () => String) restaurantId: string) {
     const menu = await Menu.findOne({
       where: { restaurantId, isActive: true },
-      relations: ["categories", "categories.items", "categories.items.ingredients"],
+      relations: [
+        "categories",
+        "categories.items",
+        "categories.items.dish",
+        "categories.items.dish.ingredients",
+        "categories.items.dish.ingredients.ingredient",
+      ],
     });
 
     if (!menu) {

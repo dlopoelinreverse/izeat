@@ -1,16 +1,15 @@
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, Float, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import Menu from "./menu.entity";
 import MenuCategory from "./menu-category.entity";
-import MenuItemIngredient from "./menu-item-ingredient";
+import Dish from "./dish.entity";
 
 @ObjectType()
 @Entity()
@@ -20,8 +19,8 @@ class MenuItem extends BaseEntity {
   id: string;
 
   @Field()
-  @Column()
-  name: string;
+  @Column({ nullable: true })
+  dishId: string;
 
   @Field()
   @Column()
@@ -29,23 +28,20 @@ class MenuItem extends BaseEntity {
 
   @Field()
   @Column()
-  description: string;
+  categoryId: string;
 
-  @Field()
-  @Column({ type: "float", default: 0 })
-  price: number;
+  @Field(() => Float, { nullable: true })
+  @Column({ type: "float", nullable: true })
+  priceOverride: number | null;
+
+  @Field(() => Dish)
+  @ManyToOne(() => Dish, (dish) => dish.menuItems, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "dishId" })
+  dish: Dish;
 
   @ManyToOne(() => Menu, (menu) => menu.items, { onDelete: "CASCADE" })
   @JoinColumn({ name: "menuId" })
   menu: Menu;
-
-  @Field(() => [MenuItemIngredient])
-  @OneToMany(() => MenuItemIngredient, (link) => link.item)
-  ingredients: MenuItemIngredient[];
-
-  @Field()
-  @Column()
-  categoryId: string;
 
   @ManyToOne(() => MenuCategory, (category) => category.items)
   @JoinColumn({ name: "categoryId" })
@@ -56,6 +52,21 @@ export default MenuItem;
 
 @InputType()
 export class MenuItemInput {
+  @Field()
+  dishId: string;
+
+  @Field()
+  menuId: string;
+
+  @Field()
+  categoryId: string;
+
+  @Field(() => Float, { nullable: true })
+  priceOverride?: number | null;
+}
+
+@InputType()
+export class CreateDishAndMenuItemInput {
   @Field()
   name: string;
 
@@ -72,11 +83,9 @@ export class MenuItemInput {
   ingredientsId: string[];
 
   @Field()
-  @Column()
   description: string;
 
-  @Field()
-  @Column()
+  @Field(() => Float)
   price: number;
 }
 
