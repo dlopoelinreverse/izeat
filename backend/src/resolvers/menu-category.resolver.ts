@@ -18,7 +18,7 @@ class MenuCategoryResolver {
     }
 
     const menu = await Menu.findOne({
-      where: { id: menuId, restaurant: { owner: user } },
+      where: { id: menuId, restaurant: { owner: { id: user.id } } },
       relations: ["categories"],
     });
 
@@ -47,7 +47,7 @@ class MenuCategoryResolver {
     }
 
     const menuCategory = await MenuCategory.findOne({
-      where: { id: categoryId, menu: { restaurant: { owner: user } } },
+      where: { id: categoryId, menu: { restaurant: { owner: { id: user.id } } } },
     });
 
     if (!menuCategory) {
@@ -72,7 +72,7 @@ class MenuCategoryResolver {
     }
 
     const menu = await Menu.findOne({
-      where: { id: menuId, restaurant: { owner: user } },
+      where: { id: menuId, restaurant: { owner: { id: user.id } } },
     });
 
     if (!menu) {
@@ -98,7 +98,7 @@ class MenuCategoryResolver {
     }
 
     const menu = await Menu.findOne({
-      where: { id: menuId, restaurant: { owner: user } },
+      where: { id: menuId, restaurant: { owner: { id: user.id } } },
       relations: ["categories", "categories.items"],
       order: { categories: { order: "ASC" } },
     });

@@ -20,7 +20,7 @@ class RestaurantTableResolver {
     }
 
     const tables = await RestaurantTable.find({
-      where: { restaurantId, restaurant: { owner: user } },
+      where: { restaurantId, restaurant: { owner: { id: user.id } } },
     });
 
     if (!tables) {
@@ -77,7 +77,7 @@ class RestaurantTableResolver {
     }
 
     const table = await RestaurantTable.findOne({
-      where: { id: input.id, restaurant: { owner: user } },
+      where: { id: input.id, restaurant: { owner: { id: user.id } } },
     });
 
     if (!table) {
@@ -102,7 +102,7 @@ class RestaurantTableResolver {
     }
 
     const table = await RestaurantTable.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
     });
 
     if (!table) {

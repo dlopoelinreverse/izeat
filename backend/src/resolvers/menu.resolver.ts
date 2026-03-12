@@ -18,7 +18,7 @@ class MenuResolver {
     }
 
     const restaurant = await Restaurant.findOne({
-      where: { id: restaurantId, owner: user },
+      where: { id: restaurantId, owner: { id: user.id } },
       relations: ["menus"],
     });
 
@@ -52,7 +52,7 @@ class MenuResolver {
     }
 
     const menu = await Menu.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
     });
 
     if (!menu) {
@@ -76,7 +76,7 @@ class MenuResolver {
     }
 
     const menus = await Menu.find({
-      where: { restaurantId, restaurant: { owner: user } },
+      where: { restaurantId, restaurant: { owner: { id: user.id } } },
       relations: ["items", "categories"],
     });
 
@@ -96,7 +96,7 @@ class MenuResolver {
     }
 
     const menu = await Menu.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
       relations: [
         "categories",
         "categories.items",
@@ -131,7 +131,7 @@ class MenuResolver {
     }
 
     const menu = await Menu.findOne({
-      where: { id: menuId, restaurantId, restaurant: { owner: user } },
+      where: { id: menuId, restaurantId, restaurant: { owner: { id: user.id } } },
     });
 
     if (!menu) {

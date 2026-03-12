@@ -16,7 +16,7 @@ class IngredientResolver {
     }
 
     const ingredients = await Ingredient.find({
-      where: { restaurant: { owner: user, id: restaurantId } },
+      where: { restaurant: { owner: { id: user.id }, id: restaurantId } },
       relations: ["ingredientCategory"],
     });
 
@@ -66,7 +66,7 @@ class IngredientResolver {
     }
 
     const ingredient = await Ingredient.findOne({
-      where: { id: input.id, restaurant: { owner: user } },
+      where: { id: input.id, restaurant: { owner: { id: user.id } } },
     });
     if (!ingredient) {
       throw new Error("Ingrédient non trouvé");
@@ -94,7 +94,7 @@ class IngredientResolver {
     }
 
     const ingredient = await Ingredient.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
     });
     if (!ingredient) {
       throw new Error("Ingrédient non trouvé");
@@ -117,7 +117,7 @@ class IngredientResolver {
     }
 
     const ingredient = await Ingredient.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
     });
     if (!ingredient) {
       throw new Error("Ingrédient non trouvé");

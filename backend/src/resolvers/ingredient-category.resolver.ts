@@ -39,7 +39,7 @@ class IngredientCategoryResolver {
     }
 
     const category = await IngredientCategory.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
     });
     if (!category) {
       throw new Error("Catégorie non trouvée");
@@ -62,7 +62,7 @@ class IngredientCategoryResolver {
     }
 
     const category = await IngredientCategory.findOne({
-      where: { id, restaurant: { owner: user } },
+      where: { id, restaurant: { owner: { id: user.id } } },
     });
     if (!category) {
       throw new Error("Catégorie non trouvée");
