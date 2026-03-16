@@ -13,6 +13,8 @@ import {
   GetRestaurantDishesDocument,
   LinkDishToCategoryDocument,
   GetMenuCategoriesDocument,
+  GetMenusDocument,
+  type GetMenusQuery,
 } from "@/graphql/__generated__/graphql";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { Link2, Search, Loader2 } from "lucide-react";
@@ -72,6 +74,35 @@ export const LinkDishSheet = ({
           variables: { menuId },
           data: { getMenuCategories: newCategories },
         });
+
+        // Update GetMenusDocument to keep menu card item count in sync
+        const existingMenus = cache.readQuery<GetMenusQuery>({
+          query: GetMenusDocument,
+          variables: { restaurantId },
+        });
+
+        if (existingMenus) {
+          cache.writeQuery({
+            query: GetMenusDocument,
+            variables: { restaurantId },
+            data: {
+              getMenus: existingMenus.getMenus.map((m) =>
+                m.id === menuId
+                  ? {
+                      ...m,
+                      items: [
+                        ...(m.items ?? []),
+                        {
+                          __typename: "MenuItem" as const,
+                          id: data.createMenuItem.id,
+                        },
+                      ],
+                    }
+                  : m,
+              ),
+            },
+          });
+        }
       },
     },
   );

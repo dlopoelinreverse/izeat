@@ -6,6 +6,8 @@ import { useOnboarding } from "@/contexts/onboarding-context";
 import {
   CreateDishAndMenuItemDocument,
   GetMenuCategoriesDocument,
+  GetMenusDocument,
+  type GetMenusQuery,
   UpdateDishDocument,
   GetMenuItemDocument,
 } from "@/graphql/__generated__/graphql";
@@ -142,6 +144,35 @@ export const ItemSheet = ({
           getMenuCategories: newCategories,
         },
       });
+
+      // Update GetMenusDocument to keep menu card item count in sync
+      const existingMenus = cache.readQuery<GetMenusQuery>({
+        query: GetMenusDocument,
+        variables: { restaurantId },
+      });
+
+      if (existingMenus) {
+        cache.writeQuery({
+          query: GetMenusDocument,
+          variables: { restaurantId },
+          data: {
+            getMenus: existingMenus.getMenus.map((m) =>
+              m.id === menuId
+                ? {
+                    ...m,
+                    items: [
+                      ...(m.items ?? []),
+                      {
+                        __typename: "MenuItem" as const,
+                        id: data.createDishAndMenuItem.id,
+                      },
+                    ],
+                  }
+                : m,
+            ),
+          },
+        });
+      }
     },
   });
 
@@ -327,6 +358,7 @@ export const ItemSheet = ({
                   <DeleteItemButton
                     itemId={itemId}
                     menuId={menuId}
+                    restaurantId={restaurantId || ""}
                     dishId={itemData?.dishId}
                     itemName={itemData?.dish?.name}
                     setOpen={setOpen}

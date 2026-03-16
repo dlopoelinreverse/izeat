@@ -16,6 +16,10 @@ import {
   DeleteMenuItemDocument,
   DeleteDishDocument,
   GetMenuCategoriesDocument,
+  GetMenusDocument,
+  type GetMenusQuery,
+  GetMenuDocument,
+  type GetMenuQuery,
 } from "@/graphql/__generated__/graphql";
 import { useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
@@ -23,6 +27,7 @@ import { toast } from "sonner";
 interface DeleteItemButtonProps {
   itemId: string;
   menuId: string;
+  restaurantId: string;
   dishId?: string;
   itemName?: string;
   setOpen: (open: boolean) => void;
@@ -31,6 +36,7 @@ interface DeleteItemButtonProps {
 export const DeleteItemButton = ({
   itemId,
   menuId,
+  restaurantId,
   dishId,
   itemName,
   setOpen,
@@ -68,6 +74,55 @@ export const DeleteItemButton = ({
           variables: { menuId },
           data: { getMenuCategories: newCategories },
         });
+
+        // Update GetMenusDocument to keep menu card item count in sync
+        const existingMenus = cache.readQuery<GetMenusQuery>({
+          query: GetMenusDocument,
+          variables: { restaurantId },
+        });
+
+        if (existingMenus) {
+          cache.writeQuery({
+            query: GetMenusDocument,
+            variables: { restaurantId },
+            data: {
+              getMenus: existingMenus.getMenus.map((m) =>
+                m.id === menuId
+                  ? {
+                      ...m,
+                      items: (m.items ?? []).filter(
+                        (item) => item.id !== data.deleteMenuItem.id,
+                      ),
+                    }
+                  : m,
+              ),
+            },
+          });
+        }
+
+        // Update GetMenuDocument to remove item from category view
+        const existingMenu = cache.readQuery<GetMenuQuery>({
+          query: GetMenuDocument,
+          variables: { menuId },
+        });
+
+        if (existingMenu?.getMenu) {
+          cache.writeQuery({
+            query: GetMenuDocument,
+            variables: { menuId },
+            data: {
+              getMenu: {
+                ...existingMenu.getMenu,
+                categories: existingMenu.getMenu.categories?.map((cat) => ({
+                  ...cat,
+                  items: (cat.items ?? []).filter(
+                    (item) => item.id !== data.deleteMenuItem.id,
+                  ),
+                })),
+              },
+            },
+          });
+        }
       },
     },
   );
@@ -85,6 +140,7 @@ export const DeleteItemButton = ({
       },
       refetchQueries: [
         { query: GetMenuCategoriesDocument, variables: { menuId } },
+        { query: GetMenusDocument, variables: { restaurantId } },
       ],
     },
   );
