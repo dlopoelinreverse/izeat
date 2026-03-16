@@ -22,9 +22,9 @@ export default async function MenuLayout({
     ) ?? []
 
   return (
-    <div className="min-h-screen bg-[#F7F4EF] flex justify-center">
+    <div className="min-h-screen bg-[#F7F4EF]">
       <MenuOrderProvider menuItems={menuItems}>
-        <div className="w-full max-w-sm bg-[#F7F4EF] min-h-screen shadow-xl flex flex-col">
+        <div className="w-full bg-[#F7F4EF] min-h-screen flex flex-col">
           <main className="flex-1">{children}</main>
           <MenuFloatingCart />
         </div>
