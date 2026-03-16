@@ -139,12 +139,13 @@ export const LinkDishSheet = ({
   return (
     <>
       <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
+        variant="outline"
+        size="sm"
+        className="gap-2"
         onClick={() => setOpen(true)}
       >
         <Link2 className="size-3.5" />
+        Lier un plat
       </Button>
 
       <Sheet open={open} onOpenChange={setOpen}>

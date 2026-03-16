@@ -218,12 +218,13 @@ export const ItemSheet = ({
         </div>
       ) : (
         <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
+          variant="outline"
+          size="sm"
+          className="gap-2"
           onClick={() => setOpen(true)}
         >
           <Plus className="size-3.5" />
+          Ajouter un plat
         </Button>
       )}
 

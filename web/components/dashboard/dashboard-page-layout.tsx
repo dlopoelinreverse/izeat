@@ -10,7 +10,6 @@ import {
   TooltipContent,
 } from "../ui/tooltip";
 import { useOnboarding } from "@/contexts/onboarding-context";
-import clsx from "clsx";
 
 export default function DashboardPageLayout({
   children,
@@ -27,39 +26,49 @@ export default function DashboardPageLayout({
 
   return (
     <div className="flex flex-col h-svh overflow-hidden relative">
-      {hasBackButton && (
-        <div className="top-16 left-2 right-0 h-14 absolute z-20">
-          <BackButton />
+      <header className="sticky top-0 z-10 shrink-0 bg-background border-b">
+        <div className="flex h-14 items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+
+          {hasBackButton && (
+            <BackButton />
+          )}
+
+          {title && (
+            <h1 className="text-lg font-semibold flex-1 truncate">{title}</h1>
+          )}
+
+          {isDemo && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-950/50 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-default">
+                  <FlaskConical className="h-3 w-3" />
+                  Demo
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                Mode démo — données fictives · environnement isolé · aucune donnée réelle
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Desktop : action inline à droite du titre */}
+          {headerAction && (
+            <div className="hidden md:flex items-center gap-2 shrink-0 ml-auto">
+              {headerAction}
+            </div>
+          )}
         </div>
-      )}
-      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex flex-1 items-center gap-2 px-3 justify-between">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold">{title}</h1>
-            {isDemo && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-950/50 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-default">
-                    <FlaskConical className="h-3 w-3" />
-                    Demo
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Mode démo — données fictives · environnement isolé · aucune donnée réelle
-                </TooltipContent>
-              </Tooltip>
-            )}
+
+        {/* Mobile : action en sub-header pleine largeur */}
+        {headerAction && (
+          <div className="md:hidden px-4 py-2.5 bg-muted/50 border-t [&>*]:w-full [&_button]:w-full">
+            {headerAction}
           </div>
-          {headerAction}
-        </div>
-      </header>
-      <main
-        className={clsx(
-          "mx-auto w-full max-w-[1440px] flex-1 overflow-y-auto p-2",
-          hasBackButton && "mt-12",
         )}
-      >
+      </header>
+
+      <main className="mx-auto w-full max-w-[1440px] flex-1 overflow-y-auto p-2">
         {children}
       </main>
     </div>

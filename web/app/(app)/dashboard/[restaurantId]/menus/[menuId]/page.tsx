@@ -31,6 +31,7 @@ export default async function MenuPage({
   return (
     <DashboardPageLayout
       hasBackButton
+      title={menu.name}
       headerAction={<EditMenuActions menu={menu} restaurantId={restaurantId} />}
     >
       <MenuEdition menu={menu} restaurantId={restaurantId} />

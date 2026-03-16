@@ -14,7 +14,7 @@ export default async function CategoryPage({
     <DashboardPageLayout
       hasBackButton
       headerAction={
-        <div className="flex gap-1">
+        <div className="flex gap-2 [&_button]:flex-1">
           <LinkDishSheet
             categoryId={categoryId}
             menuId={menuId}

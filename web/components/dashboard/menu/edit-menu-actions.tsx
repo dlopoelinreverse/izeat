@@ -15,15 +15,26 @@ export const EditMenuActions = ({
   restaurantId,
 }: EditMenuActionsProps) => {
   const [isNameEditing, setIsNameEditing] = useState(false);
+
   return (
-    <div className="flex justify-between items-center w-full">
-      <MenuName
-        menuName={menu.name}
-        restaurantId={restaurantId}
-        isEditing={isNameEditing}
-        setIsEditing={setIsNameEditing}
-      />
-      {!isNameEditing && <CreateMenuCategory menu={menu} restaurantId={restaurantId} />}
-    </div>
+    <>
+      {/* Desktop : nom éditable + bouton côte à côte */}
+      <div className="hidden md:flex justify-between items-center w-full gap-3">
+        <MenuName
+          menuName={menu.name}
+          restaurantId={restaurantId}
+          isEditing={isNameEditing}
+          setIsEditing={setIsNameEditing}
+        />
+        {!isNameEditing && (
+          <CreateMenuCategory menu={menu} restaurantId={restaurantId} />
+        )}
+      </div>
+
+      {/* Mobile : bouton seul, pleine largeur (le titre est déjà dans le header) */}
+      <div className="md:hidden w-full">
+        <CreateMenuCategory menu={menu} restaurantId={restaurantId} />
+      </div>
+    </>
   );
 };
