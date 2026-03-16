@@ -118,7 +118,8 @@ export const ItemSheet = ({
       toast.error(error.message || "Erreur lors de la création du plat");
     },
     update: (cache, { data }) => {
-      if (!data?.createDishAndMenuItem || !menuId || !categoryId) return;
+      if (!data?.createDishAndMenuItem || !menuId || !categoryId || !restaurantId)
+        return;
 
       const existing = cache.readQuery({
         query: GetMenuCategoriesDocument,
