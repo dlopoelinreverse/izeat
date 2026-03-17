@@ -4,14 +4,12 @@ import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { toast } from "sonner";
 import {
-  CreateOrderDocument,
   GetRestaurantTablesDocument,
   UpdateOrderStatusDocument,
 } from "@/graphql/__generated__/graphql";
 import DashboardPageLayout from "../dashboard-page-layout";
 import { Button } from "@/components/ui/button";
-import { BellRing, ChefHat, FlaskConical, Receipt } from "lucide-react";
-import { SimulatorPanel } from "./simulator-panel";
+import { BellRing, ChefHat, Receipt } from "lucide-react";
 import { OrderColumn } from "./order-column";
 import { WaiterCallSheet } from "./waiter-call-sheet";
 import { PayedOrdersSheet } from "./payed-orders-sheet";
@@ -24,9 +22,7 @@ interface ServicePageProps {
 }
 
 export function ServicePage({ restaurantId }: ServicePageProps) {
-  const [tableId, setTableId] = useState("");
   const [activeTab, setActiveTab] = useState<Status>("pending");
-  const [showSimulator, setShowSimulator] = useState(false);
   const [waiterSheetOpen, setWaiterSheetOpen] = useState(false);
   const [payedSheetOpen, setPayedSheetOpen] = useState(false);
 
@@ -60,31 +56,10 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
     (o) => o?.type !== "waiter_call" && o?.status !== "payed",
   );
 
-  const [createOrder, { loading: creating }] = useMutation(
-    CreateOrderDocument,
-    {
-      onCompleted: () => {
-        const table = tables.find((t) => t.id === tableId);
-        toast.success(`Commande envoyée — Table ${table?.number ?? tableId}`);
-        setTableId("");
-      },
-      onError: () => toast.error("Erreur lors de l'envoi de la commande"),
-    },
-  );
-
   const [updateOrderStatus, { loading: updating }] = useMutation(
     UpdateOrderStatusDocument,
     { onError: () => toast.error("Erreur lors de la mise à jour du statut") },
   );
-
-  const handlePlaceOrder = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tableId) {
-      toast.error("Veuillez sélectionner une table");
-      return;
-    }
-    createOrder({ variables: { restaurantId, tableId } });
-  };
 
   const handleAdvance = (orderId: string, status: Status) => {
     updateOrderStatus({ variables: { orderId, status } });
@@ -99,25 +74,11 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
   };
 
   const headerAction = (
-    <div className="flex items-center gap-2">
-      <span
-        className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${
-          subError
-            ? "bg-red-50 border-red-200 text-red-700"
-            : "bg-green-50 border-green-200 text-green-700"
-        }`}
-      >
-        <span
-          className={`w-1.5 h-1.5 rounded-full ${
-            subError ? "bg-red-500" : "bg-green-500 animate-pulse"
-          }`}
-        />
-        {subError ? "Déconnecté" : "En direct"}
-      </span>
+    <div className="flex w-full gap-3 md:w-auto md:gap-2">
       <Button
         variant="outline"
         size="sm"
-        className={`gap-1.5 ${waiterCallOrders.length > 0 ? "animate-pulse" : ""}`}
+        className={`flex-1 md:flex-none gap-1.5 ${waiterCallOrders.length > 0 ? "animate-pulse" : ""}`}
         onClick={() => setWaiterSheetOpen(true)}
       >
         <BellRing className="h-4 w-4" />
@@ -131,7 +92,7 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
       <Button
         variant="outline"
         size="sm"
-        className="gap-1.5"
+        className="flex-1 md:flex-none gap-1.5"
         onClick={() => setPayedSheetOpen(true)}
       >
         <Receipt className="h-4 w-4" />
@@ -142,31 +103,12 @@ export function ServicePage({ restaurantId }: ServicePageProps) {
           </span>
         )}
       </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setShowSimulator((v) => !v)}
-        className="gap-1.5"
-      >
-        <FlaskConical className="h-4 w-4" />
-        Simulateur
-      </Button>
     </div>
   );
 
   return (
     <DashboardPageLayout title="Service" headerAction={headerAction}>
       <div className="flex flex-col gap-4 p-4">
-        {showSimulator && (
-          <SimulatorPanel
-            tables={tables}
-            tableId={tableId}
-            onTableChange={setTableId}
-            onSubmit={handlePlaceOrder}
-            loading={creating}
-          />
-        )}
-
         {/* Mobile: tab strip + single column */}
         <div className="lg:hidden">
           <div className="flex overflow-x-auto border-b">
