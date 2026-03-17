@@ -159,6 +159,7 @@ class MenuResolver {
         "categories.items.dish.ingredients",
         "categories.items.dish.ingredients.ingredient",
       ],
+      order: { categories: { order: "ASC" } },
     });
 
     if (!menu) {
