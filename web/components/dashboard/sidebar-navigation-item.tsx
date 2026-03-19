@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar";
 
 export const SidebarNavigationItem = ({
   item,
@@ -16,7 +16,12 @@ export const SidebarNavigationItem = ({
   disabled?: boolean;
 }) => {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
   const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+
+  const handleClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <SidebarMenuItem>
@@ -39,7 +44,7 @@ export const SidebarNavigationItem = ({
             <span>{item.title}</span>
           </span>
         ) : (
-          <Link href={item.href}>
+          <Link href={item.href} onClick={handleClick}>
             <item.icon
               className={`size-4 ${isActive ? "text-foreground" : "text-muted-foreground"}`}
             />
