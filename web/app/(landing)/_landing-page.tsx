@@ -30,10 +30,10 @@ export default function LandingPage() {
               izEat
             </span>
           </div>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {!isPending && session?.user ? (
               <>
-                <Link href={`${APP_URL}/dashboard`}>
+                <Link href={`${APP_URL}/dashboard`} className="hidden sm:block">
                   <button className="px-6 py-2 text-slate-700 dark:text-slate-200 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium">
                     Mon Dashboard
                   </button>
@@ -44,20 +44,20 @@ export default function LandingPage() {
                     await authClient.signOut();
                     window.location.reload();
                   }}
-                  className="px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 font-medium"
+                  className="px-4 sm:px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 font-medium"
                 >
                   Déconnexion
                 </button>
               </>
             ) : (
               <>
-                <Link href={`${AUTH_URL}/sign-in`}>
+                <Link href={`${AUTH_URL}/sign-in`} className="hidden sm:block">
                   <button className="px-6 py-2 text-slate-700 dark:text-slate-200 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium">
                     Connexion
                   </button>
                 </Link>
                 <Link href={`${AUTH_URL}/sign-up`}>
-                  <button className="px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 font-medium">
+                  <button className="px-4 sm:px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-full hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 font-medium">
                     Commencer
                   </button>
                 </Link>
