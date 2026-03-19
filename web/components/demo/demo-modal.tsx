@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
@@ -62,11 +63,14 @@ interface DemoModalProps {
 export function DemoModal({ open, onClose }: DemoModalProps) {
   if (!isDemoMode) return null;
 
-  const [createDemo, { loading }] = useMutation(CreateDemoAccountDocument, {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [createDemo] = useMutation(CreateDemoAccountDocument, {
     onCompleted: (data) => {
       window.location.href = `${APP_URL}/dashboard/${data.createDemoAccount.restaurantId}/service`;
     },
     onError: (err) => {
+      setIsSubmitting(false);
       toast.error(err.message ?? "Erreur lors de la création de la démo");
     },
   });
@@ -74,6 +78,7 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
   const form = useForm({
     defaultValues: { restaurantName: "" },
     onSubmit: async ({ value }) => {
+      setIsSubmitting(true);
       const slug = value.restaurantName
         .toLowerCase()
         .normalize("NFD")
@@ -91,6 +96,7 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
       });
 
       if (error) {
+        setIsSubmitting(false);
         toast.error(error.message ?? "Impossible de créer le compte démo");
         return;
       }
@@ -100,7 +106,7 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
   });
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o) => !o && !isSubmitting && onClose()}>
       <DialogContent className="sm:max-w-[440px]">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-1">
@@ -161,16 +167,16 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
               variant="outline"
               onClick={onClose}
               className="flex-1 h-11"
-              disabled={loading}
+              disabled={isSubmitting}
             >
               Annuler
             </Button>
             <Button
               type="submit"
               className="flex-1 h-11 font-semibold gap-2"
-              disabled={loading}
+              disabled={isSubmitting}
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Génération...
