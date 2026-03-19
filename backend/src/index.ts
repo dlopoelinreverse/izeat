@@ -34,6 +34,7 @@ schema.then(async (builtSchema) => {
 
   const server = new ApolloServer({
     schema: builtSchema,
+    introspection: true,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       {
