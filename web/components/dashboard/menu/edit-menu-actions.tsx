@@ -18,9 +18,10 @@ export const EditMenuActions = ({
 
   return (
     <>
-      {/* Desktop : nom éditable + bouton côte à côte */}
+      {/* Desktop : nom éditable + bouton catégorie côte à côte */}
       <div className="hidden md:flex justify-between items-center w-full gap-3">
         <MenuName
+          menuId={menu.id}
           menuName={menu.name}
           restaurantId={restaurantId}
           isEditing={isNameEditing}
@@ -31,7 +32,7 @@ export const EditMenuActions = ({
         )}
       </div>
 
-      {/* Mobile : bouton seul, pleine largeur (le titre est déjà dans le header) */}
+      {/* Mobile : bouton catégorie seul en sub-header */}
       <div className="md:hidden w-full">
         <CreateMenuCategory menu={menu} restaurantId={restaurantId} />
       </div>

@@ -1,0 +1,6 @@
+mutation RenameMenu($menuId: String!, $name: String!) {
+  renameMenu(menuId: $menuId, name: $name) {
+    id
+    name
+  }
+}

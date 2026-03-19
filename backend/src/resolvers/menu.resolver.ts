@@ -65,6 +65,36 @@ class MenuResolver {
   }
 
   @Authorized()
+  @Mutation(() => Menu)
+  async renameMenu(
+    @Arg("menuId", () => String) menuId: string,
+    @Arg("name", () => String) name: string,
+    @Ctx() ctx: ContextType,
+  ) {
+    const user = ctx.currentUser;
+    if (!user) {
+      throw new Error("Vous n'êtes pas connecté");
+    }
+
+    const menu = await Menu.findOne({
+      where: { id: menuId, restaurant: { owner: { id: user.id } } },
+    });
+
+    if (!menu) {
+      throw new Error("Le menu n'a pas été trouvé");
+    }
+
+    if (!name.trim()) {
+      throw new Error("Le nom ne peut pas être vide");
+    }
+
+    menu.name = name.trim();
+    await menu.save();
+
+    return menu;
+  }
+
+  @Authorized()
   @Query(() => [Menu])
   async getMenus(
     @Arg("restaurantId", () => String) restaurantId: string,

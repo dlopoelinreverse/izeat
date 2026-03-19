@@ -14,11 +14,13 @@ import { useOnboarding } from "@/contexts/onboarding-context";
 export default function DashboardPageLayout({
   children,
   title,
+  titleNode,
   headerAction,
   hasBackButton,
 }: {
   children: ReactNode;
   title?: string;
+  titleNode?: ReactNode;
   headerAction?: ReactNode;
   hasBackButton?: boolean;
 }) {
@@ -34,9 +36,9 @@ export default function DashboardPageLayout({
             <BackButton />
           )}
 
-          {title && (
+          {titleNode ?? (title && (
             <h1 className="text-lg font-semibold flex-1 truncate">{title}</h1>
-          )}
+          ))}
 
           {isDemo && (
             <Tooltip>
